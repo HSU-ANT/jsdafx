@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Quantization, Dithering, and Noise Shaping</title>
+  <script src="https://unpkg.com/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>
 </head>
 <body>
   <div>
@@ -269,8 +270,8 @@ var makeFunctionGraph = function(axisid, funcid) {
 var graph = makeFunctionGraph("axiscanvas", "funccanvas");
 graph.ylim(-130, 0);
 
-var setupAudio = function(processor, onended) {
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+var setupAudio = function(oninit, onended) {
+  var audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint: "playback"});
 
   var source;
   var gain;
@@ -280,10 +281,23 @@ var setupAudio = function(processor, onended) {
   var timeDomainData = new Float32Array(analyzer.fftSize);
   var frequencyDomainData = new Float32Array(analyzer.frequencyBinCount);
   analyzer.connect(audioCtx.destination);
-  var proc = audioCtx.createScriptProcessor(1024, 1, 1);
-  proc.onaudioprocess = function(event) {
-    processor(event.inputBuffer, event.outputBuffer);
-  };
+  var proc;
+
+  audioCtx.audioWorklet.addModule('qdsproc.js').then(() => {
+    proc = new AudioWorkletNode(audioCtx, 'qds-processor');
+
+    for (var p of ['w', "dither", 'dithertype', 'noiseshaping', 'noiseshapingfilter']) {
+      (function(p) {
+        Object.defineProperty(proc, p, {
+          set: function(val) {
+            proc.port.postMessage({param: p, value: val});
+          }
+        });
+      })(p);
+    }
+
+    oninit();
+  });
 
   var start = function(src) {
     if (source !== undefined) {
@@ -350,92 +364,9 @@ var setupAudio = function(processor, onended) {
     },
     getTimeDomainData: getTimeDomainData,
     getFrequencyDomainData: getFrequencyDomainData,
+    proc: function() { return proc; },
   }
 };
-
-var qdsProc = function () {
-  var qt = Math.pow(2, 1-4);
-  var withDither = false;
-  var ditherstate = 0.0;
-  var withNoiseShaping = true;
-  var h = Float32Array.from([1]);
-  var nsState = new Float32Array(1);
-  function rectDither() {
-    return Math.random() - 0.5;
-  }
-  function triDither() {
-    return Math.random() + Math.random() - 1.0;
-  }
-  function hpDither() {
-    var rnd = Math.random() - 0.5;
-    var d = rnd - ditherstate;
-    ditherstate = rnd;
-    return d;
-  }
-  var dithergen = rectDither;
-  var procFunc = function(inputBuffer, outputBuffer) {
-    for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
-      var inputData = inputBuffer.getChannelData(channel);
-      var outputData = outputBuffer.getChannelData(channel);
-      for (var sample = 0; sample < inputBuffer.length; sample++) {
-        var input = inputData[sample];
-        if (withNoiseShaping) {
-          for (var i = 0; i < h.length; i++) {
-            input -= h[i] * nsState[i];
-          }
-        }
-        var d_rand = 0.0;
-        if(withDither) {
-          d_rand = dithergen();
-        }
-        var xr = input;
-        var tmpOutput = qt * Math.round(xr/qt + d_rand);
-        for (var i = h.length-1; i >= 0; i--) {
-          nsState[i] = nsState[i-1];
-        }
-        nsState[0] = tmpOutput - input;
-        outputData[sample] = tmpOutput;
-      }
-    }
-  };
-  return {
-    procFunc: procFunc,
-    wordlength: function (w) {
-      qt = Math.pow(2, 1-w);
-    },
-    dither: function(b) {
-      withDither = b;
-    },
-    dithertype: function (t) {
-      if (t == "rect") {
-        dithergen = rectDither;
-      } else if (t == "tri") {
-        dithergen = triDither;
-      } else if (t == "hp") {
-        dithergen = hpDither;
-        ditherstate = 0.0;
-      }
-    },
-    noiseshaping: function(b) {
-      withNoiseShaping = b;
-    },
-    noiseshapingfilter: function(order) {
-      if (order==1) {
-        h = Float32Array.from([1]);
-      } else if (order==2) {
-        h = Float32Array.from([2, -1]);
-      } else if (order==3) {
-        h = Float32Array.from([1.623, -0.982, 0.109]);
-      } else if (order==5) {
-        h = Float32Array.from([2.033, -2.165, 1.959, -1.590, 0.6149]);
-      } else if (order==9) {
-        h = Float32Array.from([2.412, -3.370, 3.937, -4.174, 3.353, -2.205, 1.281, -0.569, 0.0847]);
-      }
-      nsState = new Float32Array(h.length);
-    }
-  }
-}();
-
 
 function updatePlayButtonStates() {
   if (audioProc.isPlaying()) {
@@ -453,7 +384,15 @@ function updatePlayButtonStates() {
   }
 }
 
-var audioProc = setupAudio(qdsProc.procFunc, updatePlayButtonStates);
+function initproc() {
+  audioProc.proc().w = 16;
+  audioProc.proc().dither = true;
+  audioProc.proc().dithertype = "rect";
+  audioProc.proc().noiseshaping = true;
+  audioProc.proc().noiseshapingfilter = 1;
+}
+
+var audioProc = setupAudio(initproc, updatePlayButtonStates);
 
 var audio2data;
 var audioFileData;
@@ -563,9 +502,8 @@ cbwave.onchange = function (event) {
   }
 };
 document.getElementById("wordlength").value = 16;
-qdsProc.wordlength(16);
 document.getElementById("wordlength").onchange = function (event) {
-  qdsProc.wordlength(event.target.value);
+  audioProc.proc().w = event.target.value;
 };
 function updateDiagram() {
   if (document.getElementById("dither").checked) {
@@ -583,26 +521,22 @@ function updateDiagram() {
   }
 }
 document.getElementById("dither").checked = true;
-qdsProc.dither(true);
 document.getElementById("dither").onchange = function (event) {
-  qdsProc.dither(event.target.checked);
+  audioProc.proc().dither = event.target.checked;
   updateDiagram();
 };
 document.getElementById("noiseshaping").checked = true;
-qdsProc.noiseshaping(true);
 document.getElementById("noiseshaping").onchange = function (event) {
-  qdsProc.noiseshaping(event.target.checked);
+  audioProc.proc().noiseshaping = event.target.checked;
   updateDiagram();
 };
 document.getElementById("dithertype").value = "rect";
-qdsProc.dithertype("rect");
 document.getElementById("dithertype").onchange = function (event) {
-  qdsProc.dithertype(event.target.value);
+  audioProc.proc().dithertype = event.target.value;
 };
 document.getElementById("noiseshapingfilter").value = 1;
-qdsProc.noiseshapingfilter(1);
 document.getElementById("noiseshapingfilter").onchange = function (event) {
-  qdsProc.noiseshapingfilter(event.target.value);
+  audioProc.proc().noiseshapingfilter = event.target.value;
 };
 </script>
 </body>
