@@ -9,13 +9,13 @@
   <div>
     <table border="0" style="width: 500px;">
       <tr>
-        <td width="33%"><input type="button" value="Audio 1" id="audio1" style="width: 100%;" /></td>
-        <td width="33%"><input type="button" value="Audio 2" id="audio2" style="width: 100%;" /></td>
-        <td width="33%"><input type="button" value="Start" id="start" style="width: 100%;" /></td>
+        <td width="33%"><input type="button" value="Audio 1" id="audio1" style="width: 100%;" disabled="true" /></td>
+        <td width="33%"><input type="button" value="Audio 2" id="audio2" style="width: 100%;" disabled="true" /></td>
+        <td width="33%"><input type="button" value="Start" id="start" style="width: 100%;" disabled="true" /></td>
       </tr>
       <tr>
         <td colspan="2"><input type="file" id="file-input" accept="audio/*" style="width: 100%;" /></td>
-        <td><input type="button" value="Stop" id="stop" style="width: 100%;" /></td>
+        <td><input type="button" value="Stop" id="stop" style="width: 100%;"  disabled="true" /></td>
       </tr>
     </table>
   </div>
@@ -270,7 +270,7 @@ var makeFunctionGraph = function(axisid, funcid) {
 var graph = makeFunctionGraph("axiscanvas", "funccanvas");
 graph.ylim(-130, 0);
 
-var setupAudio = function(oninit, onended) {
+var setupAudio = function() {
   var audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint: "playback"});
 
   var source;
@@ -281,10 +281,10 @@ var setupAudio = function(oninit, onended) {
   var timeDomainData = new Float32Array(analyzer.fftSize);
   var frequencyDomainData = new Float32Array(analyzer.frequencyBinCount);
   analyzer.connect(audioCtx.destination);
-  var proc;
+  var onended = function() {};
 
-  audioCtx.audioWorklet.addModule('qdsproc.js').then(() => {
-    proc = new AudioWorkletNode(audioCtx, 'qds-processor');
+  return audioCtx.audioWorklet.addModule('qdsproc.js').then(() => {
+    var proc = new AudioWorkletNode(audioCtx, 'qds-processor');
 
     for (var p of ['w', "dither", 'dithertype', 'noiseshaping', 'noiseshapingfilter']) {
       (function(p) {
@@ -296,248 +296,234 @@ var setupAudio = function(oninit, onended) {
       })(p);
     }
 
-    oninit();
-  });
-
-  var start = function(src) {
-    if (source !== undefined) {
-      source.disconnect();
-      source = undefined;
-    }
-    if (gain !== undefined) {
-      gain.disconnect();
-      gain = undefined;
-    }
-    audioCtx.resume();
-    if (src instanceof AudioBuffer) {
-      source = audioCtx.createBufferSource();
-      source.buffer = src;
-      source.onended = function() {
-        stop();
-        onended();
+    var start = function(src) {
+      if (source !== undefined) {
+        source.disconnect();
+        source = undefined;
       }
-      source.start();
-      source.connect(proc);
-    } else {
-      source = audioCtx.createOscillator();
-      source.type = "sine";
-      source.start();
-      gain = audioCtx.createGain();
-      gain.gain.value = 0.5;
-      source.connect(gain);
-      gain.connect(proc);
+      if (gain !== undefined) {
+        gain.disconnect();
+        gain = undefined;
+      }
+      audioCtx.resume();
+      if (src instanceof AudioBuffer) {
+        source = audioCtx.createBufferSource();
+        source.buffer = src;
+        source.onended = function() {
+          stop();
+          onended();
+        }
+        source.start();
+        source.connect(proc);
+      } else {
+        source = audioCtx.createOscillator();
+        source.type = "sine";
+        source.start();
+        gain = audioCtx.createGain();
+        gain.gain.value = 0.5;
+        source.connect(gain);
+        gain.connect(proc);
+      }
+      proc.connect(analyzer);
     }
-    proc.connect(analyzer);
-  }
 
-  var stop = function() {
-    if (source !== undefined) {
-      source.disconnect();
-      source = undefined;
+    var stop = function() {
+      if (source !== undefined) {
+        source.disconnect();
+        source = undefined;
+      }
+      if (gain !== undefined) {
+        gain.disconnect();
+        gain = undefined;
+      }
+      proc.disconnect();
+      audioCtx.suspend();
     }
-    if (gain !== undefined) {
-      gain.disconnect();
-      gain = undefined;
+
+    var getTimeDomainData = function() {
+      analyzer.getFloatTimeDomainData(timeDomainData);
+      return timeDomainData;
     }
-    proc.disconnect();
-    audioCtx.suspend();
-  }
 
-  var getTimeDomainData = function() {
-    analyzer.getFloatTimeDomainData(timeDomainData);
-    return timeDomainData;
-  }
+    var getFrequencyDomainData = function() {
+      analyzer.getFloatFrequencyData(frequencyDomainData);
+      return frequencyDomainData;
+    }
 
-  var getFrequencyDomainData = function() {
-    analyzer.getFloatFrequencyData(frequencyDomainData);
-    return frequencyDomainData;
-  }
-
-  return {
-    start: start,
-    stop: stop,
-    isPlaying: function () {
-      return source !== undefined;
-    },
-    createBuffer: function(contents, onSuccess) {
-      audioCtx.decodeAudioData(contents, onSuccess);
-    },
-    getTimeDomainData: getTimeDomainData,
-    getFrequencyDomainData: getFrequencyDomainData,
-    proc: function() { return proc; },
-  }
+    return {
+      start: start,
+      stop: stop,
+      isPlaying: function () {
+        return source !== undefined;
+      },
+      createBuffer: function(contents, onSuccess) {
+        audioCtx.decodeAudioData(contents, onSuccess);
+      },
+      set onended(handler) { onended = handler; },
+      getTimeDomainData: getTimeDomainData,
+      getFrequencyDomainData: getFrequencyDomainData,
+      proc: proc,
+    };
+  });
 };
 
-function updatePlayButtonStates() {
-  if (audioProc.isPlaying()) {
-    document.getElementById("audio1").disabled = true;
-    document.getElementById("audio2").disabled = true;
-    document.getElementById("start").disabled = true;
-    document.getElementById("file-input").disabled = true;
-    document.getElementById("stop").disabled = false;
-  } else {
-    document.getElementById("audio1").disabled = audio2data === undefined;
-    document.getElementById("audio2").disabled = false;
-    document.getElementById("start").disabled = audioFileData === undefined;
-    document.getElementById("file-input").disabled = false;
-    document.getElementById("stop").disabled = true;
+var httpget = (url) => new Promise(function (resolve) {
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.responseType = 'arraybuffer';
+  request.onload = function() {
+    resolve(request.response);
   }
-}
+  request.send();
+});
 
-function initproc() {
-  audioProc.proc().w = 16;
-  audioProc.proc().dither = true;
-  audioProc.proc().dithertype = "rect";
-  audioProc.proc().noiseshaping = true;
-  audioProc.proc().noiseshapingfilter = 1;
-}
+Promise.all([setupAudio(), httpget('audio/unfinite_function.mp3')]).then(function([audioProc, audio1Binary]) {
+  audioProc.proc.w = 16;
+  audioProc.proc.dither = true;
+  audioProc.proc.dithertype = "rect";
+  audioProc.proc.noiseshaping = true;
+  audioProc.proc.noiseshapingfilter = 1;
 
-var audioProc = setupAudio(initproc, updatePlayButtonStates);
+  function updatePlayButtonStates() {
+    if (audioProc.isPlaying()) {
+      document.getElementById("audio1").disabled = true;
+      document.getElementById("audio2").disabled = true;
+      document.getElementById("start").disabled = true;
+      document.getElementById("file-input").disabled = true;
+      document.getElementById("stop").disabled = false;
+    } else {
+      document.getElementById("audio1").disabled = false;
+      document.getElementById("audio2").disabled = audio2data === undefined;
+      document.getElementById("start").disabled = audioFileData === undefined;
+      document.getElementById("file-input").disabled = false;
+      document.getElementById("stop").disabled = true;
+    }
+  }
 
-var audio2data;
-var audioFileData;
-var request = new XMLHttpRequest();
-request.open('GET', 'audio/unfinite_function.mp3', true);
-request.responseType = 'arraybuffer';
-request.onload = function() {
-  audioProc.createBuffer(request.response, function(buf) {
+  var audio2data;
+  var audioFileData;
+  audioProc.createBuffer(audio1Binary, function(buf) {
     audio2data = buf;
     updatePlayButtonStates();
   });
-}
-request.send();
 
-var frequencies = new Float32Array(audioProc.getFrequencyDomainData());
-for (var i = 0; i < frequencies.length; i++) {
-  frequencies[i] = i * 22050 / (frequencies.length-1);
-}
-var timeindices = new Float32Array(audioProc.getTimeDomainData());
-for (var i = 0; i < timeindices.length; i++) {
-  timeindices[i] = i;
-}
-var drawWave = false;
-function drawSignal() {
-  requestAnimationFrame(drawSignal);
-  if (drawWave) {
-    var data = audioProc.getTimeDomainData();
-    graph.drawData(timeindices, data);
-  } else {
-    var data = audioProc.getFrequencyDomainData();
-    graph.drawData(frequencies, data);
-  }
-}
-drawSignal();
+  audioProc.onended = updatePlayButtonStates;
 
-function updatePlayButtonStates() {
-  if (audioProc.isPlaying()) {
-    document.getElementById("audio1").disabled = true;
-    document.getElementById("audio2").disabled = true;
-    document.getElementById("start").disabled = true;
-    document.getElementById("file-input").disabled = true;
-    document.getElementById("stop").disabled = false;
-  } else {
-    document.getElementById("audio1").disabled = false;
-    document.getElementById("audio2").disabled = audio2data === undefined;
-    document.getElementById("start").disabled = audioFileData === undefined;
-    document.getElementById("file-input").disabled = false;
-    document.getElementById("stop").disabled = true;
+  var frequencies = new Float32Array(audioProc.getFrequencyDomainData());
+  for (var i = 0; i < frequencies.length; i++) {
+    frequencies[i] = i * 22050 / (frequencies.length-1);
   }
-}
+  var timeindices = new Float32Array(audioProc.getTimeDomainData());
+  for (var i = 0; i < timeindices.length; i++) {
+    timeindices[i] = i;
+  }
+  var drawWave = false;
+  function drawSignal() {
+    requestAnimationFrame(drawSignal);
+    if (drawWave) {
+      var data = audioProc.getTimeDomainData();
+      graph.drawData(timeindices, data);
+    } else {
+      var data = audioProc.getFrequencyDomainData();
+      graph.drawData(frequencies, data);
+    }
+  }
+  drawSignal();
 
-document.getElementById("audio1").onclick = function(event) {
-  audioProc.start();
-  updatePlayButtonStates();
-}
-document.getElementById("audio2").onclick = function(event) {
-  audioProc.start(audio2data);
-  updatePlayButtonStates();
-}
-document.getElementById("start").onclick = function(event) {
-  audioProc.start(audioFileData);
-  updatePlayButtonStates();
-}
-document.getElementById("stop").onclick = function(event) {
-  audioProc.stop();
-  updatePlayButtonStates();
-}
-document.getElementById('file-input').addEventListener('change', function (e) {
-  var file = e.target.files[0];
-  if (!file) {
-    return;
+  document.getElementById("audio1").onclick = function(event) {
+    audioProc.start();
+    updatePlayButtonStates();
   }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var contents = e.target.result;
-    audioProc.createBuffer(contents, function(buf) {
-      audioFileData = buf;
-      audioProc.start(audioFileData);
-      updatePlayButtonStates();
-    });
+  document.getElementById("audio2").onclick = function(event) {
+    audioProc.start(audio2data);
+    updatePlayButtonStates();
+  }
+  document.getElementById("start").onclick = function(event) {
+    audioProc.start(audioFileData);
+    updatePlayButtonStates();
+  }
+  document.getElementById("stop").onclick = function(event) {
+    audioProc.stop();
+    updatePlayButtonStates();
+  }
+  document.getElementById('file-input').addEventListener('change', function (e) {
+    var file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var contents = e.target.result;
+      audioProc.createBuffer(contents, function(buf) {
+        audioFileData = buf;
+        audioProc.start(audioFileData);
+        updatePlayButtonStates();
+      });
+    };
+    reader.readAsArrayBuffer(file);}, false);
+
+  updatePlayButtonStates();
+
+  var cblinear = document.getElementById("linear");
+  cblinear.checked = false;
+  graph.logx(true);
+  cblinear.onchange = function (event) {
+    if (!document.getElementById("wave").checked) {
+      graph.logx(!event.target.checked);
+    }
   };
-  reader.readAsArrayBuffer(file);}, false);
-
-updatePlayButtonStates();
-
-
-var cblinear = document.getElementById("linear");
-cblinear.checked = false;
-graph.logx(true);
-cblinear.onchange = function (event) {
-  if (!document.getElementById("wave").checked) {
-    graph.logx(!event.target.checked);
-  }
-};
-var cbwave = document.getElementById("wave");
-cbwave.checked = false;
-cbwave.onchange = function (event) {
-  drawWave = event.target.checked;
-  if (drawWave) {
-    graph.logx(false);
-    graph.ylim(-1, 1);
-    graph.xlim(0, timeindices.length-1);
-  } else {
-    graph.xlim(50, 20000);
-    graph.logx(!cblinear.checked);
-    graph.ylim(-130, 0);
-  }
-};
-document.getElementById("wordlength").value = 16;
-document.getElementById("wordlength").onchange = function (event) {
-  audioProc.proc().w = event.target.value;
-};
-function updateDiagram() {
-  if (document.getElementById("dither").checked) {
-    if (document.getElementById("noiseshaping").checked) {
-      document.getElementById("diagram").src = "images/qds/ns5.png";
+  var cbwave = document.getElementById("wave");
+  cbwave.checked = false;
+  cbwave.onchange = function (event) {
+    drawWave = event.target.checked;
+    if (drawWave) {
+      graph.logx(false);
+      graph.ylim(-1, 1);
+      graph.xlim(0, timeindices.length-1);
     } else {
-      document.getElementById("diagram").src = "images/qds/ns5b.png";
+      graph.xlim(50, 20000);
+      graph.logx(!cblinear.checked);
+      graph.ylim(-130, 0);
     }
-  } else {
-    if (document.getElementById("noiseshaping").checked) {
-      document.getElementById("diagram").src = "images/qds/ns5c.png";
+  };
+  document.getElementById("wordlength").value = 16;
+  document.getElementById("wordlength").onchange = function (event) {
+    audioProc.proc.w = event.target.value;
+  };
+  function updateDiagram() {
+    if (document.getElementById("dither").checked) {
+      if (document.getElementById("noiseshaping").checked) {
+        document.getElementById("diagram").src = "images/qds/ns5.png";
+      } else {
+        document.getElementById("diagram").src = "images/qds/ns5b.png";
+      }
     } else {
-      document.getElementById("diagram").src = "images/qds/ns5d.png";
+      if (document.getElementById("noiseshaping").checked) {
+        document.getElementById("diagram").src = "images/qds/ns5c.png";
+      } else {
+        document.getElementById("diagram").src = "images/qds/ns5d.png";
+      }
     }
   }
-}
-document.getElementById("dither").checked = true;
-document.getElementById("dither").onchange = function (event) {
-  audioProc.proc().dither = event.target.checked;
-  updateDiagram();
-};
-document.getElementById("noiseshaping").checked = true;
-document.getElementById("noiseshaping").onchange = function (event) {
-  audioProc.proc().noiseshaping = event.target.checked;
-  updateDiagram();
-};
-document.getElementById("dithertype").value = "rect";
-document.getElementById("dithertype").onchange = function (event) {
-  audioProc.proc().dithertype = event.target.value;
-};
-document.getElementById("noiseshapingfilter").value = 1;
-document.getElementById("noiseshapingfilter").onchange = function (event) {
-  audioProc.proc().noiseshapingfilter = event.target.value;
-};
+  document.getElementById("dither").checked = true;
+  document.getElementById("dither").onchange = function (event) {
+    audioProc.proc.dither = event.target.checked;
+    updateDiagram();
+  };
+  document.getElementById("noiseshaping").checked = true;
+  document.getElementById("noiseshaping").onchange = function (event) {
+    audioProc.proc.noiseshaping = event.target.checked;
+    updateDiagram();
+  };
+  document.getElementById("dithertype").value = "rect";
+  document.getElementById("dithertype").onchange = function (event) {
+    audioProc.proc.dithertype = event.target.value;
+  };
+  document.getElementById("noiseshapingfilter").value = 1;
+  document.getElementById("noiseshapingfilter").onchange = function (event) {
+    audioProc.proc.noiseshapingfilter = event.target.value;
+  };
+});
 </script>
 </body>
 </html>
