@@ -270,7 +270,17 @@ var makeFunctionGraph = function(axisid, funcid) {
 var graph = makeFunctionGraph("axiscanvas", "funccanvas");
 graph.ylim(-130, 0);
 
-var setupAudio = function() {
+var receiveMessage = (port) => {
+  return new Promise(resolve => {
+    var oldhandler = port.onmessage;
+    port.onmessage = (event) => {
+      port.onmessage = oldhandler;
+      resolve(event.data);
+    };
+  });
+};
+
+var setupAudio = function(procurl, procid) {
   var audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint: "playback"});
 
   var source;
@@ -283,19 +293,25 @@ var setupAudio = function() {
   analyzer.connect(audioCtx.destination);
   var onended = function() {};
 
-  return audioCtx.audioWorklet.addModule('qdsproc.js').then(() => {
-    var proc = new AudioWorkletNode(audioCtx, 'qds-processor');
+  return audioCtx.audioWorklet.addModule(procurl).then(() => {
+    var proc = new AudioWorkletNode(audioCtx, procid);
 
-    for (var p of ['w', "dither", 'dithertype', 'noiseshaping', 'noiseshapingfilter']) {
-      (function(p) {
-        Object.defineProperty(proc, p, {
-          set: function(val) {
-            proc.port.postMessage({param: p, value: val});
-          }
-        });
-      })(p);
-    }
-
+    proc.port.postMessage({action: 'list-properties'});
+    return receiveMessage(proc.port).then(data => {
+      if (data.response == 'list-properties') {
+        for (var p of data.properties) {
+          (function(p) {
+            Object.defineProperty(proc, p, {
+              set: function(val) {
+                proc.port.postMessage({action: 'set-property', param: p, value: val});
+              }
+            });
+          })(p);
+        }
+      }
+      return proc;
+    });
+  }).then(proc => {
     var start = function(src) {
       if (source !== undefined) {
         source.disconnect();
@@ -377,7 +393,7 @@ var httpget = (url) => new Promise(function (resolve) {
   request.send();
 });
 
-Promise.all([setupAudio(), httpget('audio/unfinite_function.mp3')]).then(function([audioProc, audio1Binary]) {
+Promise.all([setupAudio('qdsproc.js', 'qds-processor'), httpget('audio/unfinite_function.mp3')]).then(function([audioProc, audio1Binary]) {
   audioProc.proc.w = 16;
   audioProc.proc.dither = true;
   audioProc.proc.dithertype = "rect";
