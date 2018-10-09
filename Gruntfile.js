@@ -24,6 +24,13 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/qdsproc.js': ['qdsproc.js'],
+          'dist/common.js': [
+            'common-polyfill.js',
+            'node_modules/audioworklet-polyfill/dist/audioworklet-polyfill.js',
+            'common-audio.js',
+            'graph.js',
+          ],
+          'dist/qds.js': ['qds.js'],
         },
       },
     },
