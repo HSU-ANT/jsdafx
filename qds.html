@@ -288,6 +288,7 @@ var setupAudio = function(procurl, procid) {
   var analyzer = audioCtx.createAnalyser();
   analyzer.smoothingTimeConstant = 0.3;
   analyzer.minDecibels = -130;
+  analyzer.fftSize = 1024;
   var timeDomainData = new Float32Array(analyzer.fftSize);
   var frequencyDomainData = new Float32Array(analyzer.frequencyBinCount);
   analyzer.connect(audioCtx.destination);
@@ -435,7 +436,7 @@ Promise.all([setupAudio('qdsproc.js', 'qds-processor'), httpget('audio/unfinite_
   }
   var drawWave = false;
   function drawSignal() {
-    requestAnimationFrame(drawSignal);
+    setTimeout(() => requestAnimationFrame(drawSignal), 40);
     if (drawWave) {
       var data = audioProc.getTimeDomainData();
       graph.drawData(timeindices, data);
