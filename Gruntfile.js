@@ -1,5 +1,7 @@
 module.exports = function(grunt) {
 
+  var resolve = require('rollup-plugin-node-resolve');
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     processhtml: {
@@ -20,13 +22,23 @@ module.exports = function(grunt) {
         },
       },
     },
+    rollup: {
+      dist: {
+        options: {
+          plugins: [ resolve() ],
+        },
+        files: {
+          'deps_bundle.js': ['deps.js'],
+        },
+      },
+    },
     uglify: {
       dist: {
         files: {
           'dist/qdsproc.js': ['qdsproc.js'],
           'dist/common.js': [
             'common-polyfill.js',
-            'node_modules/audioworklet-polyfill/dist/audioworklet-polyfill.js',
+            'deps_bundle.js',
             'common-audio.js',
             'graph.js',
           ],
@@ -47,10 +59,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-contrib-uglify-es');
   grunt.loadNpmTasks('grunt-processhtml');
+  grunt.loadNpmTasks('grunt-rollup');
 
   grunt.registerTask('default', [
     'processhtml',
     'htmlmin',
+    'rollup',
     'uglify',
     'copy',
   ]);

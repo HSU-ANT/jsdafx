@@ -1,0 +1,1 @@
+import 'audioworklet-polyfill';
