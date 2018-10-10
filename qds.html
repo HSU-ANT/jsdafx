@@ -13,6 +13,16 @@
 </head>
 <body>
   <!-- build:include playback_control_buttons.html -->
+  <script id="_playback_controls">
+  window.fetch("playback_control_buttons.html").then(
+    (response) => response.text()
+  ).then((txt) => {
+    ctrls = document.createElement('template');
+    ctrls.innerHTML = txt;
+    scriptElem = document.getElementById("_playback_controls");
+    scriptElem.parentElement.replaceChild(ctrls.content, scriptElem);
+  });
+  </script>
   <!-- /build -->
   <div id="graph" style="width: 500px; height: 200px;">
     <canvas id="axiscanvas" width="500" height="200"
