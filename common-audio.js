@@ -114,7 +114,7 @@ var setupAudio = function(procurl, procid) {
   });
 };
 
-function setupPlayerControls(audioProc, bindata1, bindata2) {
+function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
   function updatePlayButtonStates() {
     if (audioProc.isPlaying()) {
       document.getElementById("audio1").disabled = true;
@@ -123,8 +123,8 @@ function setupPlayerControls(audioProc, bindata1, bindata2) {
       document.getElementById("file-input").disabled = true;
       document.getElementById("stop").disabled = false;
     } else {
-      document.getElementById("audio1").disabled =  bindata1 !== undefined && audio1data === undefined;
-      document.getElementById("audio2").disabled = bindata2 !== undefined && audio2data === undefined;
+      document.getElementById("audio1").disabled =  bindata1Promise !== undefined && audio1data === undefined;
+      document.getElementById("audio2").disabled = bindata2Promise !== undefined && audio2data === undefined;
       document.getElementById("start").disabled = audioFileData === undefined;
       document.getElementById("file-input").disabled = false;
       document.getElementById("stop").disabled = true;
@@ -134,16 +134,20 @@ function setupPlayerControls(audioProc, bindata1, bindata2) {
   var audio1data;
   var audio2data;
   var audioFileData;
-  if (bindata1) {
-    audioProc.createBuffer(bindata1, function(buf) {
-      audio1data = buf;
-      updatePlayButtonStates();
+  if (bindata1Promise) {
+    bindata1Promise.then((bindata1) => {
+      audioProc.createBuffer(bindata1, function(buf) {
+        audio1data = buf;
+        updatePlayButtonStates();
+      });
     });
   }
-  if (bindata2) {
-    audioProc.createBuffer(bindata2, function(buf) {
-      audio2data = buf;
-      updatePlayButtonStates();
+  if (bindata2Promise) {
+    bindata2Promise.then((bindata2) => {
+      audioProc.createBuffer(bindata2, function(buf) {
+        audio2data = buf;
+        updatePlayButtonStates();
+      });
     });
   }
 

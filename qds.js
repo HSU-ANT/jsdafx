@@ -6,7 +6,7 @@ window.onload = () => {
 
   Promise.all([
     setupAudio('qdsproc.js', 'qds-processor'),
-    window.fetch('audio/unfinite_function.mp3').then(response => response.arrayBuffer())
+    window.fetch('audio/unfinite_function.mp3')
   ]).then(function([audioProc, audio2Binary]) {
     audioProc.proc.w = 16;
     audioProc.proc.dither = true;
@@ -14,7 +14,7 @@ window.onload = () => {
     audioProc.proc.noiseshaping = true;
     audioProc.proc.noiseshapingfilter = 1;
 
-    setupPlayerControls(audioProc, undefined, audio2Binary);
+    setupPlayerControls(audioProc, undefined, audio2Binary.arrayBuffer());
 
     var frequencies = new Float32Array(audioProc.getFrequencyDomainData());
     for (var i = 0; i < frequencies.length; i++) {
