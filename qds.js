@@ -4,17 +4,10 @@ window.onload = () => {
   var graph = makeFunctionGraph("axiscanvas", "funccanvas");
   graph.ylim(-130, 0);
 
-  var httpget = (url) => new Promise(function (resolve) {
-    var request = new XMLHttpRequest();
-    request.open('GET', url, true);
-    request.responseType = 'arraybuffer';
-    request.onload = function() {
-      resolve(request.response);
-    }
-    request.send();
-  });
-
-  Promise.all([setupAudio('qdsproc.js', 'qds-processor'), httpget('audio/unfinite_function.mp3')]).then(function([audioProc, audio2Binary]) {
+  Promise.all([
+    setupAudio('qdsproc.js', 'qds-processor'),
+    window.fetch('audio/unfinite_function.mp3').then(response => response.arrayBuffer())
+  ]).then(function([audioProc, audio2Binary]) {
     audioProc.proc.w = 16;
     audioProc.proc.dither = true;
     audioProc.proc.dithertype = "rect";
