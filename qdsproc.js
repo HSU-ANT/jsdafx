@@ -1,6 +1,21 @@
-class QDSProcessor extends AudioWorkletProcessor {
-  constructor() {
+class BaseProcessor extends AudioWorkletProcessor {
+  constructor(properties) {
     super();
+
+    var _this = this;
+    this.port.onmessage = function(event) {
+      if (event.data.action == 'set-property') {
+        _this[event.data.param] = event.data.value;
+      } else if (event.data.action == 'list-properties') {
+        _this.port.postMessage({response: 'list-properties', properties: properties});
+      }
+    }
+  }
+}
+
+class QDSProcessor extends BaseProcessor {
+  constructor() {
+    super(['w', "dither", 'dithertype', 'noiseshaping', 'noiseshapingfilter']);
 
     this.qt = 0.25;
     this.withDither = false;
@@ -9,15 +24,6 @@ class QDSProcessor extends AudioWorkletProcessor {
     this.withNoiseShaping = true;
     this.h = Float32Array.from([1]);
     this.nsState = new Array(0);
-
-    var _this = this;
-    this.port.onmessage = function(event) {
-      if (event.data.action == 'set-property') {
-        _this[event.data.param] = event.data.value;
-      } else if (event.data.action == 'list-properties') {
-        _this.port.postMessage({response: 'list-properties', properties: ['w', "dither", 'dithertype', 'noiseshaping', 'noiseshapingfilter']});
-      }
-    }
   }
 
   setChannelCount(nc) {
