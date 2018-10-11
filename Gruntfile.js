@@ -29,13 +29,14 @@ module.exports = function(grunt) {
         },
         files: {
           'deps_bundle.js': ['deps.js'],
+          'build/qdsproc.js': ['qdsproc.js'],
         },
       },
     },
     uglify: {
       dist: {
         files: {
-          'dist/qdsproc.js': ['qdsproc.js'],
+          'dist/qdsproc.js': ['build/qdsproc.js'],
           'dist/common.js': [
             'common-polyfill.js',
             'deps_bundle.js',
