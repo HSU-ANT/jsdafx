@@ -19,6 +19,7 @@ module.exports = function(grunt) {
           conservativeCollapse: true
         },
         files: {
+          'dist/index.html': ['index.html' ],
           'dist/qds.html': ['build/qds.html' ],
           'dist/ovs.html': ['build/ovs.html' ],
         },
