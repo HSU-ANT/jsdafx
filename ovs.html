@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Oversampling</title>
+  <!-- build:js common.js -->
+  <script src="common-polyfill.js"></script>
+  <script src="common-audio.js"></script>
+  <script src="graph.js"></script>
+  <script src="https://unpkg.com/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>
+  <!-- /build -->
+  <script src="ovs.js" type="module" ></script>
+</head>
+<body>
+  <!-- build:include playback_control_buttons.html -->
+  <script id="_playback_controls">
+  window.fetch("playback_control_buttons.html").then(
+    (response) => response.text()
+  ).then((txt) => {
+    ctrls = document.createElement('template');
+    ctrls.innerHTML = txt;
+    scriptElem = document.getElementById("_playback_controls");
+    scriptElem.parentElement.replaceChild(ctrls.content, scriptElem);
+  });
+  </script>
+  <!-- /build -->
+  <div id="graph" style="width: 500px; height: 200px;">
+    <canvas id="axiscanvas" width="500" height="200"
+      style="position: absolute; z-index: 1" ></canvas>
+    <canvas id="funccanvas" width="500" height="200"
+      style="position: absolute; z-index: 2" ></canvas>
+    <canvas id="cursorcanvas" width="500" height="200"
+      style="position: absolute; z-index: 3" ></canvas>
+  </div>
+  <div style="width: 500px; height: 220px;" align="center" >
+    <img src="images/ovs/ns5.png" id="diagram" />
+  </div>
+  <div>
+    <table border="0" style="width: 500px;">
+      <tr>
+        <td><input id="linear" type="checkbox" />linear</td>
+        <td><input id="dither" type="checkbox" />Dither</td>
+        <td><select id="dithertype">
+          <option value="rect">rectangular</option>
+          <option value="tri">triangular</option>
+          <option value="hp">high-pass</option>
+        </select></td>
+        <td>Quantization</td>
+        <td><select id="wordlength">
+          <option value="16">16</option>
+          <option value="10">10</option>
+          <option value="8">8</option>
+          <option value="6">6</option>
+          <option value="4">4</option>
+          <option value="2">2</option>
+        </select></td>
+      </tr>
+      <tr>
+        <td><input id="wave" type="checkbox" />Wave</td>
+        <td><input id="noiseshaping" type="checkbox" />Noise-shaping</td>
+        <td><select id="noiseshapingfilter">
+          <option value="1">First Order</option>
+        </select></td>
+        <td>upSampling</td>
+        <td><select id="oversamplingfactor">
+          <option value="64">64</option>
+          <option value="32">32</option>
+          <option value="16">16</option>
+          <option value="8">8</option>
+          <option value="4">4</option>
+          <option value="1">1</option>
+        </select></td>
+      </tr>
+    </table>
+  </div>
+  <br />
+  <div style="width: 600px">
+    This script demostrates the influence of oversampling on the power
+    spectral density and quantization error. For a given quantization word
+    length the noise level can be reduced with the oversampling factor.
+    This applet allows to experiment this noise reduction effect,
+    acoustically by modifying the oversampling and quantization factors,
+    and visually with the spectral representation.
+
+  <p>The following functions can be selected on the lower right of the graphical
+     user interface</p>
+  <ul>
+    <li> <b>Quantizer&nbsp;</b>
+      <ul>
+        <li>word length w leads to quantization step size Q=2^(w-1)</li>
+      </ul>
+    </li>
+    <li><b>Dither</b>
+      <ul>
+        <li>rect dither - uniform probability density function </li>
+        <li>tri dither - triangular probability density function</li>
+        <li>high-pass dither - triangular probability density function and
+          high-pass power spectral density</li>
+      </ul>
+    </li>
+    <li><b>Noise shaping</b>
+      <ul>
+        <li>first-order H(z)=z^(-1)</li>
+      </ul>
+    </li>
+    <li><b>Up Sampling Factor </b>&nbsp;
+      <ul>
+        <li>Factors from 4 up to 64 can be tested depending on the cpu performance of your machine.</li>
+      </ul>
+    </li>
+  </ul>
+  <p>You can choose between two predefined audio files from our web-server
+    ("audio1.wav" or "audio2.wav") or your own local .wav-file to be
+    processed.</p>
+  <p>Audio2 is licensed under <a href="https://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a> by <a href="https://soundcloud.com/unfinite">unfinite</a></p>
+</div>
+</body>
+</html>
