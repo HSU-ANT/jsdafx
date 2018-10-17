@@ -44,7 +44,7 @@ export function makeFunctionGraph(axisid, funcid) {
       x_val_to_pos = x_val_to_pos_lin;
     }
     drawAxis();
-  }
+  };
 
   const y_val_to_pos = function (y) {
     return 10 + (height-10-yoffset) / (ymin-ymax) * (y-ymax);
@@ -61,7 +61,7 @@ export function makeFunctionGraph(axisid, funcid) {
       x = 2;
     }
     return x * f;
-  }
+  };
 
   const drawAxis = function () {
     const canvas = document.getElementById(axisid);
@@ -125,7 +125,7 @@ export function makeFunctionGraph(axisid, funcid) {
     }
     ctx.rect(x_val_to_pos(xmin), y_val_to_pos(ymin), x_val_to_pos(xmax)-x_val_to_pos(xmin), y_val_to_pos(ymax)-y_val_to_pos(ymin));
     ctx.stroke();
-  }
+  };
 
   fgctx.rect(xoffset, 10, width-xoffset, height-yoffset-10);
   fgctx.clip();
@@ -139,7 +139,7 @@ export function makeFunctionGraph(axisid, funcid) {
       fgctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(ydata[i]));
     }
     fgctx.stroke();
-  }
+  };
 
   return {
     drawData: drawData,
@@ -156,5 +156,5 @@ export function makeFunctionGraph(axisid, funcid) {
     logx: function(_logx) {
       set_logx(_logx);
     },
-  }
-};
+  };
+}

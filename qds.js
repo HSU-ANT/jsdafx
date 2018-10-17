@@ -97,4 +97,4 @@ window.onload = () => {
       audioProc.proc.noiseshapingfilter = event.target.value;
     };
   });
-}
+};

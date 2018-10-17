@@ -73,7 +73,7 @@ class QDSProcessor extends BaseProcessor {
   }
 
   process(inputs, outputs, parameters) {
-    this.setChannelCount(inputs[0].length)
+    this.setChannelCount(inputs[0].length);
     for (let channel = 0; channel < inputs[0].length; channel++) {
       const inputData = inputs[0][channel];
       const outputData = outputs[0][channel];

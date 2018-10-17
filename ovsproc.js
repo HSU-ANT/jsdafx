@@ -24,7 +24,7 @@ class OVSProcessor extends BaseProcessor {
 
   set noiseshapingfilter(order) { this.procimpl.nsN = order|0; }
 
-  set oversamplingfactor(L) { this.procimpl.L = L|0; };
+  set oversamplingfactor(L) { this.procimpl.L = L|0; }
 
   process(inputs, outputs, parameters) {
     for (let channel = 0; channel < inputs[0].length; channel++) {

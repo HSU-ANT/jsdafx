@@ -59,7 +59,7 @@ export function setupAudio(procurl, procid) {
         source.onended = function() {
           stop();
           onended();
-        }
+        };
         source.start();
         source.connect(proc);
       } else {
@@ -72,7 +72,7 @@ export function setupAudio(procurl, procid) {
         gain.connect(proc);
       }
       proc.connect(analyzer);
-    }
+    };
 
     const stop = function () {
       if (source !== undefined) {
@@ -85,17 +85,17 @@ export function setupAudio(procurl, procid) {
       }
       proc.disconnect();
       audioCtx.suspend();
-    }
+    };
 
     const getTimeDomainData = function () {
       analyzer.getFloatTimeDomainData(timeDomainData);
       return timeDomainData;
-    }
+    };
 
     const getFrequencyDomainData = function () {
       analyzer.getFloatFrequencyData(frequencyDomainData);
       return frequencyDomainData;
-    }
+    };
 
     return {
       start: start,
@@ -112,7 +112,7 @@ export function setupAudio(procurl, procid) {
       proc: proc,
     };
   });
-};
+}
 
 export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
   let audio1data;
@@ -157,19 +157,19 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
   document.getElementById("audio1").onclick = function(event) {
     audioProc.start();
     updatePlayButtonStates();
-  }
+  };
   document.getElementById("audio2").onclick = function(event) {
     audioProc.start(audio2data);
     updatePlayButtonStates();
-  }
+  };
   document.getElementById("start").onclick = function(event) {
     audioProc.start(audioFileData);
     updatePlayButtonStates();
-  }
+  };
   document.getElementById("stop").onclick = function(event) {
     audioProc.stop();
     updatePlayButtonStates();
-  }
+  };
   document.getElementById('file-input').addEventListener('change', function (e) {
     const file = e.target.files[0];
     if (!file) {
