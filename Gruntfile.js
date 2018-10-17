@@ -56,6 +56,9 @@ module.exports = function(grunt) {
     },
     uglify: {
       dist: {
+        options: {
+          toplevel: true,
+        },
         files: {
           'dist/qdsproc.js': ['build/qdsproc.js'],
           'dist/common.js': [
