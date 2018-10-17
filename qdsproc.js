@@ -19,7 +19,7 @@ class QDSProcessor extends BaseProcessor {
     }
     if (this.nsState.length != nc) {
       this.nsState = new Array(nc);
-      for (var i = 0; i < this.nsState.length; i++) {
+      for (let i = 0; i < this.nsState.length; i++) {
         this.nsState[i] = new Float32Array(this.h.length);
       }
     }
@@ -54,7 +54,7 @@ class QDSProcessor extends BaseProcessor {
     } else if (order==9) {
       this.h = Float32Array.from([2.412, -3.370, 3.937, -4.174, 3.353, -2.205, 1.281, -0.569, 0.0847]);
     }
-    for (var i = 0; i < this.nsState.length; i++) {
+    for (let i = 0; i < this.nsState.length; i++) {
       this.nsState[i] = new Float32Array(this.h.length);
     }
   }
@@ -66,31 +66,30 @@ class QDSProcessor extends BaseProcessor {
     return Math.random() + Math.random() - 1.0;
   }
   hpDither(channel) {
-    var rnd = Math.random() - 0.5;
-    var d = rnd - this.ditherstate[channel];
+    const rnd = Math.random() - 0.5;
+    const d = rnd - this.ditherstate[channel];
     this.ditherstate[channel] = rnd;
     return d;
   }
 
   process(inputs, outputs, parameters) {
     this.setChannelCount(inputs[0].length)
-    for (var channel = 0; channel < inputs[0].length; channel++) {
-      var inputData = inputs[0][channel];
-      var outputData = outputs[0][channel];
-      for (var sample = 0; sample < inputData.length; sample++) {
-        var input = inputData[sample];
+    for (let channel = 0; channel < inputs[0].length; channel++) {
+      const inputData = inputs[0][channel];
+      const outputData = outputs[0][channel];
+      for (let sample = 0; sample < inputData.length; sample++) {
+        let input = inputData[sample];
         if (this.withNoiseShaping) {
-          for (var i = 0; i < this.h.length; i++) {
+          for (let i = 0; i < this.h.length; i++) {
             input -= this.h[i] * this.nsState[channel][i];
           }
         }
-        var d_rand = 0.0;
+        let d_rand = 0.0;
         if (this.withDither) {
           d_rand = this.dithergen(channel);
         }
-        var xr = input;
-        var tmpOutput = this.qt * Math.round(xr/this.qt + d_rand);
-        for (var i = this.h.length-1; i >= 0; i--) {
+        const tmpOutput = this.qt * Math.round(input/this.qt + d_rand);
+        for (let i = this.h.length-1; i >= 0; i--) {
           this.nsState[channel][i] = this.nsState[channel][i-1];
         }
         this.nsState[channel][0] = tmpOutput - input;

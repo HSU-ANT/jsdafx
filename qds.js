@@ -1,7 +1,7 @@
 import { makeFunctionGraph, setupAudio, setupPlayerControls } from './common.js';
 
 window.onload = () => {
-  var graph = makeFunctionGraph("axiscanvas", "funccanvas");
+  const graph = makeFunctionGraph('axiscanvas', 'funccanvas');
   graph.ylim(-130, 0);
 
   Promise.all([
@@ -16,28 +16,28 @@ window.onload = () => {
 
     setupPlayerControls(audioProc, undefined, audio2Binary.arrayBuffer());
 
-    var frequencies = new Float32Array(audioProc.getFrequencyDomainData());
-    for (var i = 0; i < frequencies.length; i++) {
+    const frequencies = new Float32Array(audioProc.getFrequencyDomainData());
+    for (let i = 0; i < frequencies.length; i++) {
       frequencies[i] = i * 22050 / (frequencies.length-1);
     }
-    var timeindices = new Float32Array(audioProc.getTimeDomainData());
-    for (var i = 0; i < timeindices.length; i++) {
+    const timeindices = new Float32Array(audioProc.getTimeDomainData());
+    for (let i = 0; i < timeindices.length; i++) {
       timeindices[i] = i;
     }
-    var drawWave = false;
+    let drawWave = false;
     function drawSignal() {
       setTimeout(() => requestAnimationFrame(drawSignal), 40);
       if (drawWave) {
-        var data = audioProc.getTimeDomainData();
+        const data = audioProc.getTimeDomainData();
         graph.drawData(timeindices, data);
       } else {
-        var data = audioProc.getFrequencyDomainData();
+        const data = audioProc.getFrequencyDomainData();
         graph.drawData(frequencies, data);
       }
     }
     drawSignal();
 
-    var cblinear = document.getElementById("linear");
+    const cblinear = document.getElementById('linear');
     cblinear.checked = false;
     graph.logx(true);
     cblinear.onchange = function (event) {
@@ -45,7 +45,7 @@ window.onload = () => {
         graph.logx(!event.target.checked);
       }
     };
-    var cbwave = document.getElementById("wave");
+    const cbwave = document.getElementById('wave');
     cbwave.checked = false;
     cbwave.onchange = function (event) {
       drawWave = event.target.checked;

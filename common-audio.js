@@ -1,23 +1,25 @@
 export function setupAudio(procurl, procid) {
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint: "playback"});
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+    latencyHint: 'playback',
+  });
 
-  var source;
-  var gain;
-  var analyzer = audioCtx.createAnalyser();
+  let source;
+  let gain;
+  const analyzer = audioCtx.createAnalyser();
   analyzer.smoothingTimeConstant = 0.3;
   analyzer.minDecibels = -130;
   analyzer.fftSize = 1024;
-  var timeDomainData = new Float32Array(analyzer.fftSize);
-  var frequencyDomainData = new Float32Array(analyzer.frequencyBinCount);
+  const timeDomainData = new Float32Array(analyzer.fftSize);
+  const frequencyDomainData = new Float32Array(analyzer.frequencyBinCount);
   analyzer.connect(audioCtx.destination);
-  var onended = function() {};
+  let onended = function () { /* no action by default */ };
 
   return audioCtx.audioWorklet.addModule(procurl).then(() => {
-    var proc = new AudioWorkletNode(audioCtx, procid);
+    const proc = new AudioWorkletNode(audioCtx, procid);
 
-    var receiveMessage = (port) => {
+    const receiveMessage = (port) => {
       return new Promise(resolve => {
-        var oldhandler = port.onmessage;
+        const oldhandler = port.onmessage;
         port.onmessage = (event) => {
           port.onmessage = oldhandler;
           resolve(event.data);
@@ -26,9 +28,9 @@ export function setupAudio(procurl, procid) {
     };
 
     proc.port.postMessage({action: 'list-properties'});
-    return receiveMessage(proc.port).then(data => {
+    return receiveMessage(proc.port).then((data) => { // TODO clean up this promise-chaining
       if (data.response == 'list-properties') {
-        for (var p of data.properties) {
+        for (const p of data.properties) {
           (function(p) {
             Object.defineProperty(proc, p, {
               set: function(val) {
@@ -41,7 +43,7 @@ export function setupAudio(procurl, procid) {
       return proc;
     });
   }).then(proc => {
-    var start = function(src) {
+    const start = function (src) {
       if (source !== undefined) {
         source.disconnect();
         source = undefined;
@@ -72,7 +74,7 @@ export function setupAudio(procurl, procid) {
       proc.connect(analyzer);
     }
 
-    var stop = function() {
+    const stop = function () {
       if (source !== undefined) {
         source.disconnect();
         source = undefined;
@@ -85,12 +87,12 @@ export function setupAudio(procurl, procid) {
       audioCtx.suspend();
     }
 
-    var getTimeDomainData = function() {
+    const getTimeDomainData = function () {
       analyzer.getFloatTimeDomainData(timeDomainData);
       return timeDomainData;
     }
 
-    var getFrequencyDomainData = function() {
+    const getFrequencyDomainData = function () {
       analyzer.getFloatFrequencyData(frequencyDomainData);
       return frequencyDomainData;
     }
@@ -113,6 +115,10 @@ export function setupAudio(procurl, procid) {
 };
 
 export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
+  let audio1data;
+  let audio2data;
+  let audioFileData;
+
   function updatePlayButtonStates() {
     if (audioProc.isPlaying()) {
       document.getElementById("audio1").disabled = true;
@@ -129,9 +135,6 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
     }
   }
 
-  var audio1data;
-  var audio2data;
-  var audioFileData;
   if (bindata1Promise) {
     bindata1Promise.then((bindata1) => {
       audioProc.createBuffer(bindata1, function(buf) {
@@ -168,13 +171,13 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
     updatePlayButtonStates();
   }
   document.getElementById('file-input').addEventListener('change', function (e) {
-    var file = e.target.files[0];
+    const file = e.target.files[0];
     if (!file) {
       return;
     }
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function(e) {
-      var contents = e.target.result;
+      const contents = e.target.result;
       audioProc.createBuffer(contents, function(buf) {
         audioFileData = buf;
         audioProc.start(audioFileData);
