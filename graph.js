@@ -1,6 +1,4 @@
-"use strict";
-
-var makeFunctionGraph = function(axisid, funcid) {
+export function makeFunctionGraph(axisid, funcid) {
   var fgcanvas = document.getElementById(funcid);
   var width = fgcanvas.width;
   var height = fgcanvas.height;

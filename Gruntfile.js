@@ -48,6 +48,7 @@ module.exports = function(grunt) {
         },
         files: {
           'deps_bundle.js': ['deps.js'],
+          'build/common.js': ['common.js'],
           'build/qdsproc.js': ['qdsproc.js'],
           'build/ovsproc.js': ['ovsproc.js'],
         },
@@ -58,10 +59,8 @@ module.exports = function(grunt) {
         files: {
           'dist/qdsproc.js': ['build/qdsproc.js'],
           'dist/common.js': [
-            'common-polyfill.js',
+            'build/common.js',
             'deps_bundle.js',
-            'common-audio.js',
-            'graph.js',
           ],
           'dist/qds.js': ['qds.js'],
           'dist/ovsproc.js': ['build/ovsproc.js'],

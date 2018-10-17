@@ -1,6 +1,4 @@
-"use strict";
-
-var setupAudio = function(procurl, procid) {
+export function setupAudio(procurl, procid) {
   var audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint: "playback"});
 
   var source;
@@ -114,7 +112,7 @@ var setupAudio = function(procurl, procid) {
   });
 };
 
-function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
+export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
   function updatePlayButtonStates() {
     if (audioProc.isPlaying()) {
       document.getElementById("audio1").disabled = true;

@@ -1,4 +1,4 @@
-"use strict";
+import { makeFunctionGraph, setupAudio, setupPlayerControls } from './common.js';
 
 window.onload = () => {
   var graph = makeFunctionGraph("axiscanvas", "funccanvas");
