@@ -6,8 +6,8 @@ window.onload = () => {
 
   Promise.all([
     setupAudio('qdsproc.js', 'qds-processor'),
-    window.fetch('audio/unfinite_function.mp3')
-  ]).then(function([audioProc, audio2Binary]) {
+    window.fetch('audio/unfinite_function.mp3'),
+  ]).then(([audioProc, audio2Binary]) => {
     audioProc.proc.w = 16;
     audioProc.proc.dither = true;
     audioProc.proc.dithertype = 'rect';

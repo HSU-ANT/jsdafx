@@ -25,7 +25,7 @@ class QDSProcessor extends BaseProcessor {
     }
   }
 
-  set w(w) { this.qt = Math.pow(2, 1-w);}
+  set w(w) { this.qt = Math.pow(2, 1-w); }
 
   set dither(b) { this.withDither = b; }
 
@@ -53,7 +53,9 @@ class QDSProcessor extends BaseProcessor {
     } else if (order === 5) {
       this.h = Float32Array.from([2.033, -2.165, 1.959, -1.590, 0.6149]);
     } else if (order === 9) {
-      this.h = Float32Array.from([2.412, -3.370, 3.937, -4.174, 3.353, -2.205, 1.281, -0.569, 0.0847]);
+      this.h = Float32Array.from([
+        2.412, -3.370, 3.937, -4.174, 3.353, -2.205, 1.281, -0.569, 0.0847,
+      ]);
     }
     for (let i = 0; i < this.nsState.length; i++) {
       this.nsState[i] = new Float32Array(this.h.length);
@@ -63,9 +65,11 @@ class QDSProcessor extends BaseProcessor {
   rectDither(channel) {
     return Math.random() - 0.5;
   }
+
   triDither(channel) {
     return Math.random() + Math.random() - 1.0;
   }
+
   hpDither(channel) {
     const rnd = Math.random() - 0.5;
     const d = rnd - this.ditherstate[channel];

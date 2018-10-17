@@ -123,7 +123,8 @@ export function makeFunctionGraph(axisid, funcid) {
         ctx.stroke();
       }
     }
-    ctx.rect(x_val_to_pos(xmin), y_val_to_pos(ymin), x_val_to_pos(xmax)-x_val_to_pos(xmin), y_val_to_pos(ymax)-y_val_to_pos(ymin));
+    ctx.rect(x_val_to_pos(xmin), y_val_to_pos(ymin),
+      x_val_to_pos(xmax)-x_val_to_pos(xmin), y_val_to_pos(ymax)-y_val_to_pos(ymin));
     ctx.stroke();
   };
 
@@ -143,17 +144,17 @@ export function makeFunctionGraph(axisid, funcid) {
 
   return {
     drawData: drawData,
-    xlim: function(_xmin, _xmax) {
+    xlim(_xmin, _xmax) {
       xmin = _xmin;
       xmax = _xmax;
       drawAxis();
     },
-    ylim: function(_ymin, _ymax) {
+    ylim(_ymin, _ymax) {
       ymin = _ymin;
       ymax = _ymax;
       drawAxis();
     },
-    logx: function(_logx) {
+    logx(_logx) {
       set_logx(_logx);
     },
   };

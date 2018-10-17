@@ -1,9 +1,9 @@
 if (Math.log10 === undefined) {
-  Math.log10 = function(x) { return  Math.LOG10E * Math.log(x); };
+  Math.log10 = function (x) { return Math.LOG10E * Math.log(x); };
 }
 
 if (AnalyserNode.prototype.getFloatTimeDomainData === undefined) {
-  AnalyserNode.prototype.getFloatTimeDomainData = function(array) {
+  AnalyserNode.prototype.getFloatTimeDomainData = function (array) {
     const byteArray = new Uint8Array(array.length);
     this.getByteTimeDomainData(byteArray);
     for (let i = 0; i < array.length; i++) {

@@ -18,7 +18,7 @@ export function setupAudio(procurl, procid) {
     const proc = new AudioWorkletNode(audioCtx, procid);
 
     const receiveMessage = (port) => {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         const oldhandler = port.onmessage;
         port.onmessage = (event) => {
           port.onmessage = oldhandler;
@@ -31,18 +31,16 @@ export function setupAudio(procurl, procid) {
     return receiveMessage(proc.port).then((data) => { // TODO clean up this promise-chaining
       if (data.response === 'list-properties') {
         for (const p of data.properties) {
-          (function(p) {
-            Object.defineProperty(proc, p, {
-              set: function(val) {
-                proc.port.postMessage({action: 'set-property', param: p, value: val});
-              }
-            });
-          })(p);
+          Object.defineProperty(proc, p, {
+            set(val) {
+              proc.port.postMessage({action: 'set-property', param: p, value: val});
+            },
+          });
         }
       }
       return proc;
     });
-  }).then(proc => {
+  }).then((proc) => {
     const start = function (src) {
       if (source !== undefined) {
         source.disconnect();
@@ -56,7 +54,7 @@ export function setupAudio(procurl, procid) {
       if (src instanceof AudioBuffer) {
         source = audioCtx.createBufferSource();
         source.buffer = src;
-        source.onended = function() {
+        source.onended = () => {
           stop();
           onended();
         };
@@ -100,10 +98,10 @@ export function setupAudio(procurl, procid) {
     return {
       start: start,
       stop: stop,
-      isPlaying: function () {
+      isPlaying() {
         return source !== undefined;
       },
-      createBuffer: function(contents, onSuccess) {
+      createBuffer(contents, onSuccess) {
         audioCtx.decodeAudioData(contents, onSuccess);
       },
       set onended(handler) { onended = handler; },
@@ -139,7 +137,7 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
 
   if (bindata1Promise) {
     bindata1Promise.then((bindata1) => {
-      audioProc.createBuffer(bindata1, function(buf) {
+      audioProc.createBuffer(bindata1, (buf) => {
         audio1data = buf;
         updatePlayButtonStates();
       });
@@ -147,7 +145,7 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
   }
   if (bindata2Promise) {
     bindata2Promise.then((bindata2) => {
-      audioProc.createBuffer(bindata2, function(buf) {
+      audioProc.createBuffer(bindata2, (buf) => {
         audio2data = buf;
         updatePlayButtonStates();
       });
@@ -172,21 +170,22 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
     audioProc.stop();
     updatePlayButtonStates();
   };
-  document.getElementById('file-input').addEventListener('change', function (e) {
+  document.getElementById('file-input').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) {
       return;
     }
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = (e) => {
       const contents = e.target.result;
-      audioProc.createBuffer(contents, function(buf) {
+      audioProc.createBuffer(contents, (buf) => {
         audioFileData = buf;
         audioProc.start(audioFileData);
         updatePlayButtonStates();
       });
     };
-    reader.readAsArrayBuffer(file);}, false);
+    reader.readAsArrayBuffer(file);
+  }, false);
 
   updatePlayButtonStates();
 }

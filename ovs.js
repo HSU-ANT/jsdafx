@@ -6,8 +6,8 @@ window.addEventListener('load', () => {
 
   Promise.all([
     setupAudio('ovsproc.js', 'ovs-processor'),
-    window.fetch('audio/unfinite_function.mp3')
-  ]).then(function([audioProc, audio2Binary]) {
+    window.fetch('audio/unfinite_function.mp3'),
+  ]).then(([audioProc, audio2Binary]) => {
     audioProc.proc.w = 16;
     audioProc.proc.dithertype = 'rect';
     audioProc.proc.noiseshapingfilter = 1;
@@ -105,5 +105,5 @@ window.addEventListener('load', () => {
     document.getElementById('oversamplingfactor').onchange = function (event) {
       audioProc.proc.oversamplingfactor = event.target.value;
     };
-  }).catch(e => console.log(e));
+  }).catch((e) => console.log(e));
 });
