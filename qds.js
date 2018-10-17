@@ -10,7 +10,7 @@ window.onload = () => {
   ]).then(function([audioProc, audio2Binary]) {
     audioProc.proc.w = 16;
     audioProc.proc.dither = true;
-    audioProc.proc.dithertype = "rect";
+    audioProc.proc.dithertype = 'rect';
     audioProc.proc.noiseshaping = true;
     audioProc.proc.noiseshapingfilter = 1;
 
@@ -41,7 +41,7 @@ window.onload = () => {
     cblinear.checked = false;
     graph.logx(true);
     cblinear.onchange = function (event) {
-      if (!document.getElementById("wave").checked) {
+      if (!document.getElementById('wave').checked) {
         graph.logx(!event.target.checked);
       }
     };
@@ -59,41 +59,41 @@ window.onload = () => {
         graph.ylim(-130, 0);
       }
     };
-    document.getElementById("wordlength").value = 16;
-    document.getElementById("wordlength").onchange = function (event) {
+    document.getElementById('wordlength').value = 16;
+    document.getElementById('wordlength').onchange = function (event) {
       audioProc.proc.w = event.target.value;
     };
     function updateDiagram() {
-      if (document.getElementById("dither").checked) {
-        if (document.getElementById("noiseshaping").checked) {
-          document.getElementById("diagram").src = "images/qds/ns5.png";
+      if (document.getElementById('dither').checked) {
+        if (document.getElementById('noiseshaping').checked) {
+          document.getElementById('diagram').src = 'images/qds/ns5.png';
         } else {
-          document.getElementById("diagram").src = "images/qds/ns5b.png";
+          document.getElementById('diagram').src = 'images/qds/ns5b.png';
         }
       } else {
-        if (document.getElementById("noiseshaping").checked) {
-          document.getElementById("diagram").src = "images/qds/ns5c.png";
+        if (document.getElementById('noiseshaping').checked) {
+          document.getElementById('diagram').src = 'images/qds/ns5c.png';
         } else {
-          document.getElementById("diagram").src = "images/qds/ns5d.png";
+          document.getElementById('diagram').src = 'images/qds/ns5d.png';
         }
       }
     }
-    document.getElementById("dither").checked = true;
-    document.getElementById("dither").onchange = function (event) {
+    document.getElementById('dither').checked = true;
+    document.getElementById('dither').onchange = function (event) {
       audioProc.proc.dither = event.target.checked;
       updateDiagram();
     };
-    document.getElementById("noiseshaping").checked = true;
-    document.getElementById("noiseshaping").onchange = function (event) {
+    document.getElementById('noiseshaping').checked = true;
+    document.getElementById('noiseshaping').onchange = function (event) {
       audioProc.proc.noiseshaping = event.target.checked;
       updateDiagram();
     };
-    document.getElementById("dithertype").value = "rect";
-    document.getElementById("dithertype").onchange = function (event) {
+    document.getElementById('dithertype').value = 'rect';
+    document.getElementById('dithertype').onchange = function (event) {
       audioProc.proc.dithertype = event.target.value;
     };
-    document.getElementById("noiseshapingfilter").value = 1;
-    document.getElementById("noiseshapingfilter").onchange = function (event) {
+    document.getElementById('noiseshapingfilter').value = 1;
+    document.getElementById('noiseshapingfilter').onchange = function (event) {
       audioProc.proc.noiseshapingfilter = event.target.value;
     };
   });

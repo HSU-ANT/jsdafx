@@ -64,7 +64,7 @@ export function setupAudio(procurl, procid) {
         source.connect(proc);
       } else {
         source = audioCtx.createOscillator();
-        source.type = "sine";
+        source.type = 'sine';
         source.start();
         gain = audioCtx.createGain();
         gain.gain.value = 0.5;
@@ -121,17 +121,19 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
 
   function updatePlayButtonStates() {
     if (audioProc.isPlaying()) {
-      document.getElementById("audio1").disabled = true;
-      document.getElementById("audio2").disabled = true;
-      document.getElementById("start").disabled = true;
-      document.getElementById("file-input").disabled = true;
-      document.getElementById("stop").disabled = false;
+      document.getElementById('audio1').disabled = true;
+      document.getElementById('audio2').disabled = true;
+      document.getElementById('start').disabled = true;
+      document.getElementById('file-input').disabled = true;
+      document.getElementById('stop').disabled = false;
     } else {
-      document.getElementById("audio1").disabled =  bindata1Promise !== undefined && audio1data === undefined;
-      document.getElementById("audio2").disabled = bindata2Promise !== undefined && audio2data === undefined;
-      document.getElementById("start").disabled = audioFileData === undefined;
-      document.getElementById("file-input").disabled = false;
-      document.getElementById("stop").disabled = true;
+      document.getElementById('audio1').disabled =
+        typeof bindata1Promise !== 'undefined' && typeof audio1data === 'undefined';
+      document.getElementById('audio2').disabled =
+        typeof bindata2Promise !== 'undefined' && typeof audio2data === 'undefined';
+      document.getElementById('start').disabled = typeof audioFileData === 'undefined';
+      document.getElementById('file-input').disabled = false;
+      document.getElementById('stop').disabled = true;
     }
   }
 
@@ -154,19 +156,19 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
 
   audioProc.onended = updatePlayButtonStates;
 
-  document.getElementById("audio1").onclick = function(event) {
+  document.getElementById('audio1').onclick = function (/* event */) {
     audioProc.start();
     updatePlayButtonStates();
   };
-  document.getElementById("audio2").onclick = function(event) {
+  document.getElementById('audio2').onclick = function (/* event */) {
     audioProc.start(audio2data);
     updatePlayButtonStates();
   };
-  document.getElementById("start").onclick = function(event) {
+  document.getElementById('start').onclick = function (/* event */) {
     audioProc.start(audioFileData);
     updatePlayButtonStates();
   };
-  document.getElementById("stop").onclick = function(event) {
+  document.getElementById('stop').onclick = function (/* event */) {
     audioProc.stop();
     updatePlayButtonStates();
   };

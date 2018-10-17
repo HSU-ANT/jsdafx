@@ -2,7 +2,7 @@ import { BaseProcessor } from './baseproc.js';
 
 class QDSProcessor extends BaseProcessor {
   constructor() {
-    super(['w', "dither", 'dithertype', 'noiseshaping', 'noiseshapingfilter']);
+    super(['w', 'dither', 'dithertype', 'noiseshaping', 'noiseshapingfilter']);
 
     this.qt = 0.25;
     this.withDither = false;
