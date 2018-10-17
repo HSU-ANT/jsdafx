@@ -11,11 +11,11 @@ class OVSProcessor extends BaseProcessor {
   set w(w) { this.procimpl.q = Math.pow(2, 1-w); }
 
   set dithertype(type) {
-    if (type == "rect") {
+    if (type === 'rect') {
       this.procimpl.dither = 1;
-    } else if (type == "tri") {
+    } else if (type === 'tri') {
       this.procimpl.dither = 2;
-    } else if (type == "hp") {
+    } else if (type === 'hp') {
       this.procimpl.dither = 3;
     } else {
       this.procimpl.dither = 0;

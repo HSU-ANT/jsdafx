@@ -29,7 +29,7 @@ export function setupAudio(procurl, procid) {
 
     proc.port.postMessage({action: 'list-properties'});
     return receiveMessage(proc.port).then((data) => { // TODO clean up this promise-chaining
-      if (data.response == 'list-properties') {
+      if (data.response === 'list-properties') {
         for (const p of data.properties) {
           (function(p) {
             Object.defineProperty(proc, p, {
