@@ -1,4 +1,4 @@
-"use strict";
+import { makeFunctionGraph, setupAudio, setupPlayerControls } from './common.js';
 
 window.addEventListener("load", () => {
 
