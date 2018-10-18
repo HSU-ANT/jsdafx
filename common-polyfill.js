@@ -1,8 +1,8 @@
-if (Math.log10 === undefined) {
+if (typeof Math.log10 === 'undefined') {
   Math.log10 = function (x) { return Math.LOG10E * Math.log(x); };
 }
 
-if (AnalyserNode.prototype.getFloatTimeDomainData === undefined) {
+if (typeof AnalyserNode.prototype.getFloatTimeDomainData === 'undefined') {
   AnalyserNode.prototype.getFloatTimeDomainData = function (array) {
     const byteArray = new Uint8Array(array.length);
     this.getByteTimeDomainData(byteArray);

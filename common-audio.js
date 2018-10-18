@@ -3,8 +3,8 @@ export function setupAudio(procurl, procid) {
     latencyHint: 'playback',
   });
 
-  let source;
-  let gain;
+  let source = null;
+  let gain = null;
   const analyzer = audioCtx.createAnalyser();
   analyzer.smoothingTimeConstant = 0.3;
   analyzer.minDecibels = -130;
@@ -42,13 +42,13 @@ export function setupAudio(procurl, procid) {
     });
   }).then((proc) => {
     const start = function (src) {
-      if (source !== undefined) {
+      if (source !== null) {
         source.disconnect();
-        source = undefined;
+        source = null;
       }
-      if (gain !== undefined) {
+      if (gain !== null) {
         gain.disconnect();
-        gain = undefined;
+        gain = null;
       }
       audioCtx.resume();
       if (src instanceof AudioBuffer) {
@@ -73,13 +73,13 @@ export function setupAudio(procurl, procid) {
     };
 
     const stop = function () {
-      if (source !== undefined) {
+      if (source !== null) {
         source.disconnect();
-        source = undefined;
+        source = null;
       }
-      if (gain !== undefined) {
+      if (gain !== null) {
         gain.disconnect();
-        gain = undefined;
+        gain = null;
       }
       proc.disconnect();
       audioCtx.suspend();
@@ -99,7 +99,7 @@ export function setupAudio(procurl, procid) {
       start: start,
       stop: stop,
       isPlaying() {
-        return source !== undefined;
+        return source !== null;
       },
       createBuffer(contents, onSuccess) {
         audioCtx.decodeAudioData(contents, onSuccess);
@@ -113,9 +113,9 @@ export function setupAudio(procurl, procid) {
 }
 
 export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
-  let audio1data;
-  let audio2data;
-  let audioFileData;
+  let audio1data = null;
+  let audio2data = null;
+  let audioFileData = null;
 
   function updatePlayButtonStates() {
     if (audioProc.isPlaying()) {
@@ -126,10 +126,10 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
       document.getElementById('stop').disabled = false;
     } else {
       document.getElementById('audio1').disabled =
-        typeof bindata1Promise !== 'undefined' && typeof audio1data === 'undefined';
+        bindata1Promise !== null && audio1data === null;
       document.getElementById('audio2').disabled =
-        typeof bindata2Promise !== 'undefined' && typeof audio2data === 'undefined';
-      document.getElementById('start').disabled = typeof audioFileData === 'undefined';
+        bindata2Promise !== null && audio2data === null;
+      document.getElementById('start').disabled = audioFileData === null;
       document.getElementById('file-input').disabled = false;
       document.getElementById('stop').disabled = true;
     }
@@ -155,11 +155,19 @@ export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise)
   audioProc.onended = updatePlayButtonStates;
 
   document.getElementById('audio1').onclick = function (/* event */) {
-    audioProc.start();
+    if (audio1data !== null) {
+      audioProc.start(audio1data);
+    } else {
+      audioProc.start();
+    }
     updatePlayButtonStates();
   };
   document.getElementById('audio2').onclick = function (/* event */) {
-    audioProc.start(audio2data);
+    if (audio2data !== null) {
+      audioProc.start(audio2data);
+    } else {
+      audioProc.start();
+    }
     updatePlayButtonStates();
   };
   document.getElementById('start').onclick = function (/* event */) {

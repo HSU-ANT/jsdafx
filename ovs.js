@@ -14,7 +14,7 @@ window.addEventListener('load', () => {
     audioProc.proc.oversamplingfactor = 4;
 
 
-    setupPlayerControls(audioProc, undefined, audio2Binary.arrayBuffer());
+    setupPlayerControls(audioProc, null, audio2Binary.arrayBuffer());
 
     const frequencies = new Float32Array(audioProc.getFrequencyDomainData());
     for (let i = 0; i < frequencies.length; i++) {

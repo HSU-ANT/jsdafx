@@ -14,7 +14,7 @@ window.onload = () => {
     audioProc.proc.noiseshaping = true;
     audioProc.proc.noiseshapingfilter = 1;
 
-    setupPlayerControls(audioProc, undefined, audio2Binary.arrayBuffer());
+    setupPlayerControls(audioProc, null, audio2Binary.arrayBuffer());
 
     const frequencies = new Float32Array(audioProc.getFrequencyDomainData());
     for (let i = 0; i < frequencies.length; i++) {
