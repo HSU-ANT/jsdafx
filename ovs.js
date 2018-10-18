@@ -105,5 +105,5 @@ window.addEventListener('load', () => {
     document.getElementById('oversamplingfactor').onchange = function (event) {
       audioProc.proc.oversamplingfactor = event.target.value;
     };
-  }).catch((e) => console.log(e));
+  }).catch((e) => console.error(e));
 });
