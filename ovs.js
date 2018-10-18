@@ -76,7 +76,7 @@ window.addEventListener('load', () => {
         }
       }
     }
-    function setDither(event) {
+    function setDither(/* event */) {
       if (document.getElementById('dither').checked) {
         audioProc.proc.dithertype = document.getElementById('dithertype').value;
       } else {
@@ -84,7 +84,7 @@ window.addEventListener('load', () => {
       }
       updateDiagram();
     }
-    function setNoiseShaper(event) {
+    function setNoiseShaper(/* event */) {
       if (document.getElementById('noiseshaping').checked) {
         audioProc.proc.noiseshapingfilter =
           document.getElementById('noiseshapingfilter').value;

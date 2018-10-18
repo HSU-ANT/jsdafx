@@ -62,11 +62,11 @@ class QDSProcessor extends BaseProcessor {
     }
   }
 
-  rectDither(channel) {
+  rectDither(/* channel*/) {
     return Math.random() - 0.5;
   }
 
-  triDither(channel) {
+  triDither(/* channel */) {
     return Math.random() + Math.random() - 1.0;
   }
 
@@ -77,7 +77,7 @@ class QDSProcessor extends BaseProcessor {
     return d;
   }
 
-  process(inputs, outputs, parameters) {
+  process(inputs, outputs /*, parameters*/) {
     this.setChannelCount(inputs[0].length);
     for (let channel = 0; channel < inputs[0].length; channel++) {
       const inputData = inputs[0][channel];

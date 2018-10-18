@@ -26,7 +26,7 @@ class OVSProcessor extends BaseProcessor {
 
   set oversamplingfactor(L) { this.procimpl.L = L|0; }
 
-  process(inputs, outputs, parameters) {
+  process(inputs, outputs /*, parameters */) {
     for (let channel = 0; channel < inputs[0].length; channel++) {
       const inputData = inputs[0][channel];
       const outputData = outputs[0][channel];
