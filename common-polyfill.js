@@ -11,3 +11,5 @@ if (typeof AnalyserNode.prototype.getFloatTimeDomainData === 'undefined') {
     }
   };
 }
+
+export {};
