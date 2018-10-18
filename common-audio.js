@@ -40,6 +40,19 @@ export async function setupAudio(procurl, procid) {
     }
   }
 
+  const stop = function () {
+    if (source !== null) {
+      source.disconnect();
+      source = null;
+    }
+    if (gain !== null) {
+      gain.disconnect();
+      gain = null;
+    }
+    proc.disconnect();
+    audioCtx.suspend();
+  };
+
   const start = function (src) {
     if (source !== null) {
       source.disconnect();
@@ -71,18 +84,6 @@ export async function setupAudio(procurl, procid) {
     proc.connect(analyzer);
   };
 
-  const stop = function () {
-    if (source !== null) {
-      source.disconnect();
-      source = null;
-    }
-    if (gain !== null) {
-      gain.disconnect();
-      gain = null;
-    }
-    proc.disconnect();
-    audioCtx.suspend();
-  };
   const getTimeDomainData = function () {
     analyzer.getFloatTimeDomainData(timeDomainData);
     return timeDomainData;

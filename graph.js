@@ -34,18 +34,6 @@ export function makeFunctionGraph(axisid, funcid) {
 
   let x_val_to_pos = x_val_to_pos_log;
 
-  const set_logx = function (_logx) {
-    logx = _logx;
-    if (logx) {
-      x_pos_to_val = x_pos_to_val_log;
-      x_val_to_pos = x_val_to_pos_log;
-    } else {
-      x_pos_to_val = x_pos_to_val_lin;
-      x_val_to_pos = x_val_to_pos_lin;
-    }
-    drawAxis();
-  };
-
   const y_val_to_pos = function (y) {
     return 10 + (height-10-yoffset) / (ymin-ymax) * (y-ymax);
   };
@@ -140,6 +128,18 @@ export function makeFunctionGraph(axisid, funcid) {
       fgctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(ydata[i]));
     }
     fgctx.stroke();
+  };
+
+  const set_logx = function (_logx) {
+    logx = _logx;
+    if (logx) {
+      x_pos_to_val = x_pos_to_val_log;
+      x_val_to_pos = x_val_to_pos_log;
+    } else {
+      x_pos_to_val = x_pos_to_val_lin;
+      x_val_to_pos = x_val_to_pos_lin;
+    }
+    drawAxis();
   };
 
   return {
