@@ -22,7 +22,7 @@ export function makeFunctionGraph(axisid, funcid) {
     return xmin * Math.pow(10, Math.log10(xmax/xmin) * (x-xoffset) / (width-xoffset));
   };
 
-  let x_pos_to_val = x_pos_to_val_log;
+  let x_pos_to_val = x_pos_to_val_log; // eslint-disable-line no-unused-vars
 
   const x_val_to_pos_lin = function (x) {
     return (x - xmin) * (width-xoffset) / xmax + xoffset;

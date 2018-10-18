@@ -78,12 +78,16 @@ module.exports = function(grunt) {
         ],
       },
     },
+    eslint: {
+      check: { files: {src: ['*.js']}},
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-contrib-uglify-es');
+  grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-processhtml');
   grunt.loadNpmTasks('grunt-rollup');
@@ -96,5 +100,8 @@ module.exports = function(grunt) {
     'rollup',
     'uglify',
     'copy',
+  ]);
+  grunt.registerTask('test', [
+    'eslint',
   ]);
 };
