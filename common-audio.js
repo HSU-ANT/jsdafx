@@ -1,4 +1,4 @@
-export function setupAudio(procurl, procid) {
+export async function setupAudio(procurl, procid) {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
     latencyHint: 'playback',
   });
@@ -14,102 +14,98 @@ export function setupAudio(procurl, procid) {
   analyzer.connect(audioCtx.destination);
   let onended = function () { /* no action by default */ };
 
-  return audioCtx.audioWorklet.addModule(procurl).then(() => {
-    const proc = new AudioWorkletNode(audioCtx, procid);
+  await audioCtx.audioWorklet.addModule(procurl);
 
-    const receiveMessage = (port) => {
-      return new Promise((resolve) => {
-        const oldhandler = port.onmessage;
-        port.onmessage = (event) => {
-          port.onmessage = oldhandler;
-          resolve(event.data);
-        };
-      });
-    };
+  const proc = new AudioWorkletNode(audioCtx, procid);
 
-    proc.port.postMessage({action: 'list-properties'});
-    return receiveMessage(proc.port).then((data) => { // TODO clean up this promise-chaining
-      if (data.response === 'list-properties') {
-        for (const p of data.properties) {
-          Object.defineProperty(proc, p, {
-            set(val) {
-              proc.port.postMessage({action: 'set-property', param: p, value: val});
-            },
-          });
-        }
-      }
-      return proc;
+  const receiveMessage = (port) => {
+    return new Promise((resolve) => {
+      const oldhandler = port.onmessage;
+      port.onmessage = (event) => {
+        port.onmessage = oldhandler;
+        resolve(event.data);
+      };
     });
-  }).then((proc) => {
-    const start = function (src) {
-      if (source !== null) {
-        source.disconnect();
-        source = null;
-      }
-      if (gain !== null) {
-        gain.disconnect();
-        gain = null;
-      }
-      audioCtx.resume();
-      if (src instanceof AudioBuffer) {
-        source = audioCtx.createBufferSource();
-        source.buffer = src;
-        source.onended = () => {
-          stop();
-          onended();
-        };
-        source.start();
-        source.connect(proc);
-      } else {
-        source = audioCtx.createOscillator();
-        source.type = 'sine';
-        source.start();
-        gain = audioCtx.createGain();
-        gain.gain.value = 0.5;
-        source.connect(gain);
-        gain.connect(proc);
-      }
-      proc.connect(analyzer);
-    };
+  };
 
-    const stop = function () {
-      if (source !== null) {
-        source.disconnect();
-        source = null;
-      }
-      if (gain !== null) {
-        gain.disconnect();
-        gain = null;
-      }
-      proc.disconnect();
-      audioCtx.suspend();
-    };
+  proc.port.postMessage({action: 'list-properties'});
+  const data = await receiveMessage(proc.port);
+  if (data.response === 'list-properties') {
+    for (const p of data.properties) {
+      Object.defineProperty(proc, p, {
+        set(val) {
+          proc.port.postMessage({action: 'set-property', param: p, value: val});
+        },
+      });
+    }
+  }
 
-    const getTimeDomainData = function () {
-      analyzer.getFloatTimeDomainData(timeDomainData);
-      return timeDomainData;
-    };
+  const start = function (src) {
+    if (source !== null) {
+      source.disconnect();
+      source = null;
+    }
+    if (gain !== null) {
+      gain.disconnect();
+      gain = null;
+    }
+    audioCtx.resume();
+    if (src instanceof AudioBuffer) {
+      source = audioCtx.createBufferSource();
+      source.buffer = src;
+      source.onended = () => {
+        stop();
+        onended();
+      };
+      source.start();
+      source.connect(proc);
+    } else {
+      source = audioCtx.createOscillator();
+      source.type = 'sine';
+      source.start();
+      gain = audioCtx.createGain();
+      gain.gain.value = 0.5;
+      source.connect(gain);
+      gain.connect(proc);
+    }
+    proc.connect(analyzer);
+  };
 
-    const getFrequencyDomainData = function () {
-      analyzer.getFloatFrequencyData(frequencyDomainData);
-      return frequencyDomainData;
-    };
+  const stop = function () {
+    if (source !== null) {
+      source.disconnect();
+      source = null;
+    }
+    if (gain !== null) {
+      gain.disconnect();
+      gain = null;
+    }
+    proc.disconnect();
+    audioCtx.suspend();
+  };
+  const getTimeDomainData = function () {
+    analyzer.getFloatTimeDomainData(timeDomainData);
+    return timeDomainData;
+  };
+  const getFrequencyDomainData = function () {
+    analyzer.getFloatFrequencyData(frequencyDomainData);
+    return frequencyDomainData;
+  };
 
-    return {
-      start: start,
-      stop: stop,
-      isPlaying() {
-        return source !== null;
-      },
-      createBuffer(contents, onSuccess) {
-        audioCtx.decodeAudioData(contents, onSuccess);
-      },
-      set onended(handler) { onended = handler; },
-      getTimeDomainData: getTimeDomainData,
-      getFrequencyDomainData: getFrequencyDomainData,
-      proc: proc,
-    };
-  });
+  return {
+    start: start,
+    stop: stop,
+    isPlaying() {
+      return source !== null;
+    },
+    createBuffer(contents, onSuccess) {
+      audioCtx.decodeAudioData(contents, onSuccess);
+    },
+    set onended(handler) { onended = handler; },
+    getTimeDomainData: getTimeDomainData,
+    getFrequencyDomainData: getFrequencyDomainData,
+    proc: proc,
+  };
 }
 
 export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
