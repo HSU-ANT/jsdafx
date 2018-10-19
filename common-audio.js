@@ -54,14 +54,7 @@ export async function setupAudio(procurl, procid) {
   };
 
   const start = function (src) {
-    if (source !== null) {
-      source.disconnect();
-      source = null;
-    }
-    if (gain !== null) {
-      gain.disconnect();
-      gain = null;
-    }
+    stop();
     audioCtx.resume();
     if (src instanceof AudioBuffer) {
       source = audioCtx.createBufferSource();
@@ -72,12 +65,13 @@ export async function setupAudio(procurl, procid) {
       };
       source.start();
       source.connect(proc);
-    } else {
+    } else if (src.type === 'sine') {
       source = audioCtx.createOscillator();
       source.type = 'sine';
+      source.frequency.value = src.frequency;
       source.start();
       gain = audioCtx.createGain();
-      gain.gain.value = 0.5;
+      gain.gain.value = src.gain;
       source.connect(gain);
       gain.connect(proc);
     }
@@ -93,14 +87,16 @@ export async function setupAudio(procurl, procid) {
     return frequencyDomainData;
   };
 
+  stop();
+
   return {
     start: start,
     stop: stop,
     isPlaying() {
       return source !== null;
     },
-    createBuffer(contents, onSuccess) {
-      audioCtx.decodeAudioData(contents, onSuccess);
+    createBuffer(contents) {
+      return new Promise((resolve) => { audioCtx.decodeAudioData(contents, resolve); });
     },
     set onended(handler) { onended = handler; },
     getTimeDomainData: getTimeDomainData,
@@ -109,88 +105,101 @@ export async function setupAudio(procurl, procid) {
   };
 }
 
-export function setupPlayerControls(audioProc, bindata1Promise, bindata2Promise) {
-  let audio1data = null;
-  let audio2data = null;
-  let audioFileData = null;
+export function setupPlayerControls(audioProc, sourceconfig) {
+  const sources = [];
+  const source_selector = document.getElementById('source-selector');
+  const optgroup_internal = document.createElement('optgroup');
+  optgroup_internal.label = 'Predefined';
+  source_selector.append(optgroup_internal);
+  const optgroup_local = document.createElement('optgroup');
+  optgroup_local.label = 'Local files';
+  source_selector.append(optgroup_local);
+  const play_button = document.getElementById('play');
+  const stop_button = document.getElementById('stop');
 
-  function updatePlayButtonStates() {
+  function updateState() {
     if (audioProc.isPlaying()) {
-      document.getElementById('audio1').disabled = true;
-      document.getElementById('audio2').disabled = true;
-      document.getElementById('start').disabled = true;
-      document.getElementById('file-input').disabled = true;
-      document.getElementById('stop').disabled = false;
+      play_button.disabled = true;
+      stop_button.disabled = false;
     } else {
-      document.getElementById('audio1').disabled =
-        bindata1Promise !== null && audio1data === null;
-      document.getElementById('audio2').disabled =
-        bindata2Promise !== null && audio2data === null;
-      document.getElementById('start').disabled = audioFileData === null;
-      document.getElementById('file-input').disabled = false;
-      document.getElementById('stop').disabled = true;
+      stop_button.disabled = true;
+      play_button.disabled = !sources[source_selector.value];
     }
   }
 
-  if (bindata1Promise) {
-    bindata1Promise.then((bindata1) => {
-      audioProc.createBuffer(bindata1, (buf) => {
-        audio1data = buf;
-        updatePlayButtonStates();
-      });
-    });
-  }
-  if (bindata2Promise) {
-    bindata2Promise.then((bindata2) => {
-      audioProc.createBuffer(bindata2, (buf) => {
-        audio2data = buf;
-        updatePlayButtonStates();
-      });
-    });
+  async function setupSource(src) {
+    const new_option = document.createElement('option');
+    optgroup_internal.append(new_option);
+    if (src.type === 'remote') {
+      new_option.text = `${src.label} (loading...)`;
+      new_option.value = sources.length;
+      sources.push(null);
+      const req = await window.fetch(src.url);
+      sources[new_option.value] = await audioProc.createBuffer(await req.arrayBuffer());
+      new_option.text = src.label;
+    } else if (src.type === 'sine') {
+      const f = src.frequency || 440;
+      new_option.text = src.label || `${f} Hz sine`;
+      new_option.value = sources.length;
+      sources.push({ type: 'sine', frequency: f, gain: src.gain || 0.5 });
+    }
+    updateState();
   }
 
-  audioProc.onended = updatePlayButtonStates;
+  sourceconfig.forEach(setupSource);
 
-  document.getElementById('audio1').onclick = function (/* event */) {
-    if (audio1data !== null) {
-      audioProc.start(audio1data);
-    } else {
-      audioProc.start();
-    }
-    updatePlayButtonStates();
-  };
-  document.getElementById('audio2').onclick = function (/* event */) {
-    if (audio2data !== null) {
-      audioProc.start(audio2data);
-    } else {
-      audioProc.start();
-    }
-    updatePlayButtonStates();
-  };
-  document.getElementById('start').onclick = function (/* event */) {
-    audioProc.start(audioFileData);
-    updatePlayButtonStates();
-  };
-  document.getElementById('stop').onclick = function (/* event */) {
+  audioProc.onended = updateState;
+
+  stop_button.onclick = function (/* event */) {
     audioProc.stop();
-    updatePlayButtonStates();
+    updateState();
   };
-  document.getElementById('file-input').addEventListener('change', (e) => {
+  play_button.onclick = function (/* event */) {
+    audioProc.start(sources[source_selector.value]);
+    updateState();
+  };
+
+  const local_file_option = document.createElement('option');
+  local_file_option.text = 'Browse...';
+  local_file_option.value = 'local file chooser';
+  optgroup_local.append(local_file_option);
+  const file_input = document.createElement('input');
+  file_input.type = 'file';
+  file_input.accept = 'audio/*';
+  file_input.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) {
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const contents = e.target.result;
-      audioProc.createBuffer(contents, (buf) => {
-        audioFileData = buf;
-        audioProc.start(audioFileData);
-        updatePlayButtonStates();
-      });
-    };
-    reader.readAsArrayBuffer(file);
+    const new_option = document.createElement('option');
+    new_option.text = `${file.name} (loading...)`;
+    new_option.value = sources.length;
+    sources.push(null);
+
+    optgroup_local.insertBefore(new_option, local_file_option);
+    source_selector.value = new_option.value;
+    updateState();
+    const contents = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => { resolve(e.target.result); };
+      reader.readAsArrayBuffer(file);
+    });
+    const buf = await audioProc.createBuffer(contents);
+    sources[new_option.value] = buf;
+    new_option.text = file.name;
+    updateState();
   }, false);
 
-  updatePlayButtonStates();
+  if (sourceconfig.length === 0) {
+    // prevent "Browse..." from being pre-selected
+    source_selector.value = '';
+  }
+  source_selector.addEventListener('input', (e) => {
+    if (e.target.value === 'local file chooser') {
+      file_input.click();
+      source_selector.value = '';
+    }
+    audioProc.stop();
+    updateState();
+  }, false);
 }

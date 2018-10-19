@@ -4,17 +4,17 @@ window.addEventListener('load', () => {
   const graph = makeFunctionGraph('axiscanvas', 'funccanvas');
   graph.ylim(-130, 0);
 
-  Promise.all([
-    setupAudio('ovsproc.js', 'ovs-processor'),
-    window.fetch('audio/unfinite_function.mp3'),
-  ]).then(([audioProc, audio2Binary]) => {
+  setupAudio('ovsproc.js', 'ovs-processor').then((audioProc) => {
     audioProc.proc.w = 16;
     audioProc.proc.dithertype = 'rect';
     audioProc.proc.noiseshapingfilter = 1;
     audioProc.proc.oversamplingfactor = 4;
 
 
-    setupPlayerControls(audioProc, null, audio2Binary.arrayBuffer());
+    setupPlayerControls(audioProc, [
+      { type: 'sine' },
+      {type: 'remote', label: 'Music', url: 'audio/unfinite_function.mp3'},
+    ]);
 
     const frequencies = new Float32Array(audioProc.getFrequencyDomainData());
     for (let i = 0; i < frequencies.length; i++) {
