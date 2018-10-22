@@ -51,12 +51,16 @@ window.addEventListener('load', () => {
         graph.xlim(0, timeindices.length-1);
         graph.xlabel = 'time in samples';
         graph.ylabel = 'amplitude';
+        cblinear.style.visibility = 'hidden';
+        cblinear.labels[0].style.visibility = 'hidden';
       } else {
         graph.xlim(50, 20000);
         graph.logx(!cblinear.checked);
         graph.ylim(-130, 0);
         graph.xlabel = 'frequency in Hz';
         graph.ylabel = 'magnitude in dB';
+        cblinear.style.visibility = 'visible';
+        cblinear.labels[0].style.visibility = 'visible';
       }
     }
     document.getElementById('spectrum').onchange = (event) => {
