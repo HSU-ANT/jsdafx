@@ -52,10 +52,14 @@ window.onload = () => {
         graph.logx(false);
         graph.ylim(-1, 1);
         graph.xlim(0, timeindices.length-1);
+        graph.xlabel = 'time in samples';
+        graph.ylabel = 'amplitude';
       } else {
         graph.xlim(50, 20000);
         graph.logx(!cblinear.checked);
         graph.ylim(-130, 0);
+        graph.xlabel = 'frequency in Hz';
+        graph.ylabel = 'magnitude in dB';
       }
     }
     document.getElementById('spectrum').onchange = (event) => {
@@ -64,6 +68,7 @@ window.onload = () => {
     document.getElementById('waveform').onchange = (event) => {
       setDrawWave(event.target.checked);
     };
+    setDrawWave(false);
 
     document.getElementById('wordlength').value = 16;
     document.getElementById('wordlength').onchange = function (event) {
