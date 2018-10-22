@@ -39,15 +39,13 @@ window.addEventListener('load', () => {
     cblinear.checked = false;
     graph.logx(true);
     cblinear.onchange = function (event) {
-      if (!document.getElementById('wave').checked) {
+      if (!drawWave) {
         graph.logx(!event.target.checked);
       }
     };
-    const cbwave = document.getElementById('wave');
-    cbwave.checked = false;
-    cbwave.onchange = function (event) {
-      drawWave = event.target.checked;
-      if (drawWave) {
+    function setDrawWave(b) {
+      drawWave = b;
+      if (b) {
         graph.logx(false);
         graph.ylim(-1, 1);
         graph.xlim(0, timeindices.length-1);
@@ -56,7 +54,14 @@ window.addEventListener('load', () => {
         graph.logx(!cblinear.checked);
         graph.ylim(-130, 0);
       }
+    }
+    document.getElementById('spectrum').onchange = (event) => {
+      setDrawWave(!event.target.checked);
     };
+    document.getElementById('waveform').onchange = (event) => {
+      setDrawWave(event.target.checked);
+    };
+
     document.getElementById('wordlength').value = 16;
     document.getElementById('wordlength').onchange = function (event) {
       audioProc.proc.w = event.target.value;

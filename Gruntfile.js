@@ -4,6 +4,13 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    cssmin: {
+      dist: {
+        files: {
+          'build/jsdafx.css': ['jsdafx.css'],
+        }
+      }
+    },
     processhtml: {
       dist: {
         files: {
@@ -85,6 +92,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-contrib-uglify-es');
   grunt.loadNpmTasks('grunt-eslint');
@@ -93,6 +101,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-rollup');
 
   grunt.registerTask('default', [
+    'cssmin',
     'processhtml',
     'htmlmin',
     'exec:compile',

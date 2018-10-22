@@ -1,0 +1,30 @@
+body {
+  font-family: 'sans-serif';
+}
+
+div.tabs {
+  padding: 0 5px;
+  border-bottom: 1px solid rgba(140, 130, 121, 0.6);
+}
+
+div.tabs > input {
+  display: none;
+}
+
+div.tabs > label {
+  display: inline-block;
+  margin: 0 0 -1px;
+  padding: 10px 15px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+div.tabs > label:hover {
+  cursor: pointer;
+}
+
+div.tabs > input:checked + label {
+  border: 1px solid rgba(140, 130, 121, 0.6);
+  border-top: 2px solid rgb(165, 0, 52);
+  border-bottom: 1px solid #fff;
+}

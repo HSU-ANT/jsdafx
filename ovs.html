@@ -6,6 +6,9 @@
   <!-- build:remove -->
   <script src="https://unpkg.com/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>
   <!-- /build -->
+  <!-- build:css inline build/jsdafx.css -->
+  <link rel="stylesheet" href="jsdafx.css" />
+  <!-- /build -->
   <script src="ovs.js" type="module" ></script>
 </head>
 <body>
@@ -21,7 +24,13 @@
   });
   </script>
   <!-- /build -->
-  <div id="graph" style="width: 500px; height: 200px;">
+  <div style="margin-top: 10px;" class="tabs">
+    <input id="spectrum" type="radio" name="tabs" checked />
+    <label for="spectrum">Spectrum</label>
+    <input id="waveform" type="radio" name="tabs" />
+    <label for="waveform">Waveform</label>
+  </div>
+  <div id="graph" style="width: 500px; height: 200px; padding-top: 10px">
     <canvas id="axiscanvas" width="500" height="200"
       style="position: absolute; z-index: 1" ></canvas>
     <canvas id="funccanvas" width="500" height="200"
@@ -53,7 +62,7 @@
         </select></td>
       </tr>
       <tr>
-        <td><input id="wave" type="checkbox" />Wave</td>
+        <td></td>
         <td><input id="noiseshaping" type="checkbox" />Noise-shaping</td>
         <td><select id="noiseshapingfilter">
           <option value="1">First Order</option>
