@@ -1,21 +1,22 @@
-export function makeFunctionGraph(axisid, funcid) {
-  const fgcanvas = document.getElementById(funcid);
+export function FunctionGraph(fgcanvas) {
   const width = fgcanvas.width;
   const height = fgcanvas.height;
-  const fgctx = fgcanvas.getContext('2d');
+  const ctx = fgcanvas.getContext('2d');
 
   let logx = true;
   let xmax = 20000;
   let xmin = 50;
-  let _xlabel = null;
+  let xlabel = null;
 
   let ymax = 0;
   let ymin = -80;
-  let _ylabel = null;
+  let ylabel = null;
 
   let x_margin_left = 30;
   const y_margin_top = 10;
   let y_margin_bottom = 17;
+
+  let axes_image_data = null;
 
   const x_pos_to_val_lin = function (x) {
     return (xmax-xmin) * (x-x_margin_left) / (width-x_margin_left) + xmin;
@@ -57,8 +58,6 @@ export function makeFunctionGraph(axisid, funcid) {
   };
 
   const drawAxis = function () {
-    const canvas = document.getElementById(axisid);
-    const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
     ctx.font = '12px sans-serif';
     ctx.textBaseline = 'middle';
@@ -72,8 +71,8 @@ export function makeFunctionGraph(axisid, funcid) {
     ctx.textBaseline = 'top';
     ctx.textAlign = 'center';
     ctx.setTransform(0, -1, 1, 0, 0, 0);
-    if (_ylabel) {
-      ctx.fillText(_ylabel, -((height-y_margin_bottom-y_margin_top)/2 + y_margin_top), 0);
+    if (ylabel) {
+      ctx.fillText(ylabel, -((height-y_margin_bottom-y_margin_top)/2 + y_margin_top), 0);
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (logx) {
@@ -87,8 +86,8 @@ export function makeFunctionGraph(axisid, funcid) {
         ctx.fillText(x, x_val_to_pos(x), height-y_margin_bottom+2);
       }
     }
-    if (_xlabel) {
-      ctx.fillText(_xlabel, x_margin_left+(width-x_margin_left)/2,
+    if (xlabel) {
+      ctx.fillText(xlabel, x_margin_left+(width-x_margin_left)/2,
         height-y_margin_bottom+16);
     }
 
@@ -126,63 +125,68 @@ export function makeFunctionGraph(axisid, funcid) {
     ctx.rect(x_val_to_pos(xmin), y_val_to_pos(ymin),
       x_val_to_pos(xmax)-x_val_to_pos(xmin), y_val_to_pos(ymax)-y_val_to_pos(ymin));
     ctx.stroke();
+    axes_image_data = ctx.getImageData(0, 0, width, height);
   };
 
-  const drawData = function (xdata, ydata) {
-    fgctx.clearRect(0, 0, width, height);
-    fgctx.strokeStyle = 'rgb(0, 0, 0)';
-    fgctx.save();
-    fgctx.beginPath();
-    fgctx.rect(x_margin_left, y_margin_top, width-x_margin_left,
+  this.drawData = function (xdata, ydata) {
+    ctx.putImageData(axes_image_data, 0, 0);
+    ctx.strokeStyle = 'rgb(0, 0, 0)';
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x_margin_left, y_margin_top, width-x_margin_left,
       height-y_margin_bottom-y_margin_top);
-    fgctx.clip();
-    fgctx.beginPath();
-    fgctx.moveTo(x_val_to_pos(xdata[0]), y_val_to_pos(ydata[0]));
+    ctx.clip();
+    ctx.beginPath();
+    ctx.moveTo(x_val_to_pos(xdata[0]), y_val_to_pos(ydata[0]));
     for (let i = 1; i < ydata.length; i++) {
-      fgctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(ydata[i]));
+      ctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(ydata[i]));
     }
-    fgctx.stroke();
-    fgctx.restore();
+    ctx.stroke();
+    ctx.restore();
   };
 
-  const set_logx = function (_logx) {
-    logx = _logx;
-    if (logx) {
-      x_pos_to_val = x_pos_to_val_log;
-      x_val_to_pos = x_val_to_pos_log;
-    } else {
-      x_pos_to_val = x_pos_to_val_lin;
-      x_val_to_pos = x_val_to_pos_lin;
-    }
-    drawAxis();
-  };
-
-  return {
-    drawData: drawData,
-    xlim(_xmin, _xmax) {
-      xmin = _xmin;
-      xmax = _xmax;
+  Object.defineProperty(this, 'xlim', {
+    get() { return [xmin, xmin]; },
+    set(xlim) {
+      [xmin, xmax] = xlim;
       drawAxis();
     },
-    ylim(_ymin, _ymax) {
-      ymin = _ymin;
-      ymax = _ymax;
+  });
+  Object.defineProperty(this, 'ylim', {
+    get() { return [ymin, ymin]; },
+    set(ylim) {
+      [ymin, ymax] = ylim;
       drawAxis();
     },
-    logx(_logx) {
-      set_logx(_logx);
-    },
-    get xlabel() { return _xlabel; },
-    set xlabel(xlabel) {
-      _xlabel = xlabel;
-      y_margin_bottom = _xlabel ? 30 : 16;
+  });
+  Object.defineProperty(this, 'logx', {
+    get() { return logx; },
+    set(_logx) {
+      logx = _logx;
+      if (logx) {
+        x_pos_to_val = x_pos_to_val_log;
+        x_val_to_pos = x_val_to_pos_log;
+      } else {
+        x_pos_to_val = x_pos_to_val_lin;
+        x_val_to_pos = x_val_to_pos_lin;
+      }
       drawAxis();
     },
-    get ylabel() { return _ylabel; },
-    set ylabel(ylabel) {
-      _ylabel = ylabel;
-      x_margin_left = _ylabel ? 44 : 30;
+  });
+  Object.defineProperty(this, 'xlabel', {
+    get() { return xlabel; },
+    set(_xlabel) {
+      xlabel = _xlabel;
+      y_margin_bottom = xlabel ? 30 : 16;
       drawAxis();
     },
-  };
+  });
+  Object.defineProperty(this, 'ylabel', {
+    get() { return ylabel; },
+    set(_ylabel) {
+      ylabel = _ylabel;
+      x_margin_left = ylabel ? 44 : 30;
+      drawAxis();
+    },
+  });
 }

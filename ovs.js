@@ -1,8 +1,8 @@
-import { makeFunctionGraph, setupAudio, setupPlayerControls } from './common.js';
+import { FunctionGraph, setupAudio, setupPlayerControls } from './common.js';
 
 window.addEventListener('load', () => {
-  const graph = makeFunctionGraph('axiscanvas', 'funccanvas');
-  graph.ylim(-130, 0);
+  const graph = new FunctionGraph(document.getElementById('funccanvas'));
+  graph.ylim = [-130, 0];
 
   setupAudio('ovsproc.js', 'ovs-processor').then((audioProc) => {
     audioProc.proc.w = 16;
@@ -37,26 +37,26 @@ window.addEventListener('load', () => {
 
     const cblinear = document.getElementById('linear');
     cblinear.checked = false;
-    graph.logx(true);
     cblinear.onchange = function (event) {
       if (!drawWave) {
-        graph.logx(!event.target.checked);
+        graph.logx = !event.target.checked;
       }
     };
+
     function setDrawWave(b) {
       drawWave = b;
       if (b) {
-        graph.logx(false);
-        graph.ylim(-1, 1);
-        graph.xlim(0, timeindices.length-1);
+        graph.logx = false;
+        graph.ylim = [-1, 1];
+        graph.xlim= [0, timeindices.length-1];
         graph.xlabel = 'time in samples';
         graph.ylabel = 'amplitude';
         cblinear.style.visibility = 'hidden';
         cblinear.labels[0].style.visibility = 'hidden';
       } else {
-        graph.xlim(50, 20000);
-        graph.logx(!cblinear.checked);
-        graph.ylim(-130, 0);
+        graph.xlim = [50, 20000];
+        graph.logx = !cblinear.checked;
+        graph.ylim = [-130, 0];
         graph.xlabel = 'frequency in Hz';
         graph.ylabel = 'magnitude in dB';
         cblinear.style.visibility = 'visible';
