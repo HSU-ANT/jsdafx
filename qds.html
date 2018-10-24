@@ -36,51 +36,48 @@
   <div style="width: 500px; padding-bottom: 10px; text-align: right">
     <input id="linear" type="checkbox" /><label for="linear">linear</label>
   </div>
-  <div style="width: 500px; height: 220px;" align="center" >
+  <div style="width: 500px; padding: 10px;" align="center" >
     <img src="images/qds/ns5.png" id="diagram" />
   </div>
-  <div>
-    <table border="0" style="width: 500px;">
-      <tr>
-        <td>Quantization</td>
-        <td><input id="dither" type="checkbox" />Dither</td>
-        <td><input id="noiseshaping" type="checkbox" />Noise-shaping</td>
-      </tr>
-      <tr>
-        <td><select id="wordlength">
-          <option value="16">16</option>
-          <option value="10">10</option>
-          <option value="8">8</option>
-          <option value="6">6</option>
-          <option value="4">4</option>
-          <option value="2">2</option>
-        </select></td>
-        <td><select id="dithertype">
-          <option value="rect">rectangular</option>
-          <option value="tri">triangular</option>
-          <option value="hp">high-pass</option>
-        </select></td>
-        <td><select id="noiseshapingfilter">
-          <option value="1">First Order</option>
-          <option value="2">Second Order</option>
-          <option value="3">Psychoacoustic3</option>
-          <option value="5">Psychoacoustic5</option>
-          <option value="9">Psychoacoustic9</option>
-        </select></td>
-      </tr>
-    </table>
-  </div>
-  <br />
+  <div style="margin: 10px 0">
+    <div>
+      Quantization word length
+      <select id="wordlength">
+        <option value="16">16</option>
+        <option value="10">10</option>
+        <option value="8">8</option>
+        <option value="6">6</option>
+        <option value="4">4</option>
+        <option value="2">2</option>
+      </select>
+    </div>
+    <div>
+      <input id="dither" type="checkbox" /><label for="dither">Dither</label>
+      <select id="dithertype">
+        <option value="rect">rectangular</option>
+        <option value="tri">triangular</option>
+        <option value="hp">high-pass</option>
+      </select>
+    </div>
+    <div>
+      <input id="noiseshaping" type="checkbox" /><label for="noiseshaping">Noise-shaping</label>
+      <select id="noiseshapingfilter">
+        <option value="1">First Order</option>
+        <option value="2">Second Order</option>
+        <option value="3">Psychoacoustic3</option>
+        <option value="5">Psychoacoustic5</option>
+        <option value="9">Psychoacoustic9</option>
+      </select>
+    </div>  </div>
   <div style="width: 600px">
   This script demonstrates audio effects resulting from <b>Quantization</b>. It
   is designed for a first insight into the perceptual effects of quantizing an
   audio signal.
-  <p>The following functions can be selected on the lower right of the graphical
-     user interface</p>
+  <p>The following options can be set in the lower part of the  user interface</p>
   <ul>
     <li> <b>Quantizer&nbsp;</b>
       <ul>
-        <li>word length w leads to quantization step size Q=2^(w-1)<br>
+        <li>word length w leads to quantization step size Q=2⁻⁽ʷ⁻¹⁾<br>
         </li>
       </ul>
     </li>
@@ -94,8 +91,8 @@
     </li>
     <li><b>Noise shaping</b>
       <ul>
-        <li>first-order H(z)=z^(-1)</li>
-        <li>second-order H(z)=-2z^(-1)+z^(-2)</li>
+        <li>first-order H(z)=z⁻¹</li>
+        <li>second-order H(z)=-2z⁻¹+z⁻²</li>
         <li>psychoacoustic noise shaping<br>
         </li>
       </ul>

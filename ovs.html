@@ -36,60 +36,60 @@
   <div style="width: 500px; padding-bottom: 10px; text-align: right">
     <input id="linear" type="checkbox" /><label for="linear">linear</label>
   </div>
-  <div style="width: 500px; height: 220px;" align="center" >
+  <div style="width: 500px; padding: 10px;" align="center" >
     <img src="images/ovs/ns5.png" id="diagram" />
   </div>
-  <div>
-    <table border="0" style="width: 500px;">
-      <tr>
-        <td><input id="dither" type="checkbox" />Dither</td>
-        <td><select id="dithertype">
-          <option value="rect">rectangular</option>
-          <option value="tri">triangular</option>
-          <option value="hp">high-pass</option>
-        </select></td>
-        <td>Quantization</td>
-        <td><select id="wordlength">
-          <option value="16">16</option>
-          <option value="10">10</option>
-          <option value="8">8</option>
-          <option value="6">6</option>
-          <option value="4">4</option>
-          <option value="2">2</option>
-        </select></td>
-      </tr>
-      <tr>
-        <td><input id="noiseshaping" type="checkbox" />Noise-shaping</td>
-        <td><select id="noiseshapingfilter">
-          <option value="1">First Order</option>
-        </select></td>
-        <td>upSampling</td>
-        <td><select id="oversamplingfactor">
-          <option value="64">64</option>
-          <option value="32">32</option>
-          <option value="16">16</option>
-          <option value="8">8</option>
-          <option value="4">4</option>
-          <option value="1">1</option>
-        </select></td>
-      </tr>
-    </table>
+  <div style="margin: 10px 0">
+    <div>
+      Quantization word length
+      <select id="wordlength">
+        <option value="16">16</option>
+        <option value="10">10</option>
+        <option value="8">8</option>
+        <option value="6">6</option>
+        <option value="4">4</option>
+        <option value="2">2</option>
+      </select>
+    </div>
+    <div>
+      <td>Up-sampling factor L</td>
+      <td><select id="oversamplingfactor">
+        <option value="64">64</option>
+        <option value="32">32</option>
+        <option value="16">16</option>
+        <option value="8">8</option>
+        <option value="4">4</option>
+        <option value="1">1</option>
+      </select></td>
+    </div>
+    <div>
+      <input id="dither" type="checkbox" /><label for="dither">Dither</label>
+      <select id="dithertype">
+        <option value="rect">rectangular</option>
+        <option value="tri">triangular</option>
+        <option value="hp">high-pass</option>
+      </select>
+    </div>
+    <div>
+      <input id="noiseshaping" type="checkbox" /><label for="noiseshaping">Noise-shaping</label>
+      <select id="noiseshapingfilter">
+        <option value="1">First Order</option>
+      </select>
+    </div>
   </div>
-  <br />
   <div style="width: 600px">
-    This script demostrates the influence of oversampling on the power
+    This script demonstrates the influence of oversampling on the power
     spectral density and quantization error. For a given quantization word
     length the noise level can be reduced with the oversampling factor.
     This applet allows to experiment this noise reduction effect,
     acoustically by modifying the oversampling and quantization factors,
     and visually with the spectral representation.
 
-  <p>The following functions can be selected on the lower right of the graphical
-     user interface</p>
+  <p>The following options can be set in the lower part of the  user interface</p>
   <ul>
     <li> <b>Quantizer&nbsp;</b>
       <ul>
-        <li>word length w leads to quantization step size Q=2^(w-1)</li>
+        <li>word length w leads to quantization step size Q=2⁻⁽ʷ⁻¹⁾</li>
       </ul>
     </li>
     <li><b>Dither</b>
@@ -102,7 +102,7 @@
     </li>
     <li><b>Noise shaping</b>
       <ul>
-        <li>first-order H(z)=z^(-1)</li>
+        <li>first-order H(z)=z⁻¹</li>
       </ul>
     </li>
     <li><b>Up Sampling Factor </b>&nbsp;
