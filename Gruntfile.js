@@ -4,10 +4,17 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    css_img_2_data_uri: {
+      options: {
+        files: [
+          { dest: 'build/jsdafx.datauri.css', src: 'jsdafx.css' },
+        ]
+      },
+    },
     cssmin: {
       dist: {
         files: {
-          'build/jsdafx.css': ['jsdafx.css'],
+          'build/jsdafx.css': ['build/jsdafx.datauri.css'],
         }
       }
     },
@@ -81,7 +88,13 @@ module.exports = function(grunt) {
     copy: {
       dist: {
         files: [
-          { expand: true, src: ['audio/*', 'images/**'], dest: 'dist/' },
+          { expand: true, src: ['audio/*'], dest: 'dist/' },
+          {
+            expand: true,
+            cwd: 'images',
+            src: ['**', '!play*.png', '!stop*.png'],
+            dest: 'dist/images',
+          },
         ],
       },
     },
@@ -95,12 +108,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-contrib-uglify-es');
+  grunt.loadNpmTasks('grunt-css-img-2-data-uri');
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-processhtml');
   grunt.loadNpmTasks('grunt-rollup');
 
   grunt.registerTask('default', [
+    'css_img_2_data_uri',
     'cssmin',
     'processhtml',
     'htmlmin',

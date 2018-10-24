@@ -1,10 +1,20 @@
+/*
+red 100% rgb(165, 0, 52)
+     60%
+     30% rgb(228, 179, 194)
+gray 100% rgb(140, 130, 121)
+      60% rgb(186, 180, 175)
+      30% rgb(221, 218, 215)
+*/
+
 body {
   font-family: 'sans-serif';
+  font-size: 16px;
 }
 
 div.tabs {
   padding: 0 5px;
-  border-bottom: 1px solid rgba(140, 130, 121, 0.6);
+  border-bottom: 1px solid rgb(186, 180, 175);
 }
 
 div.tabs > input {
@@ -24,7 +34,102 @@ div.tabs > label:hover {
 }
 
 div.tabs > input:checked + label {
-  border: 1px solid rgba(140, 130, 121, 0.6);
+  border: 1px solid rgb(186, 180, 175);
   border-top: 2px solid rgb(165, 0, 52);
   border-bottom: 1px solid #fff;
+}
+
+input[type=button] {
+  border: solid 1px rgb(186, 180, 175);
+  background-color: rgb(221, 218, 215);
+  outline-color: rgb(165, 0, 52);
+  vertical-align: top;
+  height: 21px;
+  padding: 5px;
+  font-size: inherit;
+  box-sizing: content-box;
+}
+
+input[type=button]:disabled {
+  color: rgb(140, 130, 121);
+}
+
+input[type=button]:active {
+  outline-width: 2px;
+  outline-style: auto;
+}
+
+input[type=button]#play {
+  background-image: url('images/play.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 21px;
+}
+
+input[type=button]#play:disabled {
+  background-image: url('images/play_disabled.png');
+}
+
+input[type=button]#stop {
+  background-image: url('images/stop.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 21px;
+}
+
+input[type=button]#stop:disabled {
+  background-image: url('images/stop_disabled.png');
+}
+
+
+.select {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  height: 30px;
+}
+
+.select > div:nth-child(1) {
+  display: inline-block;
+  border: solid 1px rgb(186, 180, 175);
+  background-color: rgb(221, 218, 215);
+  padding-right: 26px;
+  cursor: pointer;
+  overflow-x: hidden;
+  height: 19px;
+  padding: 6px;
+}
+
+.select > div:nth-child(1):after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  right: 8px;
+  border: 6px solid transparent;
+  border-color: #000 transparent transparent transparent;
+}
+
+.select > div:nth-child(2) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background-color: rgb(221, 218, 215);
+  border: solid 1px rgb(186, 180, 175);
+  visibility: hidden;
+}
+
+.select > div:nth-child(2) div.selected {
+  background-color: rgb(228, 179, 194);
+}
+
+.select > div:nth-child(2) > div.optgroup {
+  font-weight: bold;
+}
+
+.select > div:nth-child(2) > div.optgroup > div {
+  font-weight: normal;
+  padding-left: 1.5em;
+  overflow-x: hidden;
 }

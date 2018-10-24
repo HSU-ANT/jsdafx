@@ -1,5 +1,16 @@
 <div>
-  <select id="source-selector" style="width: 30ex"></select>
-  <input type="button" value="Play" id="play" disabled="true" />
-  <input type="button" value="Stop" id="stop" disabled="true" />
+  <span class="select" id="source-select">
+    <div style="width: 30ex;"></div>
+    <div>
+      <div class="optgroup">
+        Predefined
+      </div>
+      <div class="optgroup">
+        Local files
+        <div style="font-style: italic;">Browse...</div>
+      </div>
+    </div>
+  </span>
+  <input type="button" id="play" disabled="true" />
+  <input type="button" id="stop" disabled="true" />
 </div>

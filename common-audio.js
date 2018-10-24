@@ -107,13 +107,19 @@ export async function setupAudio(procurl, procid) {
 
 export function setupPlayerControls(audioProc, sourceconfig) {
   const sources = [];
-  const source_selector = document.getElementById('source-selector');
-  const optgroup_internal = document.createElement('optgroup');
-  optgroup_internal.label = 'Predefined';
-  source_selector.append(optgroup_internal);
-  const optgroup_local = document.createElement('optgroup');
-  optgroup_local.label = 'Local files';
-  source_selector.append(optgroup_local);
+  let selected_source_idx = null;
+
+  const source_selector_outer = document.getElementById('source-select');
+  const itembox = source_selector_outer.children[1];
+  source_selector_outer.children[0].addEventListener('click', (e) => {
+    e.stopPropagation();
+    itembox.style.visibility =
+      itembox.style.visibility === 'visible' ? 'hidden' : 'visible';
+  }, false);
+  document.addEventListener('click', () => {
+    itembox.style.visibility = 'hidden';
+  }, false);
+
   const play_button = document.getElementById('play');
   const stop_button = document.getElementById('stop');
 
@@ -123,24 +129,45 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       stop_button.disabled = false;
     } else {
       stop_button.disabled = true;
-      play_button.disabled = !sources[source_selector.value];
+      play_button.disabled = !sources[selected_source_idx];
+    }
+  }
+
+  function setSelectedSource(option) {
+    function removeSelectedMarker(node) {
+      node.classList.remove('selected');
+      Array.from(node.children).forEach(removeSelectedMarker);
+    }
+    selected_source_idx = option.getAttribute('data-source-idx');
+    source_selector_outer.children[0].innerText = option.textContent;
+    removeSelectedMarker(itembox);
+    option.classList.add('selected');
+    audioProc.stop();
+    updateState();
+  }
+
+  function updateSourceText(option, newText) {
+    option.innerText = newText;
+    if (option.getAttribute('data-source-idx') === selected_source_idx) {
+      source_selector_outer.children[0].innerText = newText;
     }
   }
 
   async function setupSource(src) {
-    const new_option = document.createElement('option');
-    optgroup_internal.append(new_option);
+    const new_option = document.createElement('div');
+    new_option.setAttribute('data-source-idx', sources.length);
+    itembox.children[0].append(new_option);
+    const new_source_idx = sources.length;
+    new_option.addEventListener('click', (e) => { setSelectedSource(e.target); });
     if (src.type === 'remote') {
-      new_option.text = `${src.label} (loading...)`;
-      new_option.value = sources.length;
+      new_option.innerText = `${src.label} (loading...)`;
       sources.push(null);
       const req = await window.fetch(src.url);
-      sources[new_option.value] = await audioProc.createBuffer(await req.arrayBuffer());
-      new_option.text = src.label;
+      sources[new_source_idx] = await audioProc.createBuffer(await req.arrayBuffer());
+      updateSourceText(new_option, src.label);
     } else if (src.type === 'sine') {
       const f = src.frequency || 440;
-      new_option.text = src.label || `${f} Hz sine`;
-      new_option.value = sources.length;
+      new_option.innerText = src.label || `${f} Hz sine`;
       sources.push({ type: 'sine', frequency: f, gain: src.gain || 0.5 });
     }
     updateState();
@@ -155,14 +182,12 @@ export function setupPlayerControls(audioProc, sourceconfig) {
     updateState();
   };
   play_button.onclick = function (/* event */) {
-    audioProc.start(sources[source_selector.value]);
+    audioProc.start(sources[selected_source_idx]);
     updateState();
   };
 
-  const local_file_option = document.createElement('option');
-  local_file_option.text = 'Browse...';
-  local_file_option.value = 'local file chooser';
-  optgroup_local.append(local_file_option);
+  const optgroup_local = itembox.children[1];
+  const local_file_option = optgroup_local.children[0];
   const file_input = document.createElement('input');
   file_input.type = 'file';
   file_input.accept = 'audio/*';
@@ -171,35 +196,33 @@ export function setupPlayerControls(audioProc, sourceconfig) {
     if (!file) {
       return;
     }
-    const new_option = document.createElement('option');
-    new_option.text = `${file.name} (loading...)`;
-    new_option.value = sources.length;
+    const new_option = document.createElement('div');
+    new_option.setAttribute('data-source-idx', sources.length);
+    new_option.innerText = `${file.name} (loading...)`;
+    setSelectedSource(new_option);
+    optgroup_local.insertBefore(new_option, local_file_option);
+    const new_source_idx = sources.length;
+    new_option.addEventListener('click', (e) => { setSelectedSource(e.target); });
     sources.push(null);
 
-    optgroup_local.insertBefore(new_option, local_file_option);
-    source_selector.value = new_option.value;
-    updateState();
     const contents = await new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => { resolve(e.target.result); };
       reader.readAsArrayBuffer(file);
     });
     const buf = await audioProc.createBuffer(contents);
-    sources[new_option.value] = buf;
-    new_option.text = file.name;
+    sources[new_source_idx] = buf;
+    updateSourceText(new_option, file.name);
     updateState();
   }, false);
 
   if (sourceconfig.length === 0) {
-    // prevent "Browse..." from being pre-selected
-    source_selector.value = '';
+    source_selector_outer.children[0].innerText = 'input signal';
+  } else {
+    setSelectedSource(itembox.children[0].children[0]);
   }
-  source_selector.addEventListener('input', (e) => {
-    if (e.target.value === 'local file chooser') {
-      file_input.click();
-      source_selector.value = '';
-    }
-    audioProc.stop();
-    updateState();
-  }, false);
+
+  local_file_option.addEventListener('click', () => {
+    file_input.click();
+  });
 }

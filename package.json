@@ -25,10 +25,12 @@
     "grunt-contrib-cssmin": "^3.0.0",
     "grunt-contrib-htmlmin": "^3.0.0",
     "grunt-contrib-uglify-es": "^3.3.0",
+    "grunt-css-img-2-data-uri": "^0.2.1",
     "grunt-eslint": "^21.0.0",
     "grunt-exec": "^3.0.0",
     "grunt-processhtml": "^0.4.1",
     "grunt-rollup": "^9.0.0",
+    "mime": "^1.2.11",
     "rollup-plugin-node-resolve": "^3.4.0"
   }
 }
