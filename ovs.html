@@ -40,8 +40,9 @@
     <img src="images/ovs/ns5.png" id="diagram" />
   </div>
   <div style="margin: 10px 0">
-    <div>
-      Quantization word length
+    <div class="paramentrybox">
+      <span></span>
+      <span>Quantization word length</span>
       <select id="wordlength">
         <option value="16">16</option>
         <option value="10">10</option>
@@ -51,18 +52,19 @@
         <option value="2">2</option>
       </select>
     </div>
-    <div>
-      <td>Up-sampling factor L</td>
-      <td><select id="oversamplingfactor">
+    <div class="paramentrybox">
+      <span></span>
+      <span>Up-sampling factor L</span>
+      <select id="oversamplingfactor">
         <option value="64">64</option>
         <option value="32">32</option>
         <option value="16">16</option>
         <option value="8">8</option>
         <option value="4">4</option>
         <option value="1">1</option>
-      </select></td>
+      </select>
     </div>
-    <div>
+    <div class="paramentrybox">
       <input id="dither" type="checkbox" /><label for="dither">Dither</label>
       <select id="dithertype">
         <option value="rect">rectangular</option>
@@ -70,7 +72,7 @@
         <option value="hp">high-pass</option>
       </select>
     </div>
-    <div>
+    <div class="paramentrybox">
       <input id="noiseshaping" type="checkbox" /><label for="noiseshaping">Noise-shaping</label>
       <select id="noiseshapingfilter">
         <option value="1">First Order</option>

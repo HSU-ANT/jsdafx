@@ -12,6 +12,54 @@ body {
   font-size: 16px;
 }
 
+div.paramentrybox {
+  border: solid 1px rgb(186, 180, 175);
+  background-color: rgb(221, 218, 215);
+  height: 21px;
+  padding: 5px;
+  margin-bottom: 5px;
+  display: grid;
+  grid-template-columns: 31px 309px 150px;
+  width: 490px;
+}
+
+div.paramentrybox select {
+  border: none;
+  background-color: inherit;
+  font-size: inherit;
+  outline-color: rgb(165, 0, 52);
+  background-image: url('images/dropdown.png');
+  background-repeat: no-repeat;
+  background-position: right;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+div.paramentrybox select:hover {
+  background-color: rgb(186, 180, 175);
+}
+
+div.paramentrybox input[type=checkbox] {
+  outline-color: rgb(165, 0, 52);
+  height: 19px;
+  width: 19px;
+  margin: 1px;
+  border: solid 1px black;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+
+div.paramentrybox input[type=checkbox]:checked {
+  background-image: url('images/check.png');
+}
+
+div.paramentrybox input[type=checkbox]:hover {
+  background-color: rgb(186, 180, 175);
+}
+
 div.tabs {
   padding: 0 5px;
   border-bottom: 1px solid rgb(186, 180, 175);
