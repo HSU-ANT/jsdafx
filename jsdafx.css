@@ -10,6 +10,39 @@ gray 100% rgb(140, 130, 121)
 body {
   font-family: 'sans-serif';
   font-size: 16px;
+  padding: 0px;
+  margin: 0px;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+div#header {
+  background-color: rgb(165, 0, 52);
+  color: white;
+  margin: 0px;
+  padding: 15px;
+  height: 19px;
+}
+
+div#header a {
+  color: inherit;
+}
+
+div#header img#logo {
+  margin: -13px 0;
+  position: absolute;
+  right: 0%;
+}
+
+div#content {
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
+  padding: 10px;
+  border-left: solid 1px rgb(186, 180, 175);
+  border-right: solid 1px rgb(186, 180, 175);
 }
 
 div.paramentrybox {
@@ -61,7 +94,8 @@ div.paramentrybox input[type=checkbox]:hover {
 }
 
 div.tabs {
-  padding: 0 5px;
+  padding: 0 10px;
+  margin: 0 -10px;
   border-bottom: 1px solid rgb(186, 180, 175);
 }
 

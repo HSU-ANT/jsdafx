@@ -12,34 +12,39 @@
   <script src="ovs.js" type="module" ></script>
 </head>
 <body>
-  <!-- build:include playback_control_buttons.html -->
-  <script id="_playback_controls">
-  window.fetch("playback_control_buttons.html").then(
-    (response) => response.text()
-  ).then((txt) => {
-    ctrls = document.createElement('template');
-    ctrls.innerHTML = txt;
-    scriptElem = document.getElementById("_playback_controls");
-    scriptElem.parentElement.replaceChild(ctrls.content, scriptElem);
-  });
-  </script>
-  <!-- /build -->
-  <div style="margin-top: 10px;" class="tabs">
-    <input id="spectrum" type="radio" name="tabs" checked />
-    <label for="spectrum">Spectrum</label>
-    <input id="waveform" type="radio" name="tabs" />
-    <label for="waveform">Waveform</label>
+  <div id="header">
+    <a href="index.html">jsdafx</a>
+    <a href="https://www.hsu-hh.de/ant"><img src="images/ant_logo.png" id="logo"></a>
   </div>
-  <div id="graph" style="width: 500px; height: 200px; padding-top: 10px">
-    <canvas id="funccanvas" width="500" height="200"></canvas>
-  </div>
-  <div style="width: 500px; padding-bottom: 10px; text-align: right">
-    <input id="linear" type="checkbox" /><label for="linear">linear</label>
-  </div>
-  <div style="width: 500px; padding: 10px;" align="center" >
-    <img src="images/ovs/ns5.png" id="diagram" />
-  </div>
-  <div style="margin: 10px 0">
+  <div id="content">
+    <h1>Oversampling</h1>
+    <!-- build:include playback_control_buttons.html -->
+    <script id="_playback_controls">
+    window.fetch("playback_control_buttons.html").then(
+      (response) => response.text()
+    ).then((txt) => {
+      ctrls = document.createElement('template');
+      ctrls.innerHTML = txt;
+      scriptElem = document.getElementById("_playback_controls");
+      scriptElem.parentElement.replaceChild(ctrls.content, scriptElem);
+    });
+    </script>
+    <!-- /build -->
+    <div style="margin-top: 10px;" class="tabs">
+      <input id="spectrum" type="radio" name="tabs" checked />
+      <label for="spectrum">Spectrum</label>
+      <input id="waveform" type="radio" name="tabs" />
+      <label for="waveform">Waveform</label>
+    </div>
+    <div id="graph" style="width: 500px; height: 200px; padding-top: 10px">
+      <canvas id="funccanvas" width="500" height="200"></canvas>
+    </div>
+    <div style="width: 500px; padding-bottom: 10px; text-align: right">
+      <input id="linear" type="checkbox" /><label for="linear">linear</label>
+    </div>
+    <div style="width: 500px; padding: 10px;" align="center" >
+      <img src="images/ovs/ns5.png" id="diagram" />
+    </div>
     <div class="paramentrybox">
       <span></span>
       <span>Quantization word length</span>
@@ -78,46 +83,51 @@
         <option value="1">First Order</option>
       </select>
     </div>
-  </div>
-  <div style="width: 600px">
-    This script demonstrates the influence of oversampling on the power
-    spectral density and quantization error. For a given quantization word
-    length the noise level can be reduced with the oversampling factor.
-    This applet allows to experiment this noise reduction effect,
-    acoustically by modifying the oversampling and quantization factors,
-    and visually with the spectral representation.
-
-  <p>The following options can be set in the lower part of the  user interface</p>
-  <ul>
-    <li> <b>Quantizer&nbsp;</b>
-      <ul>
-        <li>word length w leads to quantization step size Q=2⁻⁽ʷ⁻¹⁾</li>
-      </ul>
-    </li>
-    <li><b>Dither</b>
-      <ul>
-        <li>rect dither - uniform probability density function </li>
-        <li>tri dither - triangular probability density function</li>
-        <li>high-pass dither - triangular probability density function and
-          high-pass power spectral density</li>
-      </ul>
-    </li>
-    <li><b>Noise shaping</b>
-      <ul>
-        <li>first-order H(z)=z⁻¹</li>
-      </ul>
-    </li>
-    <li><b>Up Sampling Factor </b>&nbsp;
-      <ul>
-        <li>Factors from 4 up to 64 can be tested depending on the cpu performance of your machine.</li>
-      </ul>
-    </li>
-  </ul>
-  <p>You can choose between two predefined audio signals or your own local audio file to be
-    processed.</p>
-    <p>Predefined music signal is licensed under
+    <p>
+      This script demonstrates the influence of oversampling on the power
+      spectral density and quantization error. For a given quantization word
+      length the noise level can be reduced with the oversampling factor.
+      This applet allows to experiment this noise reduction effect,
+      acoustically by modifying the oversampling and quantization factors,
+      and visually with the spectral representation.
+    </p>
+    <p>The following options can be set in the lower part of the  user interface</p>
+    <ul>
+      <li> <b>Quantizer</b>
+        <ul>
+          <li>word length w leads to quantization step size Q=2⁻⁽ʷ⁻¹⁾</li>
+        </ul>
+      </li>
+      <li><b>Dither</b>
+        <ul>
+          <li>rect dither - uniform probability density function </li>
+          <li>tri dither - triangular probability density function</li>
+          <li>
+            high-pass dither - triangular probability density function and high-pass power
+            spectral density
+          </li>
+        </ul>
+      </li>
+      <li><b>Noise shaping</b>
+        <ul>
+          <li>first-order H(z)=z⁻¹</li>
+        </ul>
+      </li>
+      <li><b>Up Sampling Factor </b>
+        <ul>
+          <li>Factors from 4 up to 64 can be tested depending on the cpu performance of your machine.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>
+      You can choose between two predefined audio signals or your own local audio file to
+      be processed.
+    </p>
+    <p>
+      Predefined music signal is licensed under
       <a href="https://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a> by
-      <a href="https://soundcloud.com/unfinite">unfinite</a>.</p>
-</div>
+      <a href="https://soundcloud.com/unfinite">unfinite</a>.
+    </p>
+  </div>
 </body>
 </html>
