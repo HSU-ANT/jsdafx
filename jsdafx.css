@@ -1,6 +1,6 @@
 /*
 red 100% rgb(165, 0, 52)
-     60%
+     60% rgb(201, 102, 133)
      30% rgb(228, 179, 194)
 gray 100% rgb(140, 130, 121)
       60% rgb(186, 180, 175)
@@ -30,11 +30,21 @@ div.tabs > label {
 }
 
 div.tabs > label:hover {
-  cursor: pointer;
+  cursor: default;
 }
 
 div.tabs > input:checked + label {
   border: 1px solid rgb(186, 180, 175);
+  border-top: 2px solid rgb(165, 0, 52);
+  border-bottom: 1px solid #fff;
+}
+
+div.tabs > input:hover + label {
+  border: 1px solid rgb(186, 180, 175);
+  border-top-width: 2px;
+}
+
+div.tabs > input:checked:hover + label {
   border-top: 2px solid rgb(165, 0, 52);
   border-bottom: 1px solid #fff;
 }
@@ -48,6 +58,10 @@ input[type=button] {
   padding: 5px;
   font-size: inherit;
   box-sizing: content-box;
+}
+
+input[type=button]:hover {
+  background-color: rgb(186, 180, 175);
 }
 
 input[type=button]:disabled {
@@ -94,10 +108,14 @@ input[type=button]#stop:disabled {
   border: solid 1px rgb(186, 180, 175);
   background-color: rgb(221, 218, 215);
   padding-right: 26px;
-  cursor: pointer;
+  cursor: default;
   overflow-x: hidden;
   height: 19px;
   padding: 6px;
+}
+
+.select > div:nth-child(1):hover {
+  background-color: rgb(186, 180, 175);
 }
 
 .select > div:nth-child(1):after {
@@ -124,6 +142,10 @@ input[type=button]#stop:disabled {
   background-color: rgb(228, 179, 194);
 }
 
+.select > div:nth-child(2) div.selected:hover {
+  background-color: rgb(201, 102, 133);
+}
+
 .select > div:nth-child(2) > div.optgroup {
   font-weight: bold;
 }
@@ -132,4 +154,12 @@ input[type=button]#stop:disabled {
   font-weight: normal;
   padding-left: 1.5em;
   overflow-x: hidden;
+}
+
+.select > div:nth-child(2) > div.optgroup > div:hover {
+  background-color: rgb(186, 180, 175);
+}
+
+.select > div:nth-child(2) > div.optgroup > div.selected:hover {
+  background-color: rgb(201, 102, 133);
 }
