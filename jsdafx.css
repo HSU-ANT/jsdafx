@@ -1,0 +1,247 @@
+/*
+red 100% rgb(165, 0, 52)
+     60% rgb(201, 102, 133)
+     30% rgb(228, 179, 194)
+gray 100% rgb(140, 130, 121)
+      60% rgb(186, 180, 175)
+      30% rgb(221, 218, 215)
+*/
+
+body {
+  font-family: 'sans-serif';
+  font-size: 16px;
+  padding: 0px;
+  margin: 0px;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+div#header {
+  background-color: rgb(165, 0, 52);
+  color: white;
+  margin: 0px;
+  padding: 15px;
+  height: 19px;
+}
+
+div#header a {
+  color: inherit;
+}
+
+div#header img#logo {
+  margin: -13px 0;
+  position: absolute;
+  right: 0%;
+}
+
+div#content {
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
+  padding: 10px;
+  border-left: solid 1px rgb(186, 180, 175);
+  border-right: solid 1px rgb(186, 180, 175);
+}
+
+div.paramentrybox {
+  border: solid 1px rgb(186, 180, 175);
+  background-color: rgb(221, 218, 215);
+  height: 21px;
+  padding: 5px;
+  margin-bottom: 5px;
+  display: grid;
+  grid-template-columns: 31px 309px 150px;
+  width: 490px;
+}
+
+div.paramentrybox select {
+  border: none;
+  background-color: inherit;
+  font-size: inherit;
+  outline-color: rgb(165, 0, 52);
+  background-image: url('images/dropdown.png');
+  background-repeat: no-repeat;
+  background-position: right;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+div.paramentrybox select:hover {
+  background-color: rgb(186, 180, 175);
+}
+
+div.paramentrybox input[type=checkbox] {
+  outline-color: rgb(165, 0, 52);
+  height: 19px;
+  width: 19px;
+  margin: 1px;
+  border: solid 1px black;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+
+div.paramentrybox input[type=checkbox]:checked {
+  background-image: url('images/check.png');
+}
+
+div.paramentrybox input[type=checkbox]:hover {
+  background-color: rgb(186, 180, 175);
+}
+
+div.tabs {
+  padding: 0 10px;
+  margin: 0 -10px;
+  border-bottom: 1px solid rgb(186, 180, 175);
+}
+
+div.tabs > input {
+  display: none;
+}
+
+div.tabs > label {
+  display: inline-block;
+  margin: 0 0 -1px;
+  padding: 10px 15px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+div.tabs > label:hover {
+  cursor: default;
+}
+
+div.tabs > input:checked + label {
+  border: 1px solid rgb(186, 180, 175);
+  border-top: 2px solid rgb(165, 0, 52);
+  border-bottom: 1px solid #fff;
+}
+
+div.tabs > input:hover + label {
+  border: 1px solid rgb(186, 180, 175);
+  border-top-width: 2px;
+}
+
+div.tabs > input:checked:hover + label {
+  border-top: 2px solid rgb(165, 0, 52);
+  border-bottom: 1px solid #fff;
+}
+
+input[type=button] {
+  border: solid 1px rgb(186, 180, 175);
+  background-color: rgb(221, 218, 215);
+  outline-color: rgb(165, 0, 52);
+  vertical-align: top;
+  height: 21px;
+  padding: 5px;
+  font-size: inherit;
+  box-sizing: content-box;
+}
+
+input[type=button]:hover {
+  background-color: rgb(186, 180, 175);
+}
+
+input[type=button]:disabled {
+  color: rgb(140, 130, 121);
+}
+
+input[type=button]:active {
+  outline-width: 2px;
+  outline-style: auto;
+}
+
+input[type=button]#play {
+  background-image: url('images/play.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 21px;
+}
+
+input[type=button]#play:disabled {
+  background-image: url('images/play_disabled.png');
+}
+
+input[type=button]#stop {
+  background-image: url('images/stop.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 21px;
+}
+
+input[type=button]#stop:disabled {
+  background-image: url('images/stop_disabled.png');
+}
+
+
+.select {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  height: 30px;
+}
+
+.select > div:nth-child(1) {
+  display: inline-block;
+  border: solid 1px rgb(186, 180, 175);
+  background-color: rgb(221, 218, 215);
+  padding-right: 26px;
+  cursor: default;
+  overflow-x: hidden;
+  height: 19px;
+  padding: 6px;
+}
+
+.select > div:nth-child(1):hover {
+  background-color: rgb(186, 180, 175);
+}
+
+.select > div:nth-child(1):after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  right: 8px;
+  border: 6px solid transparent;
+  border-color: #000 transparent transparent transparent;
+}
+
+.select > div:nth-child(2) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background-color: rgb(221, 218, 215);
+  border: solid 1px rgb(186, 180, 175);
+  visibility: hidden;
+}
+
+.select > div:nth-child(2) div.selected {
+  background-color: rgb(228, 179, 194);
+}
+
+.select > div:nth-child(2) div.selected:hover {
+  background-color: rgb(201, 102, 133);
+}
+
+.select > div:nth-child(2) > div.optgroup {
+  font-weight: bold;
+}
+
+.select > div:nth-child(2) > div.optgroup > div {
+  font-weight: normal;
+  padding-left: 1.5em;
+  overflow-x: hidden;
+}
+
+.select > div:nth-child(2) > div.optgroup > div:hover {
+  background-color: rgb(186, 180, 175);
+}
+
+.select > div:nth-child(2) > div.optgroup > div.selected:hover {
+  background-color: rgb(201, 102, 133);
+}

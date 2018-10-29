@@ -1,20 +1,20 @@
-import { makeFunctionGraph, setupAudio, setupPlayerControls } from './common.js';
+import { FunctionGraph, setupAudio, setupPlayerControls } from './common.js';
 
 window.onload = () => {
-  const graph = makeFunctionGraph('axiscanvas', 'funccanvas');
-  graph.ylim(-130, 0);
+  const graph = new FunctionGraph(document.getElementById('funccanvas'));
+  graph.ylim = [-130, 0];
 
-  Promise.all([
-    setupAudio('qdsproc.js', 'qds-processor'),
-    window.fetch('audio/unfinite_function.mp3'),
-  ]).then(([audioProc, audio2Binary]) => {
+  setupAudio('qdsproc.js', 'qds-processor').then((audioProc) => {
     audioProc.proc.w = 16;
     audioProc.proc.dither = true;
     audioProc.proc.dithertype = 'rect';
     audioProc.proc.noiseshaping = true;
     audioProc.proc.noiseshapingfilter = 1;
 
-    setupPlayerControls(audioProc, null, audio2Binary.arrayBuffer());
+    setupPlayerControls(audioProc, [
+      { type: 'sine' },
+      { type: 'remote', label: 'Music', url: 'audio/unfinite_function.mp3' },
+    ]);
 
     const frequencies = new Float32Array(audioProc.getFrequencyDomainData());
     for (let i = 0; i < frequencies.length; i++) {
@@ -39,26 +39,40 @@ window.onload = () => {
 
     const cblinear = document.getElementById('linear');
     cblinear.checked = false;
-    graph.logx(true);
     cblinear.onchange = function (event) {
-      if (!document.getElementById('wave').checked) {
-        graph.logx(!event.target.checked);
+      if (!drawWave) {
+        graph.logx = !event.target.checked;
       }
     };
-    const cbwave = document.getElementById('wave');
-    cbwave.checked = false;
-    cbwave.onchange = function (event) {
-      drawWave = event.target.checked;
-      if (drawWave) {
-        graph.logx(false);
-        graph.ylim(-1, 1);
-        graph.xlim(0, timeindices.length-1);
+
+    function setDrawWave(b) {
+      drawWave = b;
+      if (b) {
+        graph.logx = false;
+        graph.ylim = [-1, 1];
+        graph.xlim= [0, timeindices.length-1];
+        graph.xlabel = 'time in samples';
+        graph.ylabel = 'amplitude';
+        cblinear.style.visibility = 'hidden';
+        cblinear.labels[0].style.visibility = 'hidden';
       } else {
-        graph.xlim(50, 20000);
-        graph.logx(!cblinear.checked);
-        graph.ylim(-130, 0);
+        graph.xlim = [50, 20000];
+        graph.logx = !cblinear.checked;
+        graph.ylim = [-130, 0];
+        graph.xlabel = 'frequency in Hz';
+        graph.ylabel = 'magnitude in dB';
+        cblinear.style.visibility = 'visible';
+        cblinear.labels[0].style.visibility = 'visible';
       }
+    }
+    document.getElementById('spectrum').onchange = (event) => {
+      setDrawWave(!event.target.checked);
     };
+    document.getElementById('waveform').onchange = (event) => {
+      setDrawWave(event.target.checked);
+    };
+    setDrawWave(false);
+
     document.getElementById('wordlength').value = 16;
     document.getElementById('wordlength').onchange = function (event) {
       audioProc.proc.w = event.target.value;

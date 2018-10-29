@@ -12,4 +12,12 @@ if (typeof AnalyserNode.prototype.getFloatTimeDomainData === 'undefined') {
   };
 }
 
+if (typeof document.createElement('input').labels === 'undefined') {
+  Object.defineProperty(HTMLInputElement.prototype, 'labels', {
+    get() {
+      return document.querySelectorAll(`label[for=${this.id}]`);
+    },
+  });
+}
+
 export {};
