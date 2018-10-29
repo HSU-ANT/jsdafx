@@ -145,5 +145,13 @@
         "promise/no-return-in-finally": [ "error" ],
         "promise/valid-params": [ "error" ],
         "promise/prefer-await-to-then": [ "warn" ]
-    }
+    },
+    "overrides": [
+      {
+        "files": ["sw.js"],
+        "parserOptions": {
+          "sourceType": "script"
+        }
+      }
+    ]
 }

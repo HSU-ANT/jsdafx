@@ -82,6 +82,8 @@ module.exports = function(grunt) {
           'dist/qds.js': ['qds.js'],
           'dist/ovsproc.js': ['build/ovsproc.js'],
           'dist/ovs.js': ['ovs.js'],
+          'dist/sw.js': ['sw.js'],
+          'dist/install-sw.js': ['install-sw.js'],
         },
       },
     },
