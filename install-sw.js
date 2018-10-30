@@ -1,0 +1,1 @@
+"serviceWorker"in navigator&&window.addEventListener("load",async()=>{try{await navigator.serviceWorker.register("sw.js")}catch(r){console.warn("ServiceWorker registration failed: ",r)}});export{};
