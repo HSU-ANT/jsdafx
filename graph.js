@@ -1,4 +1,6 @@
-export function FunctionGraph(fgcanvas) {
+import EventTarget from 'event-target'; // polyfill for Safari
+
+function FunctionGraph_(fgcanvas) {
   const width = fgcanvas.width;
   const height = fgcanvas.height;
   const ctx = fgcanvas.getContext('2d');
@@ -11,6 +13,11 @@ export function FunctionGraph(fgcanvas) {
   let ymax = 0;
   let ymin = -80;
   let ylabel = null;
+
+  let markers = [];
+  let move_marker = null;
+  let movedeltaX = null;
+  let movedeltaY = null;
 
   let x_margin_left = 30;
   const y_margin_top = 10;
@@ -42,6 +49,10 @@ export function FunctionGraph(fgcanvas) {
 
   const y_val_to_pos = function (y) {
     return y_margin_top + (height-y_margin_top-y_margin_bottom) / (ymin-ymax) * (y-ymax);
+  };
+
+  const y_pos_to_val = function (y) {
+    return ymax + (y - y_margin_top) * (ymin-ymax) / (height-y_margin_top-y_margin_bottom);
   };
 
   const niceCeil = function (x) {
@@ -145,6 +156,19 @@ export function FunctionGraph(fgcanvas) {
     ctx.restore();
   };
 
+  this.drawMarkers = function (_markers) {
+    ctx.save();
+    ctx.fillStyle = 'rgb(165, 0, 52)';
+    markers = [];
+    for (const m of _markers) {
+      markers.push([x_val_to_pos(m[0]), y_val_to_pos(m[1])]);
+      ctx.beginPath();
+      ctx.arc(x_val_to_pos(m[0]), y_val_to_pos(m[1]), 4, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+    ctx.restore();
+  };
+
   Object.defineProperty(this, 'xlim', {
     get() { return [xmin, xmin]; },
     set(xlim) {
@@ -189,6 +213,51 @@ export function FunctionGraph(fgcanvas) {
       drawAxis();
     },
   });
+
+  fgcanvas.addEventListener('mousedown', (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+    move_marker = null;
+    let best_d = 6;
+    for (let i=0; i < markers.length; i++) {
+      const m = markers[i];
+      const d = Math.hypot(event.offsetX-m[0], event.offsetY-m[1]);
+      if (d <= best_d) {
+        move_marker = i;
+        best_d = d;
+      }
+    }
+    if (move_marker !== null) {
+      movedeltaX = event.offsetX - markers[move_marker][0];
+      movedeltaY = event.offsetY - markers[move_marker][1];
+    }
+  });
+
+  fgcanvas.addEventListener('mouseup', (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+    move_marker = null;
+  });
+
+  fgcanvas.addEventListener('mousemove', (event) => {
+    if (move_marker === null || event.buttons !== 1) {
+      return;
+    }
+    const evt = new Event('markermove');
+    evt.marker = move_marker;
+    evt.valX = x_pos_to_val(event.offsetX - movedeltaX);
+    evt.valY = y_pos_to_val(event.offsetY - movedeltaY);
+    this.dispatchEvent(evt);
+  });
+}
+
+export class FunctionGraph extends EventTarget {
+  constructor(fgcanvas) {
+    super();
+    FunctionGraph_.call(this, fgcanvas);
+  }
 }
 
 export function SignalGraph(audioProc, fgcanvas) {

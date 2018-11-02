@@ -23,6 +23,7 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "event-target": "^1.2.3",
     "html-minifier": "^3.5.21",
     "htmlprocessor": "^0.2.6",
     "jake": "^8.0.18",
