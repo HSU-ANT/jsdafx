@@ -113,6 +113,8 @@ export async function setupAudio(procurl, procid) {
     getFrequencyDomainData: getFrequencyDomainData,
     frequencies: frequencies,
     proc: proc,
+    get currentTime() { return audioCtx.currentTime; },
+    get sampleRate() { return audioCtx.sampleRate; },
   };
 }
 
