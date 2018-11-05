@@ -1,123 +1,80 @@
-import { FunctionGraph, setupAudio, setupPlayerControls } from './common.js';
+import { SignalGraph, setupAudio, setupPlayerControls } from './common.js';
 
-window.addEventListener('load', () => {
-  const graph = new FunctionGraph(document.getElementById('funccanvas'));
-  graph.ylim = [-130, 0];
+window.addEventListener('load', async () => {
+  const audioProc = await setupAudio('ovsproc.js', 'ovs-processor');
+  audioProc.proc.w = 16;
+  audioProc.proc.dithertype = 'rect';
+  audioProc.proc.noiseshapingfilter = 1;
+  audioProc.proc.oversamplingfactor = 4;
+  setupPlayerControls(audioProc, [
+    { type: 'sine' },
+    {type: 'remote', label: 'Music', url: 'audio/unfinite_function.mp3'},
+  ]);
 
-  setupAudio('ovsproc.js', 'ovs-processor').then((audioProc) => {
-    audioProc.proc.w = 16;
-    audioProc.proc.dithertype = 'rect';
-    audioProc.proc.noiseshapingfilter = 1;
-    audioProc.proc.oversamplingfactor = 4;
+  const graph = new SignalGraph(audioProc, document.getElementById('funccanvas'));
+  const cblinear = document.getElementById('linear');
+  cblinear.checked = false;
+  cblinear.onchange = function (event) {
+    graph.freqLinear = event.target.checked;
+  };
+  const setDrawWave = (b) => {
+    graph.drawWave = b;
+    cblinear.style.visibility = cblinear.labels[0].style.visibility =
+      b ? 'hidden' : 'visible';
+  };
+  document.getElementById('spectrum').onchange = (event) => {
+    setDrawWave(!event.target.checked);
+  };
+  document.getElementById('waveform').onchange = (event) => {
+    setDrawWave(event.target.checked);
+  };
 
-
-    setupPlayerControls(audioProc, [
-      { type: 'sine' },
-      {type: 'remote', label: 'Music', url: 'audio/unfinite_function.mp3'},
-    ]);
-
-    const frequencies = new Float32Array(audioProc.getFrequencyDomainData());
-    for (let i = 0; i < frequencies.length; i++) {
-      frequencies[i] = i * 22050 / (frequencies.length-1);
-    }
-    const timeindices = new Float32Array(audioProc.getTimeDomainData());
-    for (let i = 0; i < timeindices.length; i++) {
-      timeindices[i] = i;
-    }
-    let drawWave = false;
-    function drawSignal() {
-      setTimeout(() => requestAnimationFrame(drawSignal), 40);
-      if (drawWave) {
-        graph.drawData(timeindices, audioProc.getTimeDomainData());
-      } else {
-        graph.drawData(frequencies, audioProc.getFrequencyDomainData());
-      }
-    }
-    drawSignal();
-
-    const cblinear = document.getElementById('linear');
-    cblinear.checked = false;
-    cblinear.onchange = function (event) {
-      if (!drawWave) {
-        graph.logx = !event.target.checked;
-      }
-    };
-
-    function setDrawWave(b) {
-      drawWave = b;
-      if (b) {
-        graph.logx = false;
-        graph.ylim = [-1, 1];
-        graph.xlim= [0, timeindices.length-1];
-        graph.xlabel = 'time in samples';
-        graph.ylabel = 'amplitude';
-        cblinear.style.visibility = 'hidden';
-        cblinear.labels[0].style.visibility = 'hidden';
-      } else {
-        graph.xlim = [50, 20000];
-        graph.logx = !cblinear.checked;
-        graph.ylim = [-130, 0];
-        graph.xlabel = 'frequency in Hz';
-        graph.ylabel = 'magnitude in dB';
-        cblinear.style.visibility = 'visible';
-        cblinear.labels[0].style.visibility = 'visible';
-      }
-    }
-    document.getElementById('spectrum').onchange = (event) => {
-      setDrawWave(!event.target.checked);
-    };
-    document.getElementById('waveform').onchange = (event) => {
-      setDrawWave(event.target.checked);
-    };
-    setDrawWave(false);
-
-    document.getElementById('wordlength').value = 16;
-    document.getElementById('wordlength').onchange = function (event) {
-      audioProc.proc.w = event.target.value;
-    };
-    function updateDiagram() {
-      if (document.getElementById('dither').checked) {
-        if (document.getElementById('noiseshaping').checked) {
-          document.getElementById('diagram').src = 'images/ovs/ns5.png';
-        } else {
-          document.getElementById('diagram').src = 'images/ovs/ns5b.png';
-        }
-      } else {
-        if (document.getElementById('noiseshaping').checked) {
-          document.getElementById('diagram').src = 'images/ovs/ns5c.png';
-        } else {
-          document.getElementById('diagram').src = 'images/ovs/ns5d.png';
-        }
-      }
-    }
-    function setDither(/* event */) {
-      if (document.getElementById('dither').checked) {
-        audioProc.proc.dithertype = document.getElementById('dithertype').value;
-      } else {
-        audioProc.proc.dithertype = 'none';
-      }
-      updateDiagram();
-    }
-    function setNoiseShaper(/* event */) {
+  document.getElementById('wordlength').value = 16;
+  document.getElementById('wordlength').onchange = function (event) {
+    audioProc.proc.w = event.target.value;
+  };
+  function updateDiagram() {
+    if (document.getElementById('dither').checked) {
       if (document.getElementById('noiseshaping').checked) {
-        audioProc.proc.noiseshapingfilter =
-          document.getElementById('noiseshapingfilter').value;
+        document.getElementById('diagram').src = 'images/ovs/ns5.png';
       } else {
-        audioProc.proc.noiseshapingfilter = 0;
+        document.getElementById('diagram').src = 'images/ovs/ns5b.png';
       }
-      updateDiagram();
+    } else {
+      if (document.getElementById('noiseshaping').checked) {
+        document.getElementById('diagram').src = 'images/ovs/ns5c.png';
+      } else {
+        document.getElementById('diagram').src = 'images/ovs/ns5d.png';
+      }
     }
-    document.getElementById('dither').checked = true;
-    document.getElementById('dither').onchange = setDither;
-    document.getElementById('noiseshaping').checked = true;
-    document.getElementById('noiseshaping').onchange = setNoiseShaper;
-    document.getElementById('dithertype').value = 'rect';
-    document.getElementById('dithertype').onchange = setDither;
-    document.getElementById('noiseshapingfilter').value = 1;
-    document.getElementById('noiseshapingfilter').onchange = setNoiseShaper;
-    document.getElementById('oversamplingfactor').value = 4;
-    document.getElementById('oversamplingfactor').onchange = function (event) {
-      audioProc.proc.oversamplingfactor = event.target.value;
-    };
-  }).catch((e) => console.error(e));
+  }
+  function setDither(/* event */) {
+    if (document.getElementById('dither').checked) {
+      audioProc.proc.dithertype = document.getElementById('dithertype').value;
+    } else {
+      audioProc.proc.dithertype = 'none';
+    }
+    updateDiagram();
+  }
+  function setNoiseShaper(/* event */) {
+    if (document.getElementById('noiseshaping').checked) {
+      audioProc.proc.noiseshapingfilter =
+        document.getElementById('noiseshapingfilter').value;
+    } else {
+      audioProc.proc.noiseshapingfilter = 0;
+    }
+    updateDiagram();
+  }
+  document.getElementById('dither').checked = true;
+  document.getElementById('dither').onchange = setDither;
+  document.getElementById('noiseshaping').checked = true;
+  document.getElementById('noiseshaping').onchange = setNoiseShaper;
+  document.getElementById('dithertype').value = 'rect';
+  document.getElementById('dithertype').onchange = setDither;
+  document.getElementById('noiseshapingfilter').value = 1;
+  document.getElementById('noiseshapingfilter').onchange = setNoiseShaper;
+  document.getElementById('oversamplingfactor').value = 4;
+  document.getElementById('oversamplingfactor').onchange = (event) => {
+    audioProc.proc.oversamplingfactor = event.target.value;
+  };
 });

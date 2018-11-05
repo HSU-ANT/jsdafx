@@ -40,6 +40,15 @@ export async function setupAudio(procurl, procid) {
     }
   }
 
+  const frequencies = new Float32Array(analyzer.frequencyBinCount);
+  for (let i = 0; i < frequencies.length; i++) {
+    frequencies[i] = i * audioCtx.sampleRate / 2 / (frequencies.length-1);
+  }
+  const timeIndices = new Float32Array(analyzer.fftSize);
+  for (let i = 0; i < timeIndices.length; i++) {
+    timeIndices[i] = i;
+  }
+
   const stop = function () {
     if (source !== null) {
       source.disconnect();
@@ -100,7 +109,9 @@ export async function setupAudio(procurl, procid) {
     },
     set onended(handler) { onended = handler; },
     getTimeDomainData: getTimeDomainData,
+    timeIndices: timeIndices,
     getFrequencyDomainData: getFrequencyDomainData,
+    frequencies: frequencies,
     proc: proc,
   };
 }

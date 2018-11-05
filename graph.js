@@ -190,3 +190,49 @@ export function FunctionGraph(fgcanvas) {
     },
   });
 }
+
+export function SignalGraph(audioProc, fgcanvas) {
+  const graph = new FunctionGraph(fgcanvas);
+  let drawWave = false;
+  let freqLinear = false;
+  function drawSignal() {
+    setTimeout(() => requestAnimationFrame(drawSignal), 40);
+    if (drawWave) {
+      const data = audioProc.getTimeDomainData();
+      graph.drawData(audioProc.timeIndices, data);
+    } else {
+      const data = audioProc.getFrequencyDomainData();
+      graph.drawData(audioProc.frequencies, data);
+    }
+  }
+  Object.defineProperty(this, 'drawWave', {
+    get() { return drawWave; },
+    set(b) {
+      drawWave = b;
+      if (b) {
+        graph.logx = false;
+        graph.ylim = [-1, 1];
+        graph.xlim= [0, audioProc.timeIndices.length-1];
+        graph.xlabel = 'time in samples';
+        graph.ylabel = 'amplitude';
+      } else {
+        graph.xlim = [50, 20000];
+        graph.logx = !freqLinear;
+        graph.ylim = [-130, 0];
+        graph.xlabel = 'frequency in Hz';
+        graph.ylabel = 'magnitude in dB';
+      }
+    },
+  });
+  Object.defineProperty(this, 'freqLinear', {
+    get() { return freqLinear; },
+    set(b) {
+      freqLinear = b;
+      if (!drawWave) {
+        graph.logx = !freqLinear;
+      }
+    },
+  });
+  this.drawWave = false;
+  drawSignal();
+}
