@@ -16,7 +16,7 @@
     "test": "jake test"
   },
   "devDependencies": {
-    "audioworklet-polyfill": "^1.1.2",
+    "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#acd2cfbe0d6a387997e28b64d76b637260391014",
     "concurrently": "^4.0.1",
     "emscripten-download": "^1.0.1",
     "eslint": "^5.7.0",
