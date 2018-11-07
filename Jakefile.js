@@ -222,3 +222,9 @@ task('clean', () => {
 });
 
 task('default', ['all']);
+
+watchTask('watch', ['all'], function () {
+  jake.Task.all.invoke();
+  this.throttle = 500;
+  this.watchFiles.include(['*.html', '*.cc']);
+});

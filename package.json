@@ -10,6 +10,7 @@
   "scripts": {
     "jake": "jake",
     "build": "jake",
+    "watch": "jake watch",
     "clean": "jake clean",
     "test": "jake test"
   },
