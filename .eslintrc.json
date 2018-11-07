@@ -152,6 +152,20 @@
         "parserOptions": {
           "sourceType": "script"
         }
+      },
+      {
+        "files": ["Jakefile.js"],
+        "env": { "node": true, "browser": false },
+        "globals": {
+          "jake": false,
+          "task": false,
+          "file": false,
+          "directory": false,
+          "complete": false
+        },
+        "parserOptions": {
+          "sourceType": "script"
+        }
       }
     ]
 }

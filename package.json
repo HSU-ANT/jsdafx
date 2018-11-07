@@ -8,6 +8,7 @@
     "url": "https://github.com/HSU-ANT/jsdafx.git"
   },
   "scripts": {
+    "jake": "jake",
     "build": "grunt",
     "test": "grunt test"
   },
@@ -30,7 +31,9 @@
     "grunt-exec": "^3.0.0",
     "grunt-processhtml": "^0.4.1",
     "grunt-rollup": "^9.0.0",
+    "jake": "^8.0.18",
     "mime": "^1.2.11",
-    "rollup-plugin-node-resolve": "^3.4.0"
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "uglify-es": "^3.3.9"
   }
 }
