@@ -33,7 +33,7 @@ function css_data_uri(dest, src, imgs) {
         return match;
       }
       const data = fs.readFileSync(p2);
-      const mimetype = mime.lookup(p2);
+      const mimetype = mime.getType(p2);
       return `url('data:${mimetype};base64,${data.toString('base64')}')`;
     });
   });
