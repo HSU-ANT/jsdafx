@@ -169,6 +169,9 @@ const filesToCache = [
   'dist/ovs.html',
   'dist/ovs.js',
   'dist/ovsproc.js',
+  'dist/eq.html',
+  'dist/eq.js',
+  'dist/eqproc.js',
   'dist/install-sw.js',
   ...copied_targets,
 ];
