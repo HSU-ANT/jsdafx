@@ -4,7 +4,8 @@ window.addEventListener('load', async () => {
   const audioProc = await setupAudio('eqproc.js', 'eq-processor');
 
   setupPlayerControls(audioProc, [
-    { type: 'remote', label: 'Music', url: 'audio/unfinite_function.mp3' },
+    { type: 'remote', label: 'Funk', url: 'audio/unfinite_function.mp3' },
+    { type: 'remote', label: 'Orchestra', url: 'audio/captain-pretzel_ghost-gulping.wav' },
   ]);
 
   let omegaC = 1;
