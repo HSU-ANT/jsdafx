@@ -12,7 +12,7 @@
     "build": "jake",
     "watch": "jake watch",
     "clean": "jake clean",
-    "start": "concurrently \"npm:watch\" \"serve dist\"",
+    "start": "concurrently \"npm:watch\" \"serve\"",
     "test": "jake test"
   },
   "devDependencies": {
@@ -31,5 +31,11 @@
     "rollup-plugin-node-resolve": "^3.4.0",
     "serve": "^10.0.2",
     "uglify-es": "^3.3.9"
+  },
+  "now": {
+    "static": {
+      "cleanUrls": false,
+      "public": "dist"
+    }
   }
 }
