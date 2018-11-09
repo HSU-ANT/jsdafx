@@ -1,27 +1,4 @@
-'use strict';
-
-const CACHE_NAME = 'jsdafx-dev';
-const urlsToCache = [
-  'common.js',
-  'index.html',
-  'install-sw.js',
-  'ovs.html',
-  'ovs.js',
-  'ovsproc.js',
-  'qds.html',
-  'qds.js',
-  'qdsproc.js',
-  'audio/unfinite_function.mp3',
-  'images/ant_logo.png',
-  'images/ovs/ns5.png',
-  'images/ovs/ns5b.png',
-  'images/ovs/ns5c.png',
-  'images/ovs/ns5d.png',
-  'images/qds/ns5.png',
-  'images/qds/ns5b.png',
-  'images/qds/ns5c.png',
-  'images/qds/ns5d.png',
-];
+import { CACHE_NAME, urlsToCache } from './build/cacheconfig.js';
 
 const fillCache = async () => {
   const cache = await caches.open(CACHE_NAME);
