@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const HTMLProcessor = require('htmlprocessor');
@@ -159,6 +160,45 @@ for (const dirname of ['audio', 'images']) {
   }
 }
 
+const filesToCache = [
+  'dist/index.html',
+  'dist/common.js',
+  'dist/qds.html',
+  'dist/qds.js',
+  'dist/qdsproc.js',
+  'dist/ovs.html',
+  'dist/ovs.js',
+  'dist/ovsproc.js',
+  'dist/install-sw.js',
+  ...copied_targets,
+];
+
+file('build/cacheconfig.js', filesToCache, {async: true}, function () {
+  jake.logger.log('generate build/cacheconfig.js');
+  const hash = crypto.createHash('sha256');
+  let i = 0;
+  const readcb = (err, data) => {
+    if (err) {
+      throw err;
+    }
+    hash.update(data);
+    i++;
+    if (i < filesToCache.length) {
+      fs.readFile(filesToCache[i], readcb);
+    } else {
+      const urlsToCache = filesToCache.map((f) => `'${f.replace(/^dist\//, '')}'`);
+      fs.writeFile(
+        'build/cacheconfig.js',
+        `export const CACHE_NAME = 'jsdafx-${hash.digest('hex')}';\n` +
+        `export const urlsToCache = [${urlsToCache}];`,
+        { encoding: 'utf8' },
+        this.complete.bind(this)
+      );
+    }
+  };
+  fs.readFile(filesToCache[i], readcb);
+});
+
 
 cleancss('build/jsdafx.css', 'build/jsdafx.datauri.css');
 
@@ -174,6 +214,7 @@ htmlminify('dist/ovs.html', 'build/ovs.html');
 emcc('build/ovsprocimpl.js', 'ovsprocimpl.cc');
 
 rollup('build/deps.js', 'deps.js');
+rollup('build/sw.js', 'sw.js', ['build/cacheconfig.js']);
 rollup('build/common.js', 'common.js',
   ['graph.js', 'common-audio.js', 'common-polyfill.js']);
 rollup('build/qdsproc.js', 'qdsproc.js', ['baseproc.js']);
@@ -184,21 +225,11 @@ uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
 uglify('dist/qds.js', 'qds.js');
 uglify('dist/ovsproc.js', 'build/ovsproc.js');
 uglify('dist/ovs.js', 'ovs.js');
-uglify('dist/sw.js', 'sw.js');
+uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'install-sw.js');
 
 task('all', [
-  'dist/index.html',
-  'dist/common.js',
-  'dist/qds.html',
-  'dist/qds.js',
-  'dist/qdsproc.js',
-  'dist/ovs.html',
-  'dist/ovs.js',
-  'dist/ovsproc.js',
   'dist/sw.js',
-  'dist/install-sw.js',
-  ...copied_targets,
 ], () => { jake.logger.log('build complete'); });
 
 task('test', ['all'], () => {
