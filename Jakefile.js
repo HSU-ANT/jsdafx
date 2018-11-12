@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
 const HTMLProcessor = require('htmlprocessor');
 const minify = require('html-minifier').minify;
 const _rollup = require('rollup');
@@ -10,19 +11,18 @@ const CleanCSS = require('clean-css');
 const mime = require('mime');
 const eslint = require('eslint');
 
+const copyFile = util.promisify(fs.copyFile);
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+
 function fileDataTask(dest, src, extradeps, func) {
   let deps = [src, path.dirname(dest)];
   if (extradeps) {
     deps = deps.concat(extradeps);
   }
-  file(dest, deps, {async: true}, function () {
-    fs.readFile(src, { encoding: 'utf8' }, (err, orig) => {
-      if (err) {
-        throw err;
-      }
-      const processed = func(orig);
-      fs.writeFile(dest, processed, { encoding: 'utf8' }, this.complete.bind(this));
-    });
+  file(dest, deps, async () => {
+    const orig = await readFile(src, { encoding: 'utf8' });
+    return writeFile(dest, await func(orig), { encoding: 'utf8' });
   });
 }
 
@@ -44,7 +44,7 @@ function cleancss(dest, src) {
   if (typeof src === 'string') {
     src = [src];
   }
-  file(dest, src.concat(path.dirname(dest)), {async: true}, function () {
+  file(dest, src.concat(path.dirname(dest)), () => {
     jake.logger.log(`cleancss ${src} into ${dest}`);
     const result = new CleanCSS({}).minify(src);
     if (result.errors.length) {
@@ -55,7 +55,7 @@ function cleancss(dest, src) {
       jake.logger.log(result.warnings.toString());
     }
 
-    fs.writeFile(dest, result.styles, { encoding: 'utf8' }, this.complete.bind(this));
+    return writeFile(dest, result.styles, { encoding: 'utf8' });
   });
 }
 
@@ -80,15 +80,14 @@ function htmlprocess(dest, src, extradeps) {
 
 function emcc(dest, src) {
   const deps = [src, path.dirname(dest)];
-  file(dest, deps, {async: true}, function () {
+  file(dest, deps, async () => {
     const cmd = `emcc --bind -O2 ${src} -s SINGLE_FILE=1 -s WASM=1 ` +
       `-s BINARYEN_ASYNC_COMPILATION=0 -o ${dest}`;
     jake.logger.log(cmd);
-    jake.exec(cmd, () => {
-      let compiled = fs.readFileSync(dest, { encoding: 'utf8' });
-      compiled += 'export { Module };';
-      fs.writeFile(dest, compiled, { encoding: 'utf8' }, this.complete.bind(this));
-    });
+    await new Promise((resolve) => { jake.exec(cmd, resolve); });
+    let compiled = await readFile(dest, { encoding: 'utf8' });
+    compiled += 'export { Module };';
+    return writeFile(dest, compiled, { encoding: 'utf8' });
   });
 }
 
@@ -106,9 +105,7 @@ function rollup(dest, src, extradeps) {
     const result = await bundle.generate({
       output: { format: 'es' },
     });
-    return new Promise((resolve) => {
-      fs.writeFile(dest, result.code, { encoding: 'utf8' }, resolve);
-    });
+    return writeFile(dest, result.code, { encoding: 'utf8' });
   });
 }
 
@@ -116,17 +113,17 @@ function uglify(dest, src) {
   if (typeof src === 'string') {
     src = [src];
   }
-  file(dest, src.concat(path.dirname(dest)), {async: true}, function () {
+  file(dest, src.concat(path.dirname(dest)), async () => {
     jake.logger.log(`uglify ${src} into ${dest}`);
     const orig = {};
-    src.forEach((src) => {
-      orig[src] = fs.readFileSync(src, { encoding: 'utf8' });
-    });
+    for (const f of src) {
+      orig[f] = await readFile(f, { encoding: 'utf8' });
+    }
     const result = UglifyJS.minify(orig, { toplevel: true, ie8: false });
     if (result.error) {
       throw result.error;
     }
-    fs.writeFile(dest, result.code, { encoding: 'utf8' }, this.complete.bind(this));
+    return writeFile(dest, result.code, { encoding: 'utf8' });
   });
 }
 
@@ -152,9 +149,9 @@ for (const dirname of ['audio', 'images']) {
       const pathname = path.dirname(destname);
       directory(pathname);
       copied_targets.push(destname);
-      file(destname, [filename, pathname], {async: true}, function () {
+      file(destname, [filename, pathname], () => {
         jake.logger.log(`cp ${filename} ${destname}`);
-        fs.copyFile(filename, destname, this.complete.bind(this));
+        return copyFile(filename, destname);
       });
     }
   }
@@ -176,30 +173,19 @@ const filesToCache = [
   ...copied_targets,
 ];
 
-file('build/cacheconfig.js', filesToCache, {async: true}, function () {
+file('build/cacheconfig.js', filesToCache, async () => {
   jake.logger.log('generate build/cacheconfig.js');
   const hash = crypto.createHash('sha256');
-  let i = 0;
-  const readcb = (err, data) => {
-    if (err) {
-      throw err;
-    }
-    hash.update(data);
-    i++;
-    if (i < filesToCache.length) {
-      fs.readFile(filesToCache[i], readcb);
-    } else {
-      const urlsToCache = filesToCache.map((f) => `'${f.replace(/^dist\//, '')}'`);
-      fs.writeFile(
-        'build/cacheconfig.js',
-        `export const CACHE_NAME = 'jsdafx-${hash.digest('hex')}';\n` +
-        `export const urlsToCache = [${urlsToCache}];`,
-        { encoding: 'utf8' },
-        this.complete.bind(this)
-      );
-    }
-  };
-  fs.readFile(filesToCache[i], readcb);
+  for (const f of filesToCache) {
+    hash.update(await readFile(f));
+  }
+  const urlsToCache = filesToCache.map((f) => `'${f.replace(/^dist\//, '')}'`);
+  return writeFile(
+    'build/cacheconfig.js',
+    `export const CACHE_NAME = 'jsdafx-${hash.digest('hex')}';\n` +
+    `export const urlsToCache = [${urlsToCache}];`,
+    { encoding: 'utf8' },
+  );
 });
 
 
