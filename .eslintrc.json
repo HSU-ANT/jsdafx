@@ -148,12 +148,6 @@
     },
     "overrides": [
       {
-        "files": ["sw.js"],
-        "parserOptions": {
-          "sourceType": "script"
-        }
-      },
-      {
         "files": ["Jakefile.js"],
         "env": { "node": true, "browser": false },
         "globals": {
