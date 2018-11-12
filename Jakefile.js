@@ -199,7 +199,7 @@ task('all', [
   'dist/sw.js',
   'dist/install-sw.js',
   ...copied_targets,
-]);
+], () => { jake.logger.log('build complete'); });
 
 task('test', ['all'], () => {
   const engine = new eslint.CLIEngine({
@@ -224,7 +224,6 @@ task('clean', () => {
 task('default', ['all']);
 
 watchTask('watch', ['all'], function () {
-  jake.Task.all.invoke();
   this.throttle = 500;
   this.watchFiles.include(['*.html', '*.cc']);
 });
