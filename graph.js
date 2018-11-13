@@ -20,39 +20,41 @@ function FunctionGraph_(fgcanvas) {
   let movedeltaY = null;
 
   let x_margin_left = 30;
+  const x_margin_right = 10;
+  let inner_width = width - x_margin_left - x_margin_right;
+
   const y_margin_top = 10;
   let y_margin_bottom = 17;
+  let inner_height = height - y_margin_top - y_margin_bottom;
 
   let axes_image_data = null;
 
   const x_pos_to_val_lin = function (x) {
-    return (xmax-xmin) * (x-x_margin_left) / (width-x_margin_left) + xmin;
+    return (xmax-xmin) * (x-x_margin_left) / inner_width + xmin;
   };
 
   const x_pos_to_val_log = function (x) {
-    return xmin * Math.pow(10, Math.log10(xmax/xmin) *
-                               (x-x_margin_left) / (width-x_margin_left));
+    return xmin * Math.pow(10, Math.log10(xmax/xmin) * (x-x_margin_left) / inner_width);
   };
 
-  let x_pos_to_val = x_pos_to_val_log; // eslint-disable-line no-unused-vars
+  let x_pos_to_val = x_pos_to_val_log;
 
   const x_val_to_pos_lin = function (x) {
-    return (x - xmin) * (width-x_margin_left) / xmax + x_margin_left;
+    return (x - xmin) * inner_width / (xmax - xmin) + x_margin_left;
   };
 
   const x_val_to_pos_log = function (x) {
-    return Math.log10(x / xmin) / Math.log10(xmax/xmin) * (width-x_margin_left) +
-           x_margin_left;
+    return Math.log10(x / xmin) / Math.log10(xmax/xmin) * inner_width + x_margin_left;
   };
 
   let x_val_to_pos = x_val_to_pos_log;
 
   const y_val_to_pos = function (y) {
-    return y_margin_top + (height-y_margin_top-y_margin_bottom) / (ymin-ymax) * (y-ymax);
+    return y_margin_top + inner_height / (ymin-ymax) * (y-ymax);
   };
 
   const y_pos_to_val = function (y) {
-    return ymax + (y - y_margin_top) * (ymin-ymax) / (height-y_margin_top-y_margin_bottom);
+    return ymax + (y - y_margin_top) * (ymin-ymax) / inner_height;
   };
 
   const niceCeil = function (x) {
@@ -73,17 +75,18 @@ function FunctionGraph_(fgcanvas) {
     ctx.font = '12px sans-serif';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'end';
-    const xstep = niceCeil((xmax-xmin) / (width-x_margin_left) * 30);
-    const ystep = niceCeil((ymax-ymin) / (height-y_margin_bottom-y_margin_top) * 20);
+    const xstep = niceCeil((xmax-xmin) / inner_width * 30);
+    const ystep = niceCeil((ymax-ymin) / inner_height * 20);
+    const ydigits = ystep >= 1 ? 0 : -Math.floor(Math.log10(ystep));
     for (let y=Math.floor(ymax/ystep)*ystep; y >= ymin; y -= ystep) {
       ctx.strokeStyle = 'rgb(0, 0, 0)';
-      ctx.fillText(y, x_margin_left-2, y_val_to_pos(y));
+      ctx.fillText(y.toFixed(ydigits), x_margin_left-2, y_val_to_pos(y));
     }
     ctx.textBaseline = 'top';
     ctx.textAlign = 'center';
     ctx.setTransform(0, -1, 1, 0, 0, 0);
     if (ylabel) {
-      ctx.fillText(ylabel, -((height-y_margin_bottom-y_margin_top)/2 + y_margin_top), 0);
+      ctx.fillText(ylabel, -(inner_height/2 + y_margin_top), 0);
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (logx) {
@@ -93,8 +96,9 @@ function FunctionGraph_(fgcanvas) {
       }
     } else {
       ctx.strokeStyle = 'rgb(0, 0, 0)';
+      const xdigits = xstep >= 1 ? 0 : -Math.floor(Math.log10(xstep));
       for (let x=Math.ceil(xmin/xstep)*xstep; x <= xmax; x += xstep) {
-        ctx.fillText(x, x_val_to_pos(x), height-y_margin_bottom+2);
+        ctx.fillText(x.toFixed(xdigits), x_val_to_pos(x), height-y_margin_bottom+2);
       }
     }
     if (xlabel) {
@@ -144,7 +148,7 @@ function FunctionGraph_(fgcanvas) {
     ctx.strokeStyle = 'rgb(0, 0, 0)';
     ctx.save();
     ctx.beginPath();
-    ctx.rect(x_margin_left, y_margin_top, width-x_margin_left,
+    ctx.rect(x_margin_left, y_margin_top, width-x_margin_left-x_margin_right,
       height-y_margin_bottom-y_margin_top);
     ctx.clip();
     ctx.beginPath();
@@ -202,6 +206,7 @@ function FunctionGraph_(fgcanvas) {
     set(_xlabel) {
       xlabel = _xlabel;
       y_margin_bottom = xlabel ? 30 : 16;
+      inner_height = height - y_margin_top - y_margin_bottom;
       drawAxis();
     },
   });
@@ -210,6 +215,7 @@ function FunctionGraph_(fgcanvas) {
     set(_ylabel) {
       ylabel = _ylabel;
       x_margin_left = ylabel ? 44 : 30;
+      inner_width = width - x_margin_left - x_margin_right;
       drawAxis();
     },
   });
