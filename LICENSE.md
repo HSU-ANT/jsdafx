@@ -23,5 +23,7 @@ The audio samples are licensed are Creative Commons licences:
 
 * `unfinite_function.mp3` (function by [unfinite](https://soundcloud.com/unfinite)):
   [CC-BY-3.0]
+* `captain-pretzel_ghost-gulping.wav` (Ghost Gulping (Paper Mario 64) - Orchestra Arrangement by [Captain Pretzel](https://soundcloud.com/captain-pretzel)):
+  [CC-BY-3.0]
 
 [CC-BY-3.0]: https://creativecommons.org/licenses/by/3.0/

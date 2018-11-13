@@ -16,13 +16,14 @@
     "test": "jake test"
   },
   "devDependencies": {
-    "audioworklet-polyfill": "^1.1.2",
+    "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#acd2cfbe0d6a387997e28b64d76b637260391014",
     "concurrently": "^4.0.1",
     "emscripten-download": "^1.0.1",
     "eslint": "^5.7.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "event-target": "^1.2.3",
     "html-minifier": "^3.5.21",
     "htmlprocessor": "^0.2.6",
     "jake": "^8.0.18",

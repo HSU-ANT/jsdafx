@@ -169,6 +169,9 @@ const filesToCache = [
   'dist/ovs.html',
   'dist/ovs.js',
   'dist/ovsproc.js',
+  'dist/eq.html',
+  'dist/eq.js',
+  'dist/eqproc.js',
   'dist/install-sw.js',
   ...copied_targets,
 ];
@@ -206,10 +209,13 @@ htmlprocess('build/qds.html', 'qds.html',
   ['playback_control_buttons.html', 'build/jsdafx.css']);
 htmlprocess('build/ovs.html', 'ovs.html',
   ['playback_control_buttons.html', 'build/jsdafx.css']);
+htmlprocess('build/eq.html', 'eq.html',
+  ['playback_control_buttons.html', 'build/jsdafx.css']);
 
 htmlminify('dist/index.html', 'index.html');
 htmlminify('dist/qds.html', 'build/qds.html');
 htmlminify('dist/ovs.html', 'build/ovs.html');
+htmlminify('dist/eq.html', 'build/eq.html');
 
 emcc('build/ovsprocimpl.js', 'ovsprocimpl.cc');
 
@@ -219,12 +225,15 @@ rollup('build/common.js', 'common.js',
   ['graph.js', 'common-audio.js', 'common-polyfill.js']);
 rollup('build/qdsproc.js', 'qdsproc.js', ['baseproc.js']);
 rollup('build/ovsproc.js', 'ovsproc.js', ['baseproc.js', 'build/ovsprocimpl.js']);
+rollup('build/eqproc.js', 'eqproc.js', ['baseproc.js']);
 
 uglify('dist/qdsproc.js', 'build/qdsproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
 uglify('dist/qds.js', 'qds.js');
 uglify('dist/ovsproc.js', 'build/ovsproc.js');
 uglify('dist/ovs.js', 'ovs.js');
+uglify('dist/eqproc.js', 'build/eqproc.js');
+uglify('dist/eq.js', 'eq.js');
 uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'install-sw.js');
 
