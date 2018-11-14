@@ -242,7 +242,15 @@ for (const app of apps) {
   buildapp(app);
 }
 
-htmlminify('dist/index.html', 'index.html');
+file('build/index.html', ['index.html'], async () => {
+  const template = Handlebars.compile(
+    await readFile('index.html', { encoding: 'utf8' }),
+    { strict: true }
+  );
+  await writeFile('build/index.html', template({apps: apps}));
+});
+
+htmlminify('dist/index.html', 'build/index.html');
 
 rollup('build/deps.js', 'deps.js');
 rollup('build/sw.js', 'sw.js', ['build/cacheconfig.js']);

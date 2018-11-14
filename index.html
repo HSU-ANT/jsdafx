@@ -7,9 +7,9 @@
 </head>
 <body>
   <ul>
-    <li><a href="qds.html">Quantization, Dithering, and Noise Shaping</a></li>
-    <li><a href="ovs.html">Oversampling</a></li>
-    <li><a href="eq.html">Audio Filters</a></li>
+    {{#each apps}}
+    <li><a href="{{this.contentfile}}">{{this.title}}</a></li>
+    {{/each}}
   </ul>
 </body>
 </html>
