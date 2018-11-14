@@ -25,5 +25,8 @@ The audio samples are licensed are Creative Commons licences:
   [CC-BY-3.0]
 * `captain-pretzel_ghost-gulping.wav` (Ghost Gulping (Paper Mario 64) - Orchestra Arrangement by [Captain Pretzel](https://soundcloud.com/captain-pretzel)):
   [CC-BY-3.0]
+* `BluesHawk1.wav`: [CC0-1.0]
+* `Burns1.wav`: [CC0-1.0]
 
+[CC0-1.0]: https://creativecommons.org/publicdomain/zero/1.0/
 [CC-BY-3.0]: https://creativecommons.org/licenses/by/3.0/

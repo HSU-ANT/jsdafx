@@ -18,6 +18,12 @@ const apps = [
     scriptfile: 'eq.js',
     processorfile: 'eqproc.js',
   },
+  {
+    title: 'Distortion',
+    contentfile: 'distortion.html',
+    scriptfile: 'distortion.js',
+    processorfile: 'distortionproc.js',
+  },
 ];
 
 const crypto = require('crypto');
