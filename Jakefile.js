@@ -152,9 +152,6 @@ for (const dirname of ['audio', 'images']) {
 const filesToCache = [
   'dist/index.html',
   'dist/common.js',
-  'dist/qdsproc.js',
-  'dist/ovsproc.js',
-  'dist/eqproc.js',
   'dist/install-sw.js',
   ...copied_targets,
 ];
@@ -182,16 +179,20 @@ const apps = [
     title: 'Quantization, Dithering, and Noise Shaping',
     contentfile: 'qds.html',
     scriptfile: 'qds.js',
+    processorfile: 'qdsproc.js',
   },
   {
     title: 'Oversampling',
     contentfile: 'ovs.html',
     scriptfile: 'ovs.js',
+    processorfile: 'ovsproc.js',
+    procimplfile: 'ovsprocimpl.cc',
   },
   {
     title: 'Audio Filters',
     contentfile: 'eq.html',
     scriptfile: 'eq.js',
+    processorfile: 'eqproc.js',
   },
 ];
 
@@ -220,7 +221,21 @@ function buildapp(app) {
   });
   htmlminify(path.join('dist', app.contentfile), outfile);
   uglify(path.join('dist', app.scriptfile), app.scriptfile);
-  filesToCache.push(path.join('dist', app.contentfile), path.join('dist', app.scriptfile));
+  const rollup_deps = ['baseproc.js'];
+  if (app.procimplfile) {
+    const impljsfile = path.format({
+      dir: 'build',
+      name: path.basename(app.procimplfile, 'cc'),
+      ext: 'js',
+    });
+    emcc(impljsfile, app.procimplfile);
+    rollup_deps.push(impljsfile);
+  }
+  rollup(path.join('build', app.processorfile), app.processorfile, rollup_deps);
+  uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
+  filesToCache.push(...[app.contentfile, app.scriptfile, app.processorfile].map(
+    (f) => path.join('dist', f)
+  ));
 }
 
 for (const app of apps) {
@@ -229,20 +244,12 @@ for (const app of apps) {
 
 htmlminify('dist/index.html', 'index.html');
 
-emcc('build/ovsprocimpl.js', 'ovsprocimpl.cc');
-
 rollup('build/deps.js', 'deps.js');
 rollup('build/sw.js', 'sw.js', ['build/cacheconfig.js']);
 rollup('build/common.js', 'common.js',
   ['graph.js', 'common-audio.js', 'common-polyfill.js']);
-rollup('build/qdsproc.js', 'qdsproc.js', ['baseproc.js']);
-rollup('build/ovsproc.js', 'ovsproc.js', ['baseproc.js', 'build/ovsprocimpl.js']);
-rollup('build/eqproc.js', 'eqproc.js', ['baseproc.js']);
 
-uglify('dist/qdsproc.js', 'build/qdsproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
-uglify('dist/ovsproc.js', 'build/ovsproc.js');
-uglify('dist/eqproc.js', 'build/eqproc.js');
 uglify('dist/eq.js', 'eq.js');
 uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'install-sw.js');
