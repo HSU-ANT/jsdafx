@@ -9,6 +9,7 @@ const resolve = require('rollup-plugin-node-resolve');
 const UglifyJS = require('uglify-es');
 const CleanCSS = require('clean-css');
 const mime = require('mime');
+const Handlebars = require('handlebars');
 const eslint = require('eslint');
 
 const copyFile = util.promisify(fs.copyFile);
@@ -160,8 +161,6 @@ for (const dirname of ['audio', 'images']) {
 const filesToCache = [
   'dist/index.html',
   'dist/common.js',
-  'dist/qds.html',
-  'dist/qds.js',
   'dist/qdsproc.js',
   'dist/ovs.html',
   'dist/ovs.js',
@@ -191,15 +190,52 @@ file('build/cacheconfig.js', filesToCache, async () => {
 
 cleancss('build/jsdafx.css', 'build/jsdafx.datauri.css');
 
-htmlprocess('build/qds.html', 'qds.html',
-  ['playback_control_buttons.html', 'build/jsdafx.css']);
+const apps = [
+  {
+    title: 'Quantization, Dithering, and Noise Shaping',
+    contentfile: 'qds.html',
+    scriptfile: 'qds.js',
+  },
+];
+
+let apptemplate = null;
+let csscontents = null;
+
+function buildapp(app) {
+  const outfile = path.join('build', app.contentfile);
+  file(outfile, [app.contentfile, 'apptemplate.html', 'build/jsdafx.css'], async () => {
+    jake.logger.log(`expand ${app.contentfile} into ${outfile}`);
+    if (!apptemplate) {
+      apptemplate = Handlebars.compile(
+        await readFile('apptemplate.html', { encoding: 'utf8' }),
+        { strict: true }
+      );
+    }
+    if (!csscontents) {
+      csscontents = await readFile('build/jsdafx.css');
+    }
+    await writeFile(outfile, apptemplate({
+      styletag: `<style>${csscontents}</style>`,
+      appscripttag: `<script type="module" src="${app.scriptfile}"></script>`,
+      title: app.title,
+      content: await readFile(app.contentfile),
+    }));
+  });
+  htmlminify(path.join('dist', app.contentfile), outfile);
+  uglify(path.join('dist', app.scriptfile), app.scriptfile);
+  filesToCache.push(path.join('dist', app.contentfile), path.join('dist', app.scriptfile));
+}
+
+for (const app of apps) {
+  buildapp(app);
+}
+
 htmlprocess('build/ovs.html', 'ovs.html',
   ['playback_control_buttons.html', 'build/jsdafx.css']);
 htmlprocess('build/eq.html', 'eq.html',
   ['playback_control_buttons.html', 'build/jsdafx.css']);
 
 htmlminify('dist/index.html', 'index.html');
-htmlminify('dist/qds.html', 'build/qds.html');
 htmlminify('dist/ovs.html', 'build/ovs.html');
 htmlminify('dist/eq.html', 'build/eq.html');
 
@@ -215,7 +251,6 @@ rollup('build/eqproc.js', 'eqproc.js', ['baseproc.js']);
 
 uglify('dist/qdsproc.js', 'build/qdsproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
-uglify('dist/qds.js', 'qds.js');
 uglify('dist/ovsproc.js', 'build/ovsproc.js');
 uglify('dist/ovs.js', 'ovs.js');
 uglify('dist/eqproc.js', 'build/eqproc.js');
