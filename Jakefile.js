@@ -162,8 +162,6 @@ const filesToCache = [
   'dist/index.html',
   'dist/common.js',
   'dist/qdsproc.js',
-  'dist/ovs.html',
-  'dist/ovs.js',
   'dist/ovsproc.js',
   'dist/eq.html',
   'dist/eq.js',
@@ -195,6 +193,11 @@ const apps = [
     title: 'Quantization, Dithering, and Noise Shaping',
     contentfile: 'qds.html',
     scriptfile: 'qds.js',
+  },
+  {
+    title: 'Oversampling',
+    contentfile: 'ovs.html',
+    scriptfile: 'ovs.js',
   },
 ];
 
@@ -230,13 +233,10 @@ for (const app of apps) {
   buildapp(app);
 }
 
-htmlprocess('build/ovs.html', 'ovs.html',
-  ['playback_control_buttons.html', 'build/jsdafx.css']);
 htmlprocess('build/eq.html', 'eq.html',
   ['playback_control_buttons.html', 'build/jsdafx.css']);
 
 htmlminify('dist/index.html', 'index.html');
-htmlminify('dist/ovs.html', 'build/ovs.html');
 htmlminify('dist/eq.html', 'build/eq.html');
 
 emcc('build/ovsprocimpl.js', 'ovsprocimpl.cc');
@@ -252,7 +252,6 @@ rollup('build/eqproc.js', 'eqproc.js', ['baseproc.js']);
 uglify('dist/qdsproc.js', 'build/qdsproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
 uglify('dist/ovsproc.js', 'build/ovsproc.js');
-uglify('dist/ovs.js', 'ovs.js');
 uglify('dist/eqproc.js', 'build/eqproc.js');
 uglify('dist/eq.js', 'eq.js');
 uglify('dist/sw.js', 'build/sw.js');
