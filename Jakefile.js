@@ -2,7 +2,6 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const HTMLProcessor = require('htmlprocessor');
 const minify = require('html-minifier').minify;
 const _rollup = require('rollup');
 const resolve = require('rollup-plugin-node-resolve');
@@ -68,14 +67,6 @@ function htmlminify(dest, src) {
       conservativeCollapse: true,
       removeComments: true,
     });
-  });
-}
-
-function htmlprocess(dest, src, extradeps) {
-  fileDataTask(dest, src, extradeps, (orig) => {
-    jake.logger.log(`html-process ${src} into ${dest}`);
-    const proc = new HTMLProcessor({});
-    return proc.processContent(orig, src);
   });
 }
 
@@ -163,8 +154,6 @@ const filesToCache = [
   'dist/common.js',
   'dist/qdsproc.js',
   'dist/ovsproc.js',
-  'dist/eq.html',
-  'dist/eq.js',
   'dist/eqproc.js',
   'dist/install-sw.js',
   ...copied_targets,
@@ -198,6 +187,11 @@ const apps = [
     title: 'Oversampling',
     contentfile: 'ovs.html',
     scriptfile: 'ovs.js',
+  },
+  {
+    title: 'Audio Filters',
+    contentfile: 'eq.html',
+    scriptfile: 'eq.js',
   },
 ];
 
@@ -233,11 +227,7 @@ for (const app of apps) {
   buildapp(app);
 }
 
-htmlprocess('build/eq.html', 'eq.html',
-  ['playback_control_buttons.html', 'build/jsdafx.css']);
-
 htmlminify('dist/index.html', 'index.html');
-htmlminify('dist/eq.html', 'build/eq.html');
 
 emcc('build/ovsprocimpl.js', 'ovsprocimpl.cc');
 
