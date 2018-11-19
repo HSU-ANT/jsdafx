@@ -1,3 +1,25 @@
+const apps = [
+  {
+    title: 'Quantization, Dithering, and Noise Shaping',
+    contentfile: 'qds.html',
+    scriptfile: 'qds.js',
+    processorfile: 'qdsproc.js',
+  },
+  {
+    title: 'Oversampling',
+    contentfile: 'ovs.html',
+    scriptfile: 'ovs.js',
+    processorfile: 'ovsproc.js',
+    procimplfile: 'ovsprocimpl.cc',
+  },
+  {
+    title: 'Audio Filters',
+    contentfile: 'eq.html',
+    scriptfile: 'eq.js',
+    processorfile: 'eqproc.js',
+  },
+];
+
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -173,28 +195,6 @@ file('build/cacheconfig.js', filesToCache, async () => {
 
 
 cleancss('build/jsdafx.css', 'build/jsdafx.datauri.css');
-
-const apps = [
-  {
-    title: 'Quantization, Dithering, and Noise Shaping',
-    contentfile: 'qds.html',
-    scriptfile: 'qds.js',
-    processorfile: 'qdsproc.js',
-  },
-  {
-    title: 'Oversampling',
-    contentfile: 'ovs.html',
-    scriptfile: 'ovs.js',
-    processorfile: 'ovsproc.js',
-    procimplfile: 'ovsprocimpl.cc',
-  },
-  {
-    title: 'Audio Filters',
-    contentfile: 'eq.html',
-    scriptfile: 'eq.js',
-    processorfile: 'eqproc.js',
-  },
-];
 
 let apptemplate = null;
 let csscontents = null;
