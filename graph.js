@@ -214,9 +214,9 @@ function FunctionGraph_(fgcanvas) {
     },
   });
 
-  const onDown = (x, y) => {
+  const onDown = (x, y, rmax) => {
     move_marker = null;
-    let best_d = 6;
+    let best_d = rmax;
     for (let i=0; i < markers.length; i++) {
       const m = markers[i];
       const d = Math.hypot(x-m[0], y-m[1]);
@@ -235,7 +235,7 @@ function FunctionGraph_(fgcanvas) {
     if (event.button !== 0) {
       return;
     }
-    onDown(event.offsetX, event.offsetY);
+    onDown(event.offsetX, event.offsetY, 6);
   });
 
   fgcanvas.addEventListener('touchstart', (event) => {
@@ -244,7 +244,7 @@ function FunctionGraph_(fgcanvas) {
       return;
     }
     onDown(event.touches.item(0).pageX-event.target.offsetLeft,
-      event.touches.item(0).pageY-event.target.offsetTop);
+      event.touches.item(0).pageY-event.target.offsetTop, 40);
   });
 
   fgcanvas.addEventListener('mouseup', (event) => {
