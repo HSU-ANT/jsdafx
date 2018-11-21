@@ -27,7 +27,7 @@ const util = require('util');
 const minify = require('html-minifier').minify;
 const _rollup = require('rollup');
 const resolve = require('rollup-plugin-node-resolve');
-const UglifyJS = require('uglify-es');
+const Terser = require('terser');
 const CleanCSS = require('clean-css');
 const mime = require('mime');
 const Handlebars = require('handlebars');
@@ -133,7 +133,7 @@ function uglify(dest, src) {
     for (const f of src) {
       orig[f] = await readFile(f, { encoding: 'utf8' });
     }
-    const result = UglifyJS.minify(orig, { toplevel: true, ie8: false });
+    const result = Terser.minify(orig, { toplevel: true, ie8: false });
     if (result.error) {
       throw result.error;
     }
