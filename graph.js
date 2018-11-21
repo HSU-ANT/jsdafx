@@ -214,24 +214,37 @@ function FunctionGraph_(fgcanvas) {
     },
   });
 
-  fgcanvas.addEventListener('mousedown', (event) => {
-    if (event.button !== 0) {
-      return;
-    }
+  const onDown = (x, y, rmax) => {
     move_marker = null;
-    let best_d = 6;
+    let best_d = rmax;
     for (let i=0; i < markers.length; i++) {
       const m = markers[i];
-      const d = Math.hypot(event.offsetX-m[0], event.offsetY-m[1]);
+      const d = Math.hypot(x-m[0], y-m[1]);
       if (d <= best_d) {
         move_marker = i;
         best_d = d;
       }
     }
     if (move_marker !== null) {
-      movedeltaX = event.offsetX - markers[move_marker][0];
-      movedeltaY = event.offsetY - markers[move_marker][1];
+      movedeltaX = x - markers[move_marker][0];
+      movedeltaY = y - markers[move_marker][1];
     }
+  };
+
+  fgcanvas.addEventListener('mousedown', (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+    onDown(event.offsetX, event.offsetY, 6);
+  });
+
+  fgcanvas.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+    if (move_marker !== null) {
+      return;
+    }
+    onDown(event.touches.item(0).pageX-event.target.offsetLeft,
+      event.touches.item(0).pageY-event.target.offsetTop, 40);
   });
 
   fgcanvas.addEventListener('mouseup', (event) => {
@@ -241,15 +254,35 @@ function FunctionGraph_(fgcanvas) {
     move_marker = null;
   });
 
-  fgcanvas.addEventListener('mousemove', (event) => {
-    if (move_marker === null || event.buttons !== 1) {
+  fgcanvas.addEventListener('touchend', (event) => {
+    event.preventDefault();
+    if (event.touches.length === 0) {
+      move_marker = null;
+    }
+  });
+
+  const onMove = (x, y) => {
+    if (move_marker === null) {
       return;
     }
     const evt = new Event('markermove');
     evt.marker = move_marker;
-    evt.valX = x_pos_to_val(event.offsetX - movedeltaX);
-    evt.valY = y_pos_to_val(event.offsetY - movedeltaY);
+    evt.valX = x_pos_to_val(x - movedeltaX);
+    evt.valY = y_pos_to_val(y - movedeltaY);
     this.dispatchEvent(evt);
+  };
+
+  fgcanvas.addEventListener('mousemove', (event) => {
+    if (event.buttons !== 1) {
+      return;
+    }
+    onMove(event.offsetX, event.offsetY);
+  });
+
+  fgcanvas.addEventListener('touchmove', (event) => {
+    event.preventDefault();
+    onMove(event.touches.item(0).pageX - event.target.offsetLeft,
+      event.touches.item(0).pageY - event.target.offsetTop);
   });
 }
 
