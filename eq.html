@@ -1,35 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Audio Filters</title>
-  <!-- build:remove -->
-  <script src="https://unpkg.com/audioworklet-polyfill/dist/audioworklet-polyfill.js"></script>
-  <!-- /build -->
-  <!-- build:css inline build/jsdafx.css -->
-  <link rel="stylesheet" href="jsdafx.css" />
-  <!-- /build -->
-  <script type="module" src="eq.js" ></script>
-</head>
-<body>
-  <div id="header">
-    <a href="index.html">jsdafx</a>
-    <a href="https://www.hsu-hh.de/ant"><img src="images/ant_logo.png" id="logo"></a>
-  </div>
-  <div id="content">
-    <h1>Audio Filters</h1>
-    <!-- build:include playback_control_buttons.html -->
-    <script id="_playback_controls">
-    window.fetch("playback_control_buttons.html").then(
-      (response) => response.text()
-    ).then((txt) => {
-      ctrls = document.createElement('template');
-      ctrls.innerHTML = txt;
-      scriptElem = document.getElementById("_playback_controls");
-      scriptElem.parentElement.replaceChild(ctrls.content, scriptElem);
-    });
-    </script>
-    <!-- /build -->
     <div id="graph" style="width: 500px; height: 300px; padding-top: 10px">
       <canvas id="funccanvas" width="500" height="300"></canvas>
     </div>
@@ -106,6 +74,3 @@
       <a href="https://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a> by
       <a href="https://soundcloud.com/captain-pretzel">Captain Pretzel</a>.
     </p>
-  </div>
-</body>
-</html>

@@ -1,14 +1,36 @@
+const apps = [
+  {
+    title: 'Quantization, Dithering, and Noise Shaping',
+    contentfile: 'qds.html',
+    scriptfile: 'qds.js',
+    processorfile: 'qdsproc.js',
+  },
+  {
+    title: 'Oversampling',
+    contentfile: 'ovs.html',
+    scriptfile: 'ovs.js',
+    processorfile: 'ovsproc.js',
+    procimplfile: 'ovsprocimpl.cc',
+  },
+  {
+    title: 'Audio Filters',
+    contentfile: 'eq.html',
+    scriptfile: 'eq.js',
+    processorfile: 'eqproc.js',
+  },
+];
+
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const HTMLProcessor = require('htmlprocessor');
 const minify = require('html-minifier').minify;
 const _rollup = require('rollup');
 const resolve = require('rollup-plugin-node-resolve');
 const Terser = require('terser');
 const CleanCSS = require('clean-css');
 const mime = require('mime');
+const Handlebars = require('handlebars');
 const eslint = require('eslint');
 
 const copyFile = util.promisify(fs.copyFile);
@@ -67,14 +89,6 @@ function htmlminify(dest, src) {
       conservativeCollapse: true,
       removeComments: true,
     });
-  });
-}
-
-function htmlprocess(dest, src, extradeps) {
-  fileDataTask(dest, src, extradeps, (orig) => {
-    jake.logger.log(`html-process ${src} into ${dest}`);
-    const proc = new HTMLProcessor({});
-    return proc.processContent(orig, src);
   });
 }
 
@@ -160,15 +174,6 @@ for (const dirname of ['audio', 'images']) {
 const filesToCache = [
   'dist/index.html',
   'dist/common.js',
-  'dist/qds.html',
-  'dist/qds.js',
-  'dist/qdsproc.js',
-  'dist/ovs.html',
-  'dist/ovs.js',
-  'dist/ovsproc.js',
-  'dist/eq.html',
-  'dist/eq.js',
-  'dist/eqproc.js',
   'dist/install-sw.js',
   ...copied_targets,
 ];
@@ -191,34 +196,68 @@ file('build/cacheconfig.js', filesToCache, async () => {
 
 cleancss('build/jsdafx.css', 'build/jsdafx.datauri.css');
 
-htmlprocess('build/qds.html', 'qds.html',
-  ['playback_control_buttons.html', 'build/jsdafx.css']);
-htmlprocess('build/ovs.html', 'ovs.html',
-  ['playback_control_buttons.html', 'build/jsdafx.css']);
-htmlprocess('build/eq.html', 'eq.html',
-  ['playback_control_buttons.html', 'build/jsdafx.css']);
+let apptemplate = null;
+let csscontents = null;
 
-htmlminify('dist/index.html', 'index.html');
-htmlminify('dist/qds.html', 'build/qds.html');
-htmlminify('dist/ovs.html', 'build/ovs.html');
-htmlminify('dist/eq.html', 'build/eq.html');
+function buildapp(app) {
+  const outfile = path.join('build', app.contentfile);
+  file(outfile, [app.contentfile, 'apptemplate.html', 'build/jsdafx.css'], async () => {
+    jake.logger.log(`expand ${app.contentfile} into ${outfile}`);
+    if (!apptemplate) {
+      apptemplate = Handlebars.compile(
+        await readFile('apptemplate.html', { encoding: 'utf8' }),
+        { strict: true }
+      );
+    }
+    if (!csscontents) {
+      csscontents = await readFile('build/jsdafx.css');
+    }
+    await writeFile(outfile, apptemplate({
+      styletag: `<style>${csscontents}</style>`,
+      appscripttag: `<script type="module" src="${app.scriptfile}"></script>`,
+      title: app.title,
+      content: await readFile(app.contentfile),
+    }));
+  });
+  htmlminify(path.join('dist', app.contentfile), outfile);
+  uglify(path.join('dist', app.scriptfile), app.scriptfile);
+  const rollup_deps = ['baseproc.js'];
+  if (app.procimplfile) {
+    const impljsfile = path.format({
+      dir: 'build',
+      name: path.basename(app.procimplfile, 'cc'),
+      ext: 'js',
+    });
+    emcc(impljsfile, app.procimplfile);
+    rollup_deps.push(impljsfile);
+  }
+  rollup(path.join('build', app.processorfile), app.processorfile, rollup_deps);
+  uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
+  filesToCache.push(...[app.contentfile, app.scriptfile, app.processorfile].map(
+    (f) => path.join('dist', f)
+  ));
+}
 
-emcc('build/ovsprocimpl.js', 'ovsprocimpl.cc');
+for (const app of apps) {
+  buildapp(app);
+}
+
+file('build/index.html', ['index.html'], async () => {
+  const template = Handlebars.compile(
+    await readFile('index.html', { encoding: 'utf8' }),
+    { strict: true }
+  );
+  await writeFile('build/index.html', template({apps: apps}));
+});
+
+htmlminify('dist/index.html', 'build/index.html');
 
 rollup('build/deps.js', 'deps.js');
 rollup('build/sw.js', 'sw.js', ['build/cacheconfig.js']);
 rollup('build/common.js', 'common.js',
   ['graph.js', 'common-audio.js', 'common-polyfill.js']);
-rollup('build/qdsproc.js', 'qdsproc.js', ['baseproc.js']);
-rollup('build/ovsproc.js', 'ovsproc.js', ['baseproc.js', 'build/ovsprocimpl.js']);
-rollup('build/eqproc.js', 'eqproc.js', ['baseproc.js']);
 
-uglify('dist/qdsproc.js', 'build/qdsproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
-uglify('dist/qds.js', 'qds.js');
-uglify('dist/ovsproc.js', 'build/ovsproc.js');
-uglify('dist/ovs.js', 'ovs.js');
-uglify('dist/eqproc.js', 'build/eqproc.js');
 uglify('dist/eq.js', 'eq.js');
 uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'install-sw.js');

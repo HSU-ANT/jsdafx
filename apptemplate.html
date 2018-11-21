@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  {{{styletag}}}
+  {{{appscripttag}}}
+</head>
+<body>
+  <div id="header">
+    <a href="index.html">jsdafx</a>
+    <a href="https://www.hsu-hh.de/ant"><img src="images/ant_logo.png" id="logo"></a>
+  </div>
+  <div id="content">
+    <h1>{{title}}</h1>
+    <div>
+      <span class="select" id="source-select">
+        <div style="width: 410px;"></div>
+        <div>
+          <div class="optgroup">
+            Predefined
+          </div>
+          <div class="optgroup">
+            Local files
+            <div style="font-style: italic;">Browse...</div>
+          </div>
+        </div>
+      </span>
+      <input type="button" id="play" disabled="true" />
+      <input type="button" id="stop" disabled="true" />
+    </div>
+{{{content}}}
+  </div>
+</body>
+</html>
