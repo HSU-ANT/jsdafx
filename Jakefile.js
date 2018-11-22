@@ -258,7 +258,6 @@ rollup('build/common.js', 'common.js',
   ['graph.js', 'common-audio.js', 'common-polyfill.js']);
 
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
-uglify('dist/eq.js', 'eq.js');
 uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'install-sw.js');
 
