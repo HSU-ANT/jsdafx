@@ -1,4 +1,4 @@
-import { CACHE_NAME, urlsToCache } from './build/cacheconfig.js';
+import { CACHE_NAME, urlsToCache } from '../build/cacheconfig.js';
 
 const fillCache = async () => {
   const cache = await caches.open(CACHE_NAME);

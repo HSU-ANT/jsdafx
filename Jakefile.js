@@ -158,7 +158,7 @@ const imgs_to_embed = [
   'images/stop_disabled.png',
   'images/check.png',
 ];
-css_data_uri('build/jsdafx.datauri.css', 'jsdafx.css', imgs_to_embed);
+css_data_uri('build/jsdafx.datauri.css', 'src/jsdafx.css', imgs_to_embed);
 
 const copied_targets = [];
 for (const dirname of ['audio', 'images']) {
@@ -206,12 +206,13 @@ let apptemplate = null;
 let csscontents = null;
 
 function buildapp(app) {
+  const htmlcontentfile = path.join('src', app.contentfile);
   const outfile = path.join('build', app.contentfile);
-  file(outfile, [app.contentfile, 'apptemplate.html', 'build/jsdafx.css'], async () => {
-    jake.logger.log(`expand ${app.contentfile} into ${outfile}`);
+  file(outfile, [htmlcontentfile, 'src/apptemplate.html', 'build/jsdafx.css'], async () => {
+    jake.logger.log(`expand ${htmlcontentfile} into ${outfile}`);
     if (!apptemplate) {
       apptemplate = Handlebars.compile(
-        await readFile('apptemplate.html', { encoding: 'utf8' }),
+        await readFile('src/apptemplate.html', { encoding: 'utf8' }),
         { strict: true }
       );
     }
@@ -222,22 +223,23 @@ function buildapp(app) {
       styletag: `<style>${csscontents}</style>`,
       appscripttag: `<script type="module" src="${app.scriptfile}"></script>`,
       title: app.title,
-      content: await readFile(app.contentfile),
+      content: await readFile(htmlcontentfile),
     }));
   });
   htmlminify(path.join('dist', app.contentfile), outfile);
-  uglify(path.join('dist', app.scriptfile), app.scriptfile);
-  const rollup_deps = ['baseproc.js'];
+  uglify(path.join('dist', app.scriptfile), path.join('src', app.scriptfile));
+  const rollup_deps = ['src/baseproc.js'];
   if (app.procimplfile) {
     const impljsfile = path.format({
       dir: 'build',
       name: path.basename(app.procimplfile, 'cc'),
       ext: 'js',
     });
-    emcc(impljsfile, app.procimplfile);
+    emcc(impljsfile, path.join('src', app.procimplfile));
     rollup_deps.push(impljsfile);
   }
-  rollup(path.join('build', app.processorfile), app.processorfile, rollup_deps);
+  rollup(path.join('build', app.processorfile), path.join('src', app.processorfile),
+    rollup_deps);
   uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
   filesToCache.push(...[app.contentfile, app.scriptfile, app.processorfile].map(
     (f) => path.join('dist', f)
@@ -248,9 +250,9 @@ for (const app of apps) {
   buildapp(app);
 }
 
-file('build/index.html', ['index.html'], async () => {
+file('build/index.html', ['src/index.html'], async () => {
   const template = Handlebars.compile(
-    await readFile('index.html', { encoding: 'utf8' }),
+    await readFile('src/index.html', { encoding: 'utf8' }),
     { strict: true }
   );
   await writeFile('build/index.html', template({apps: apps}));
@@ -258,14 +260,14 @@ file('build/index.html', ['index.html'], async () => {
 
 htmlminify('dist/index.html', 'build/index.html');
 
-rollup('build/deps.js', 'deps.js');
-rollup('build/sw.js', 'sw.js', ['build/cacheconfig.js']);
-rollup('build/common.js', 'common.js',
-  ['graph.js', 'common-audio.js', 'common-polyfill.js']);
+rollup('build/deps.js', 'src/deps.js');
+rollup('build/sw.js', 'src/sw.js', ['build/cacheconfig.js']);
+rollup('build/common.js', 'src/common.js',
+  ['src/graph.js', 'src/common-audio.js', 'src/common-polyfill.js']);
 
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
 uglify('dist/sw.js', 'build/sw.js');
-uglify('dist/install-sw.js', 'install-sw.js');
+uglify('dist/install-sw.js', 'src/install-sw.js');
 
 task('all', [
   'dist/sw.js',
@@ -278,7 +280,7 @@ task('test', ['all'], () => {
     maxWarnings: -1,
     failOnError: true,
   });
-  const report = engine.executeOnFiles(['*.js']);
+  const report = engine.executeOnFiles(['*.js', 'src/*.js']);
   const formatter = eslint.CLIEngine.getFormatter();
   jake.logger.log(formatter(report.results));
   if (report.errorCount > 0) {
@@ -295,5 +297,5 @@ task('default', ['all']);
 
 watchTask('watch', ['all'], function () {
   this.throttle = 500;
-  this.watchFiles.include(['*.html', '*.cc']);
+  this.watchFiles.include(['src/*']);
 });
