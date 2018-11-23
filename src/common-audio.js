@@ -46,6 +46,7 @@ export async function setupAudio(...args) {
 
   let source = null;
   let gain = null;
+  let filter = null;
   const analyzer = audioCtx.createAnalyser();
   analyzer.smoothingTimeConstant = 0.3;
   analyzer.minDecibels = -130;
@@ -55,6 +56,7 @@ export async function setupAudio(...args) {
   analyzer.connect(audioCtx.destination);
   let onended = function () { /* no action by default */ };
 
+  await audioCtx.audioWorklet.addModule('noisesourceproc.js');
 
   const procdef = typeof args[0] === 'object' ? args[0] : workletProcessor(...args);
 
@@ -102,6 +104,23 @@ export async function setupAudio(...args) {
       gain = audioCtx.createGain();
       gain.gain.value = src.gain;
       source.connect(gain);
+      procdef.setup(proc, gain, analyzer);
+    } else if (src.type === 'noise') {
+      gain = audioCtx.createGain();
+      gain.gain.value = src.gain;
+      source = new AudioWorkletNode(audioCtx, 'noisesource-processor',
+        { numberOfInputs: 0, outputChannelCount: [1] });
+      if (src.filter && src.filter.length !== 0) {
+        filter = audioCtx.createConvolver();
+        const hbuf = audioCtx.createBuffer(1, src.filter.length, audioCtx.sampleRate);
+        hbuf.getChannelData(0).set(src.filter);
+        filter.normalize = false;
+        filter.buffer = hbuf;
+        source.connect(filter);
+        filter.connect(gain);
+      } else {
+        source.connect(gain);
+      }
       procdef.setup(proc, gain, analyzer);
     }
   };
@@ -201,6 +220,13 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       const f = src.frequency || 440;
       new_option.innerText = src.label || `${f} Hz sine`;
       sources.push({ type: 'sine', frequency: f, gain: src.gain || 0.5 });
+    } else if (src.type === 'noise') {
+      new_option.innerText = src.label || 'Noise';
+      sources.push({
+        type: 'noise',
+        filter: src.filter || [],
+        gain: src.gain || 0.5,
+      });
     }
     updateState();
   }

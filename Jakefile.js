@@ -179,6 +179,7 @@ for (const dirname of ['audio', 'images']) {
 
 const filesToCache = [
   'dist/index.html',
+  'dist/noisesourceproc.js',
   'dist/common.js',
   'dist/install-sw.js',
   ...copied_targets,
@@ -265,9 +266,11 @@ htmlminify('dist/index.html', 'build/index.html');
 
 rollup('build/deps.js', 'src/deps.js');
 rollup('build/sw.js', 'src/sw.js', ['build/cacheconfig.js']);
+rollup('build/noisesourceproc.js', 'src/noisesourceproc.js');
 rollup('build/common.js', 'src/common.js',
   ['src/graph.js', 'src/common-audio.js', 'src/common-polyfill.js']);
 
+uglify('dist/noisesourceproc.js', 'build/noisesourceproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
 uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'src/install-sw.js');
