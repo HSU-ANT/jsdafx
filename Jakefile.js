@@ -228,20 +228,23 @@ function buildapp(app) {
   });
   htmlminify(path.join('dist', app.contentfile), outfile);
   uglify(path.join('dist', app.scriptfile), path.join('src', app.scriptfile));
-  const rollup_deps = ['src/baseproc.js'];
-  if (app.procimplfile) {
-    const impljsfile = path.format({
-      dir: 'build',
-      name: path.basename(app.procimplfile, 'cc'),
-      ext: 'js',
-    });
-    emcc(impljsfile, path.join('src', app.procimplfile));
-    rollup_deps.push(impljsfile);
+  if (app.processorfile) {
+    const rollup_deps = ['src/baseproc.js'];
+    if (app.procimplfile) {
+      const impljsfile = path.format({
+        dir: 'build',
+        name: path.basename(app.procimplfile, 'cc'),
+        ext: 'js',
+      });
+      emcc(impljsfile, path.join('src', app.procimplfile));
+      rollup_deps.push(impljsfile);
+    }
+    rollup(path.join('build', app.processorfile), path.join('src', app.processorfile),
+      rollup_deps);
+    uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
+    filesToCache.push(path.join('dist', app.processorfile));
   }
-  rollup(path.join('build', app.processorfile), path.join('src', app.processorfile),
-    rollup_deps);
-  uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
-  filesToCache.push(...[app.contentfile, app.scriptfile, app.processorfile].map(
+  filesToCache.push(...[app.contentfile, app.scriptfile].map(
     (f) => path.join('dist', f)
   ));
 }
