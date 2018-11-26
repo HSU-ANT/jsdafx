@@ -24,6 +24,11 @@ const apps = [
     scriptfile: 'distortion.js',
     processorfile: 'distortionproc.js',
   },
+  {
+    title: 'Audio Coding Psychoacoustics - Masking effect',
+    contentfile: 'masking.html',
+    scriptfile: 'masking.js',
+  },
 ];
 
 const crypto = require('crypto');

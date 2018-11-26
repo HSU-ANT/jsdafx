@@ -56,6 +56,9 @@ div.paramentrybox {
   width: 490px;
 }
 
+div.paramentrybox.with-slider {
+  grid-template-columns: 31px 100px 259px 100px;
+}
 div.paramentrybox select {
   border: none;
   background-color: inherit;
@@ -91,6 +94,10 @@ div.paramentrybox input[type=checkbox]:checked {
 
 div.paramentrybox input[type=checkbox]:hover {
   background-color: rgb(186, 180, 175);
+}
+
+div.paramentrybox.with-slider input[type=range]::-webkit-slider-runnable-track {
+  background: linear-gradient(transparent, transparent 8px, rgb(140, 130, 121) 8px, rgb(140, 130, 121) 13px, transparent 13px);
 }
 
 div.tabs {
