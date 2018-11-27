@@ -17,9 +17,9 @@
   },
   "devDependencies": {
     "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#acd2cfbe0d6a387997e28b64d76b637260391014",
-    "concurrently": "^4.0.1",
+    "concurrently": "^4.1.0",
     "emscripten-download": "^1.0.1",
-    "eslint": "^5.7.0",
+    "eslint": "^5.9.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
@@ -27,8 +27,8 @@
     "handlebars": "^4.0.12",
     "html-minifier": "^3.5.21",
     "jake": "^8.0.18",
-    "mime": "^2.3.1",
-    "rollup": "^0.67.0",
+    "mime": "^2.4.0",
+    "rollup": "^0.67.3",
     "rollup-plugin-node-resolve": "^3.4.0",
     "serve": "^10.0.2",
     "terser": "^3.10.12"
