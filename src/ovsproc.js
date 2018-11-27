@@ -1,5 +1,5 @@
 import { BaseProcessor } from './baseproc.js';
-import { Module } from './build/ovsprocimpl.js';
+import { Module } from '../build/ovsprocimpl.js';
 
 class OVSProcessor extends BaseProcessor {
   constructor() {
