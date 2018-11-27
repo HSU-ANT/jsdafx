@@ -1,0 +1,1 @@
+registerProcessor("noisesource-processor",class extends AudioWorkletProcessor{process(e,r){for(let e=0;e<r[0].length;e++)for(let o=0;o<r[0][0].length;o++)r[0][e][o]=2*Math.random()-1;return!0}});
