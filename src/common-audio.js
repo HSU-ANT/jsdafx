@@ -1,10 +1,52 @@
-export async function setupAudio(procurl, procid) {
+export function workletProcessor(procurl, procid) {
+  return {
+    init: async (audioCtx) => {
+      await audioCtx.audioWorklet.addModule(procurl);
+
+      const proc = new AudioWorkletNode(audioCtx, procid);
+
+      const receiveMessage = (port) => {
+        return new Promise((resolve) => {
+          const oldhandler = port.onmessage;
+          port.onmessage = (event) => {
+            port.onmessage = oldhandler;
+            resolve(event.data);
+          };
+        });
+      };
+
+      proc.port.postMessage({action: 'list-properties'});
+      const data = await receiveMessage(proc.port);
+      if (data.response === 'list-properties') {
+        for (const p of data.properties) {
+          Object.defineProperty(proc, p, {
+            set(val) {
+              proc.port.postMessage({action: 'set-property', param: p, value: val});
+            },
+          });
+        }
+      }
+
+      return proc;
+    },
+    setup: (proc, src, sink) => {
+      src.connect(proc);
+      proc.connect(sink);
+    },
+    teardown: (proc) => {
+      proc.disconnect();
+    },
+  };
+}
+
+export async function setupAudio(...args) {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
     latencyHint: 'playback',
   });
 
   let source = null;
   let gain = null;
+  let filter = null;
   const analyzer = audioCtx.createAnalyser();
   analyzer.smoothingTimeConstant = 0.3;
   analyzer.minDecibels = -130;
@@ -14,31 +56,11 @@ export async function setupAudio(procurl, procid) {
   analyzer.connect(audioCtx.destination);
   let onended = function () { /* no action by default */ };
 
-  await audioCtx.audioWorklet.addModule(procurl);
+  await audioCtx.audioWorklet.addModule('noisesourceproc.js');
 
-  const proc = new AudioWorkletNode(audioCtx, procid);
+  const procdef = typeof args[0] === 'object' ? args[0] : workletProcessor(...args);
 
-  const receiveMessage = (port) => {
-    return new Promise((resolve) => {
-      const oldhandler = port.onmessage;
-      port.onmessage = (event) => {
-        port.onmessage = oldhandler;
-        resolve(event.data);
-      };
-    });
-  };
-
-  proc.port.postMessage({action: 'list-properties'});
-  const data = await receiveMessage(proc.port);
-  if (data.response === 'list-properties') {
-    for (const p of data.properties) {
-      Object.defineProperty(proc, p, {
-        set(val) {
-          proc.port.postMessage({action: 'set-property', param: p, value: val});
-        },
-      });
-    }
-  }
+  const proc = await procdef.init(audioCtx);
 
   const frequencies = new Float32Array(analyzer.frequencyBinCount);
   for (let i = 0; i < frequencies.length; i++) {
@@ -58,7 +80,7 @@ export async function setupAudio(procurl, procid) {
       gain.disconnect();
       gain = null;
     }
-    proc.disconnect();
+    procdef.teardown(proc);
     audioCtx.suspend();
   };
 
@@ -73,7 +95,7 @@ export async function setupAudio(procurl, procid) {
         onended();
       };
       source.start();
-      source.connect(proc);
+      procdef.setup(proc, source, analyzer);
     } else if (src.type === 'sine') {
       source = audioCtx.createOscillator();
       source.type = 'sine';
@@ -82,9 +104,25 @@ export async function setupAudio(procurl, procid) {
       gain = audioCtx.createGain();
       gain.gain.value = src.gain;
       source.connect(gain);
-      gain.connect(proc);
+      procdef.setup(proc, gain, analyzer);
+    } else if (src.type === 'noise') {
+      gain = audioCtx.createGain();
+      gain.gain.value = src.gain;
+      source = new AudioWorkletNode(audioCtx, 'noisesource-processor',
+        { numberOfInputs: 0, outputChannelCount: [1] });
+      if (src.filter && src.filter.length !== 0) {
+        filter = audioCtx.createConvolver();
+        const hbuf = audioCtx.createBuffer(1, src.filter.length, audioCtx.sampleRate);
+        hbuf.getChannelData(0).set(src.filter);
+        filter.normalize = false;
+        filter.buffer = hbuf;
+        source.connect(filter);
+        filter.connect(gain);
+      } else {
+        source.connect(gain);
+      }
+      procdef.setup(proc, gain, analyzer);
     }
-    proc.connect(analyzer);
   };
 
   const getTimeDomainData = function () {
@@ -182,6 +220,13 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       const f = src.frequency || 440;
       new_option.innerText = src.label || `${f} Hz sine`;
       sources.push({ type: 'sine', frequency: f, gain: src.gain || 0.5 });
+    } else if (src.type === 'noise') {
+      new_option.innerText = src.label || 'Noise';
+      sources.push({
+        type: 'noise',
+        filter: src.filter || [],
+        gain: src.gain || 0.5,
+      });
     }
     updateState();
   }

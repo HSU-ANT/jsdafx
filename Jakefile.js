@@ -24,6 +24,11 @@ const apps = [
     scriptfile: 'distortion.js',
     processorfile: 'distortionproc.js',
   },
+  {
+    title: 'Audio Coding Psychoacoustics - Masking effect',
+    contentfile: 'masking.html',
+    scriptfile: 'masking.js',
+  },
 ];
 
 const crypto = require('crypto');
@@ -179,6 +184,7 @@ for (const dirname of ['audio', 'images']) {
 
 const filesToCache = [
   'dist/index.html',
+  'dist/noisesourceproc.js',
   'dist/common.js',
   'dist/install-sw.js',
   ...copied_targets,
@@ -228,20 +234,23 @@ function buildapp(app) {
   });
   htmlminify(path.join('dist', app.contentfile), outfile);
   uglify(path.join('dist', app.scriptfile), path.join('src', app.scriptfile));
-  const rollup_deps = ['src/baseproc.js'];
-  if (app.procimplfile) {
-    const impljsfile = path.format({
-      dir: 'build',
-      name: path.basename(app.procimplfile, 'cc'),
-      ext: 'js',
-    });
-    emcc(impljsfile, path.join('src', app.procimplfile));
-    rollup_deps.push(impljsfile);
+  if (app.processorfile) {
+    const rollup_deps = ['src/baseproc.js'];
+    if (app.procimplfile) {
+      const impljsfile = path.format({
+        dir: 'build',
+        name: path.basename(app.procimplfile, 'cc'),
+        ext: 'js',
+      });
+      emcc(impljsfile, path.join('src', app.procimplfile));
+      rollup_deps.push(impljsfile);
+    }
+    rollup(path.join('build', app.processorfile), path.join('src', app.processorfile),
+      rollup_deps);
+    uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
+    filesToCache.push(path.join('dist', app.processorfile));
   }
-  rollup(path.join('build', app.processorfile), path.join('src', app.processorfile),
-    rollup_deps);
-  uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
-  filesToCache.push(...[app.contentfile, app.scriptfile, app.processorfile].map(
+  filesToCache.push(...[app.contentfile, app.scriptfile].map(
     (f) => path.join('dist', f)
   ));
 }
@@ -262,9 +271,11 @@ htmlminify('dist/index.html', 'build/index.html');
 
 rollup('build/deps.js', 'src/deps.js');
 rollup('build/sw.js', 'src/sw.js', ['build/cacheconfig.js']);
+rollup('build/noisesourceproc.js', 'src/noisesourceproc.js');
 rollup('build/common.js', 'src/common.js',
   ['src/graph.js', 'src/common-audio.js', 'src/common-polyfill.js']);
 
+uglify('dist/noisesourceproc.js', 'build/noisesourceproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
 uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'src/install-sw.js');
