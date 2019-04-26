@@ -31,7 +31,7 @@
     "rollup": "^0.67.3",
     "rollup-plugin-node-resolve": "^3.4.0",
     "serve": "^10.0.2",
-    "terser": "^3.10.12"
+    "terser": "^3.17.0"
   },
   "now": {
     "static": {
