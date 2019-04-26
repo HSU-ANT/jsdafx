@@ -26,7 +26,7 @@
     "event-target": "^1.2.3",
     "handlebars": "^4.1.2",
     "html-minifier": "^3.5.21",
-    "jake": "^8.0.18",
+    "jake": "^8.1.1",
     "mime": "^2.4.0",
     "rollup": "^0.67.3",
     "rollup-plugin-node-resolve": "^3.4.0",
