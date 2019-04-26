@@ -130,7 +130,7 @@ function rollup(dest, src, extradeps) {
     const result = await bundle.generate({
       output: { format: 'es' },
     });
-    return writeFile(dest, result.code, { encoding: 'utf8' });
+    return writeFile(dest, result.output[0].code, { encoding: 'utf8' });
   });
 }
 
