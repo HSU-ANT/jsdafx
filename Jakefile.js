@@ -29,6 +29,11 @@ const apps = [
     contentfile: 'masking.html',
     scriptfile: 'masking.js',
   },
+  {
+    title: 'Delay-Based Audio Effects',
+    contentfile: 'delays.html',
+    scriptfile: 'delays.js',
+  },
 ];
 
 const crypto = require('crypto');
