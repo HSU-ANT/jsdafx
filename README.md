@@ -6,8 +6,8 @@ at https://hsu-ant.github.io/jsdafx/.
 ## Building
 
 For development and building yourself, you need [node.js](https://nodejs.org/en/download/)
-and Python 2.7.12 or newer. After cloning/downloading jsdafx, change to its directory and
-run:
+and [emscripten](https://emscripten.org/docs/getting_started/downloads.html).
+After cloning/downloading jsdafx, change to its directory and run:
 ```
 npm install
 ```

@@ -18,7 +18,6 @@
   "devDependencies": {
     "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#acd2cfbe0d6a387997e28b64d76b637260391014",
     "concurrently": "^4.1.0",
-    "emscripten-download": "^1.0.1",
     "eslint": "^5.16.0",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-promise": "^4.1.1",
