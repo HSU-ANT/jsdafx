@@ -29,13 +29,7 @@
     "mime": "^2.4.2",
     "rollup": "^1.10.1",
     "rollup-plugin-node-resolve": "^4.2.3",
-    "serve": "^11.0.0",
+    "serve": "^11.3.2",
     "terser": "^3.17.0"
-  },
-  "now": {
-    "static": {
-      "cleanUrls": false,
-      "public": "dist"
-    }
   }
 }
