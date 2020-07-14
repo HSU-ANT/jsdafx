@@ -56,9 +56,11 @@ class EQProcessor extends BaseProcessor {
         const state = this.state[channel];
         if (needParamUpdate) {
           const k = Math.tan(EQProcessor.parameterAt(parameters.omegaC, sample) / 2);
-          this.coeffcalc(k,
+          this.coeffcalc(
+            k,
             EQProcessor.parameterAt(parameters.gain, sample),
-            EQProcessor.parameterAt(parameters.Q, sample));
+            EQProcessor.parameterAt(parameters.Q, sample),
+          );
         }
         const tmp = (inputData[sample] - this.a1 * state[0] - this.a2 * state[1]) / this.a0;
         if (this.bypass) {

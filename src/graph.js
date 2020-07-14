@@ -102,8 +102,11 @@ function FunctionGraph_(fgcanvas) {
       }
     }
     if (xlabel) {
-      ctx.fillText(xlabel, x_margin_left+(width-x_margin_left)/2,
-        height-y_margin_bottom+16);
+      ctx.fillText(
+        xlabel,
+        x_margin_left+(width-x_margin_left)/2,
+        height-y_margin_bottom+16,
+      );
     }
 
     for (let y=Math.floor(ymax/ystep)*ystep; y >= ymin; y -= ystep) {
@@ -137,8 +140,12 @@ function FunctionGraph_(fgcanvas) {
         ctx.stroke();
       }
     }
-    ctx.rect(x_val_to_pos(xmin), y_val_to_pos(ymin),
-      x_val_to_pos(xmax)-x_val_to_pos(xmin), y_val_to_pos(ymax)-y_val_to_pos(ymin));
+    ctx.rect(
+      x_val_to_pos(xmin),
+      y_val_to_pos(ymin),
+      x_val_to_pos(xmax)-x_val_to_pos(xmin),
+      y_val_to_pos(ymax)-y_val_to_pos(ymin),
+    );
     ctx.stroke();
     axes_image_data = ctx.getImageData(0, 0, width, height);
   };
@@ -148,8 +155,12 @@ function FunctionGraph_(fgcanvas) {
     ctx.strokeStyle = 'rgb(0, 0, 0)';
     ctx.save();
     ctx.beginPath();
-    ctx.rect(x_margin_left, y_margin_top, width-x_margin_left-x_margin_right,
-      height-y_margin_bottom-y_margin_top);
+    ctx.rect(
+      x_margin_left,
+      y_margin_top,
+      width-x_margin_left-x_margin_right,
+      height-y_margin_bottom-y_margin_top,
+    );
     ctx.clip();
     ctx.beginPath();
     ctx.moveTo(x_val_to_pos(xdata[0]), y_val_to_pos(ydata[0]));
@@ -249,8 +260,11 @@ function FunctionGraph_(fgcanvas) {
     if (move_marker !== null) {
       return;
     }
-    onDown(event.touches.item(0).pageX-event.target.offsetLeft,
-      event.touches.item(0).pageY-event.target.offsetTop, 40);
+    onDown(
+      event.touches.item(0).pageX-event.target.offsetLeft,
+      event.touches.item(0).pageY-event.target.offsetTop,
+      40,
+    );
   });
 
   fgcanvas.addEventListener('mouseup', (event) => {
@@ -287,8 +301,10 @@ function FunctionGraph_(fgcanvas) {
 
   fgcanvas.addEventListener('touchmove', (event) => {
     event.preventDefault();
-    onMove(event.touches.item(0).pageX - event.target.offsetLeft,
-      event.touches.item(0).pageY - event.target.offsetTop);
+    onMove(
+      event.touches.item(0).pageX - event.target.offsetLeft,
+      event.touches.item(0).pageY - event.target.offsetTop,
+    );
   });
 }
 

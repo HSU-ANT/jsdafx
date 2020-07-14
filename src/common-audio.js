@@ -108,8 +108,11 @@ export async function setupAudio(...args) {
     } else if (src.type === 'noise') {
       gain = audioCtx.createGain();
       gain.gain.value = src.gain;
-      source = new AudioWorkletNode(audioCtx, 'noisesource-processor',
-        { numberOfInputs: 0, outputChannelCount: [1] });
+      source = new AudioWorkletNode(
+        audioCtx,
+        'noisesource-processor',
+        { numberOfInputs: 0, outputChannelCount: [1] },
+      );
       if (src.filter && src.filter.length !== 0) {
         filter = audioCtx.createConvolver();
         const hbuf = audioCtx.createBuffer(1, src.filter.length, audioCtx.sampleRate);
@@ -208,12 +211,13 @@ export function setupPlayerControls(audioProc, sourceconfig) {
     const new_option = document.createElement('div');
     new_option.setAttribute('data-source-idx', sources.length);
     itembox.children[0].append(new_option);
-    const new_source_idx = sources.length;
     new_option.addEventListener('click', (e) => { setSelectedSource(e.target); });
     if (src.type === 'remote') {
       new_option.innerText = `${src.label} (loading...)`;
+      const new_source_idx = sources.length;
       sources.push(null);
       const req = await window.fetch(src.url);
+      // eslint-disable-next-line require-atomic-updates --- no other access at that index
       sources[new_source_idx] = await audioProc.createBuffer(await req.arrayBuffer());
       updateSourceText(new_option, src.label);
     } else if (src.type === 'sine') {
@@ -268,8 +272,8 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       reader.onload = (e) => { resolve(e.target.result); };
       reader.readAsArrayBuffer(file);
     });
-    const buf = await audioProc.createBuffer(contents);
-    sources[new_source_idx] = buf;
+    // eslint-disable-next-line require-atomic-updates --- no other access at that index
+    sources[new_source_idx] = await audioProc.createBuffer(contents);
     updateSourceText(new_option, file.name);
     updateState();
   }, false);
