@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+    tags: '*'
+  pull_request:
+
+jobs:
+  test:
+    name: Test on Node.js ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: mymindstorm/setup-emsdk@v6
+        with:
+          version: 1.39.19
+      - run: npm ci
+      - run: npm test
