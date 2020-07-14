@@ -712,8 +712,10 @@ window.addEventListener('load', async () => {
         },
         set maskeeFrequency(f) {
           if (maskeeSourceNode) {
-            maskeeSourceNode.frequency.exponentialRampToValueAtTime(f,
-              audioProc.currentTime + 0.050);
+            maskeeSourceNode.frequency.exponentialRampToValueAtTime(
+              f,
+              audioProc.currentTime + 0.050,
+            );
           }
           _maskeeFrequency = f;
         },

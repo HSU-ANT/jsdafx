@@ -37,7 +37,7 @@ const path = require('path');
 const util = require('util');
 const minify = require('html-minifier').minify;
 const _rollup = require('rollup');
-const resolve = require('rollup-plugin-node-resolve');
+const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const Terser = require('terser');
 const CleanCSS = require('clean-css');
 const mime = require('mime');
@@ -208,25 +208,25 @@ file('build/cacheconfig.js', filesToCache, async () => {
 
 cleancss('build/jsdafx.css', 'build/jsdafx.datauri.css');
 
-let apptemplate = null;
-let csscontents = null;
+let apptemplatePromise = null;
+let csscontentsPromise = null;
 
 function buildapp(app) {
   const htmlcontentfile = path.join('src', app.contentfile);
   const outfile = path.join('build', app.contentfile);
   file(outfile, [htmlcontentfile, 'src/apptemplate.html', 'build/jsdafx.css'], async () => {
     jake.logger.log(`expand ${htmlcontentfile} into ${outfile}`);
-    if (!apptemplate) {
-      apptemplate = Handlebars.compile(
+    if (!apptemplatePromise) {
+      apptemplatePromise = (async () => Handlebars.compile(
         await readFile('src/apptemplate.html', { encoding: 'utf8' }),
-        { strict: true }
-      );
+        { strict: true },
+      ))();
     }
-    if (!csscontents) {
-      csscontents = await readFile('build/jsdafx.css');
+    if (!csscontentsPromise) {
+      csscontentsPromise = readFile('build/jsdafx.css');
     }
-    await writeFile(outfile, apptemplate({
-      styletag: `<style>${csscontents}</style>`,
+    await writeFile(outfile, (await apptemplatePromise)({
+      styletag: `<style>${await csscontentsPromise}</style>`,
       appscripttag: `<script type="module" src="${app.scriptfile}"></script>`,
       title: app.title,
       content: await readFile(htmlcontentfile),
@@ -245,13 +245,16 @@ function buildapp(app) {
       emcc(impljsfile, path.join('src', app.procimplfile));
       rollup_deps.push(impljsfile);
     }
-    rollup(path.join('build', app.processorfile), path.join('src', app.processorfile),
-      rollup_deps);
+    rollup(
+      path.join('build', app.processorfile),
+      path.join('src', app.processorfile),
+      rollup_deps,
+    );
     uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
     filesToCache.push(path.join('dist', app.processorfile));
   }
   filesToCache.push(...[app.contentfile, app.scriptfile].map(
-    (f) => path.join('dist', f)
+    (f) => path.join('dist', f),
   ));
 }
 
@@ -262,7 +265,7 @@ for (const app of apps) {
 file('build/index.html', ['src/index.html'], async () => {
   const template = Handlebars.compile(
     await readFile('src/index.html', { encoding: 'utf8' }),
-    { strict: true }
+    { strict: true },
   );
   await writeFile('build/index.html', template({apps: apps}));
 });
@@ -272,8 +275,11 @@ htmlminify('dist/index.html', 'build/index.html');
 rollup('build/deps.js', 'src/deps.js');
 rollup('build/sw.js', 'src/sw.js', ['build/cacheconfig.js']);
 rollup('build/noisesourceproc.js', 'src/noisesourceproc.js');
-rollup('build/common.js', 'src/common.js',
-  ['src/graph.js', 'src/common-audio.js', 'src/common-polyfill.js']);
+rollup(
+  'build/common.js',
+  'src/common.js',
+  ['src/graph.js', 'src/common-audio.js', 'src/common-polyfill.js'],
+);
 
 uglify('dist/noisesourceproc.js', 'build/noisesourceproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);

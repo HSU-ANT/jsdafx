@@ -16,26 +16,20 @@
     "test": "jake test"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^8.4.0",
     "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#ac06d37e20616cd6dce93e5d1cbc7ee41c6092e9",
-    "concurrently": "^4.1.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-import": "^2.17.2",
-    "eslint-plugin-promise": "^4.1.1",
-    "eslint-plugin-standard": "^4.0.0",
+    "concurrently": "^5.2.0",
+    "eslint": "^7.4.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
     "event-target": "^1.2.3",
-    "handlebars": "^4.1.2",
+    "handlebars": "^4.7.6",
     "html-minifier": "^4.0.0",
     "jake": "^8.1.1",
-    "mime": "^2.4.2",
-    "rollup": "^1.10.1",
-    "rollup-plugin-node-resolve": "^4.2.3",
-    "serve": "^11.0.0",
-    "terser": "^3.17.0"
-  },
-  "now": {
-    "static": {
-      "cleanUrls": false,
-      "public": "dist"
-    }
+    "mime": "^2.4.6",
+    "rollup": "^2.21.0",
+    "serve": "^11.3.2",
+    "terser": "^4.8.0"
   }
 }
