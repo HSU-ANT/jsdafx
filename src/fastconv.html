@@ -1,0 +1,32 @@
+<div id="graph" style="width: 500px; height: 300px; padding-top: 10px">
+  <canvas id="funccanvas" width="500" height="300"></canvas>
+</div>
+<div class="paramentrybox">
+  <input id="bypass" type="checkbox" /><label for="bypass">Bypass</label>
+</div>
+<p>
+  This script demonstrates audio effects resulting from a Fast Convolution algorithm. It is
+  designed for a first insight into the perceptual effects of convolving an inpulse
+  response with an audio signal.
+</p>
+<p>
+  The script generates an impulse response by modulating the amplitude of a random signal.
+  The graphical interface presents the curve of the amplitude modulation, which can be
+  manipulated with three control points. Two control points are used for the initial
+  behaviour of the amplitude modulation. The third control point is used for the
+  exponential decay of the impulse response.
+</p>
+<p>
+  You can choose between two predefined audio signals or your own local audio file to
+  be processed.
+</p>
+<p>
+  Predefined music signal "Drums"
+  <!-- https://freesound.org/people/MrPearch/sounds/434013/ --> is licensed under
+  <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0-1.0</a>.
+</p>
+<p>
+  Predefined signal "Speech"
+  <!-- https://commons.wikimedia.org/wiki/File:Ada_Lovelace_(As_Told_By_U.S._Chief_Technology_Officer_Megan_Smith).mp3 -->
+  is in the public domain.
+</p>

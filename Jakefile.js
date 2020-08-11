@@ -34,6 +34,11 @@ const apps = [
     contentfile: 'delays.html',
     scriptfile: 'delays.js',
   },
+  {
+    title: 'Fast Convolution',
+    contentfile: 'fastconv.html',
+    scriptfile: 'fastconv.js',
+  },
 ];
 
 const crypto = require('crypto');

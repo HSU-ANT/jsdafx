@@ -27,6 +27,11 @@ The audio samples are licensed are Creative Commons licences:
   [CC-BY-3.0]
 * `BluesHawk1.wav`: [CC0-1.0]
 * `Burns1.wav`: [CC0-1.0]
+* `434013__mrpearch__drum-patern.mp3` (Drum patern by [MrPearch](https://freesound.org/people/MrPearch/)): [CC0-1.0]
+* `Ada_Lovelace_(As_Told_By_U.S._Chief_Technology_Officer_Megan_Smith).mp3`
+  (Text about Ada Lovelace read by the head of the Office of Science and
+  Technology Policy, U.S. Chief Technology Officer Megan Smith) is in the
+  public domain
 
 [CC0-1.0]: https://creativecommons.org/publicdomain/zero/1.0/
 [CC-BY-3.0]: https://creativecommons.org/licenses/by/3.0/
