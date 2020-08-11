@@ -274,17 +274,26 @@ function FunctionGraph_(fgcanvas) {
     );
   });
 
+  const endmove = () => {
+    if (move_marker !== null) {
+      const evt = new Event('markermoveend');
+      evt.marker = move_marker;
+      this.dispatchEvent(evt);
+      move_marker = null;
+    }
+  };
+
   fgcanvas.addEventListener('mouseup', (event) => {
     if (event.button !== 0) {
       return;
     }
-    move_marker = null;
+    endmove();
   });
 
   fgcanvas.addEventListener('touchend', (event) => {
     event.preventDefault();
     if (event.touches.length === 0) {
-      move_marker = null;
+      endmove();
     }
   });
 
@@ -301,6 +310,7 @@ function FunctionGraph_(fgcanvas) {
 
   fgcanvas.addEventListener('mousemove', (event) => {
     if (event.buttons !== 1) {
+      endmove();
       return;
     }
     onMove(event.offsetX, event.offsetY);
