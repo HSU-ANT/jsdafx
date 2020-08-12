@@ -1,0 +1,65 @@
+    <div id="graph" style="width: 500px; height: 250px; padding-top: 10px; display: flex">
+      <div style="width: 250px; font-size: 50px"><img src="images/drc/diag2.png" id="diagram" /></div>
+      <canvas id="funccanvas" width="250" height="250"></canvas>
+    </div>
+    <div id="envelopes" style="width: 500px; padding-top: 10px; display: flex">
+      <div style="width: 250px; display: inline flow-root">
+        <div style="text-align: center">Input signal</div>
+        <canvas id="inputenvcanvas" width="250" height="150"></canvas>
+      </div>
+      <div style="width: 250px; display: inline flow-root">
+        <div style="text-align: center">Output signal</div>
+        <canvas id="outputenvcanvas" width="250" height="150"></canvas>
+      </div>
+    </div>
+    <div class="paramentrybox">
+      <input id="newyork" type="checkbox" /><label for="linear">New York style</label>
+    </div>
+    <div class="paramentrybox">
+      <input id="bypass" type="checkbox" /><label for="bypass">Bypass</label>
+    </div>
+    <p>
+      This script allows a simple dynamic range control of an audio signal. To do this, the
+      current level of the input signal is determined and a gain factor is derived, such
+      that a given relation between input level and output level is achieved.
+    </p>
+    <p>
+      This relation can be controlled with the curve displayed in the right half.
+      <ul>
+        <li>
+          By dragging the upper right vertex horizontally the limiter threshold can be
+          controlled. Input levels exceeding this threshold are attenuated to a constant
+          output level.
+        </li>
+        <li>
+          By dragging the upper right vertex vertically an overall gain can be controlled.
+        </li>
+        <li>
+          By dragging the lower left vertex horizontally the noise threshold can be
+          controlled. If the input level is below this threshold, the output is muted.
+        </li>
+        <li>
+         By dragging the lower left vertex vertically the compression ratio is controlled,
+         that is the slope of the line segment between limiter and noise threshold. A flat
+         line segment causes compression, while a steep line segment causes expansion.
+        </li>
+      </ul>
+    </p>
+    <p>
+      The gain factor thus obtained is low-pass filtered to reduce harmonic distortion.
+    </p>
+    <p>
+      You can choose between two predefined audio signals or your own local audio file to
+      be processed.
+    </p>
+    <p>
+      Predefined music signal "Funk" is licensed under
+      <a href="https://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a> by
+      <a href="https://soundcloud.com/unfinite">unfinite</a>.
+    </p>
+    <p>
+      Predefined music signal "Orchestra" is licensed under
+      <a href="https://creativecommons.org/licenses/by-sa/4.0">CC-BY-SA-4.0</a> by
+      Porticodoro / SmartCGArt Media Productio.
+      <!-- https://commons.wikimedia.org/wiki/File:CDVonDittersdorfOvidSymphonyN2Introduction1MovementFirstMinute.OGG -->
+    </p>

@@ -32,6 +32,13 @@ The audio samples are licensed are Creative Commons licences:
   (Text about Ada Lovelace read by the head of the Office of Science and
   Technology Policy, U.S. Chief Technology Officer Megan Smith) is in the
   public domain
+* `DittersdorfOvid2.ogx` (Carl Ditters von Dittersdorf: Ovid Symphony N. 2 "The
+  Fall Of Phaeton". Introduction "Adagio non molto" and 1 Movement "Allegro"
+  [First 60 seconds]: The arrival of Phaeton at the Golden Palace of his father
+  the god Sun: "Regia Solis erat sublimibus alta columnis" from Ovid,
+  Metamorphoseon libri, II, fab. I, v. 1, published by Porticodoro / SmartCGArt
+  Media Production): [CC-BY-SA-4.0]
 
 [CC0-1.0]: https://creativecommons.org/publicdomain/zero/1.0/
 [CC-BY-3.0]: https://creativecommons.org/licenses/by/3.0/
+[CC-BY-SA-4.0]: https://creativecommons.org/licenses/by-sa/4.0/
