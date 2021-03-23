@@ -17,6 +17,9 @@ class DistortionProcessor extends BaseProcessor {
   }
 
   process(inputs, outputs, parameters) {
+    if (inputs[0].length === 0) {
+      return true;
+    }
     for (let sample = 0; sample < inputs[0][0].length; sample++) {
       for (let channel = 0; channel < inputs[0].length; channel++) {
         const inputData = inputs[0][channel];
