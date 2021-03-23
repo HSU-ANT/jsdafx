@@ -38,7 +38,7 @@ window.addEventListener('load', async () => {
   };
 
   const smoothSetParameter = (param, value) => {
-    param.cancelAndHoldAtTime(0);
+    param.cancelScheduledValues(audioProc.currentTime);
     param.exponentialRampToValueAtTime(value, audioProc.currentTime + 0.050);
   };
 
