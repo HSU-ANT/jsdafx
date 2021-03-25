@@ -40,7 +40,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const minify = require('html-minifier').minify;
+const { minify } = require('html-minifier');
 const _rollup = require('rollup');
 const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const Terser = require('terser');
@@ -132,9 +132,7 @@ function rollup(dest, src, extradeps) {
       input: src,
       plugins: [resolve()],
     });
-    const result = await bundle.generate({
-      output: { format: 'es' },
-    });
+    const result = await bundle.generate({ output: { format: 'es' } });
     return writeFile(dest, result.output[0].code, { encoding: 'utf8' });
   });
 }
@@ -149,7 +147,7 @@ function uglify(dest, src) {
     for (const f of src) {
       orig[f] = await readFile(f, { encoding: 'utf8' });
     }
-    const result = Terser.minify(orig, { toplevel: true, ie8: false });
+    const result = await Terser.minify(orig, { toplevel: true, ecma: 2016 });
     if (result.error) {
       throw result.error;
     }
@@ -272,7 +270,7 @@ file('build/index.html', ['src/index.html'], async () => {
     await readFile('src/index.html', { encoding: 'utf8' }),
     { strict: true },
   );
-  await writeFile('build/index.html', template({apps: apps}));
+  await writeFile('build/index.html', template({ apps: apps }));
 });
 
 htmlminify('dist/index.html', 'build/index.html');

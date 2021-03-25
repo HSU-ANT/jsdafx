@@ -8,12 +8,13 @@
         "ecmaVersion": 2017,
         "sourceType": "module"
     },
-    "plugins": [ "standard", "import", "promise" ],
+    "plugins": [ "import", "promise" ],
     "rules": {
         "no-async-promise-executor": [ "error" ],
         "no-console": [ "error", { "allow": ["warn", "error"] } ],
         "no-extra-parens": [ "error" ],
         "no-prototype-builtins": [ "error" ],
+        "no-unsafe-optional-chaining": [ "error" ],
         "require-atomic-updates": [ "error" ],
         "array-callback-return": [ "error" ],
         "block-scoped-var": [ "error" ],
@@ -55,6 +56,7 @@
         "no-new": [ "error" ],
         "no-new-func": [ "error" ],
         "no-new-wrappers": [ "error" ],
+        "no-nonoctal-decimal-escape": [ "error" ],
         "no-octal-escape": [ "error" ],
         "no-promise-executor-return": [ "error" ],
         "no-proto": [ "error" ],
@@ -111,7 +113,8 @@
         "no-trailing-spaces": [ "error" ],
         "no-unneeded-ternary": [ "error" ],
         "no-whitespace-before-property": [ "error" ],
-        "object-curly-newline": [ "error" ],
+        "object-curly-newline": [ "error", { "multiline": true } ],
+        "object-curly-spacing": [ "error", "always" ],
         "padded-blocks": [ "error", "never" ],
         "quote-props": [ "error", "as-needed" ],
         "quotes": [ "error", "single" ],
@@ -133,12 +136,12 @@
         "object-shorthand": [ "error", "methods" ],
         "prefer-arrow-callback": [ "error" ],
         "prefer-const": [ "error" ],
+        "prefer-destructuring": [ "error", { "array": false } ],
         "prefer-numeric-literals": [ "error" ],
         "prefer-rest-params": [ "error" ],
         "prefer-spread": [ "error" ],
         "prefer-template": [ "error" ],
         "rest-spread-spacing": [ "error" ],
-        "standard/object-curly-even-spacing": [ "error", "either" ],
         "import/no-unresolved": [ "error", { "ignore": [ "^./build/" ] } ],
         "import/named": [ "error" ],
         "import/default": [ "error" ],
@@ -161,7 +164,8 @@
         "promise/no-new-statics": [ "error" ],
         "promise/no-return-in-finally": [ "error" ],
         "promise/valid-params": [ "error" ],
-        "promise/prefer-await-to-then": [ "warn" ]
+        "promise/prefer-await-to-then": [ "warn" ],
+        "promise/prefer-await-to-callbacks": [ "error" ]
     },
     "overrides": [
       {

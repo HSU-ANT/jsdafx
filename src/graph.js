@@ -1,8 +1,7 @@
 import EventTarget from 'event-target'; // polyfill for Safari
 
 function FunctionGraph_(fgcanvas) {
-  const width = fgcanvas.width;
-  const height = fgcanvas.height;
+  const { width, height } = fgcanvas;
   const ctx = fgcanvas.getContext('2d');
 
   let logx = true;
