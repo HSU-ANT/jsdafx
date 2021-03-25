@@ -8,7 +8,7 @@
         "ecmaVersion": 2017,
         "sourceType": "module"
     },
-    "plugins": [ "standard", "import", "promise" ],
+    "plugins": [ "import", "promise" ],
     "rules": {
         "no-async-promise-executor": [ "error" ],
         "no-console": [ "error", { "allow": ["warn", "error"] } ],
@@ -114,6 +114,7 @@
         "no-unneeded-ternary": [ "error" ],
         "no-whitespace-before-property": [ "error" ],
         "object-curly-newline": [ "error", { "multiline": true } ],
+        "object-curly-spacing": [ "error", "always" ],
         "padded-blocks": [ "error", "never" ],
         "quote-props": [ "error", "as-needed" ],
         "quotes": [ "error", "single" ],
@@ -141,7 +142,6 @@
         "prefer-spread": [ "error" ],
         "prefer-template": [ "error" ],
         "rest-spread-spacing": [ "error" ],
-        "standard/object-curly-even-spacing": [ "error", "either" ],
         "import/no-unresolved": [ "error", { "ignore": [ "^./build/" ] } ],
         "import/named": [ "error" ],
         "import/default": [ "error" ],

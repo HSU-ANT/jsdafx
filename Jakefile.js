@@ -270,7 +270,7 @@ file('build/index.html', ['src/index.html'], async () => {
     await readFile('src/index.html', { encoding: 'utf8' }),
     { strict: true },
   );
-  await writeFile('build/index.html', template({apps: apps}));
+  await writeFile('build/index.html', template({ apps: apps }));
 });
 
 htmlminify('dist/index.html', 'build/index.html');

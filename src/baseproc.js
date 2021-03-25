@@ -7,7 +7,7 @@ class BaseProcessor extends AudioWorkletProcessor {
       if (event.data.action === 'set-property') {
         _this[event.data.param] = event.data.value;
       } else if (event.data.action === 'list-properties') {
-        _this.port.postMessage({response: 'list-properties', properties: properties});
+        _this.port.postMessage({ response: 'list-properties', properties: properties });
       }
     };
   }

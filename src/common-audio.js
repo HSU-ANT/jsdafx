@@ -15,13 +15,13 @@ export function workletProcessor(procurl, procid) {
         });
       };
 
-      proc.port.postMessage({action: 'list-properties'});
+      proc.port.postMessage({ action: 'list-properties' });
       const data = await receiveMessage(proc.port);
       if (data.response === 'list-properties') {
         for (const p of data.properties) {
           Object.defineProperty(proc, p, {
             set(val) {
-              proc.port.postMessage({action: 'set-property', param: p, value: val});
+              proc.port.postMessage({ action: 'set-property', param: p, value: val });
             },
           });
         }

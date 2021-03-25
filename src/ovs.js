@@ -8,7 +8,7 @@ window.addEventListener('load', async () => {
   audioProc.proc.oversamplingfactor = 4;
   setupPlayerControls(audioProc, [
     { type: 'sine' },
-    {type: 'remote', label: 'Music', url: 'audio/unfinite_function.mp3'},
+    { type: 'remote', label: 'Music', url: 'audio/unfinite_function.mp3' },
   ]);
 
   const graph = new SignalGraph(audioProc, document.getElementById('funccanvas'));
