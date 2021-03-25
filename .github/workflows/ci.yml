@@ -25,3 +25,10 @@ jobs:
           version: 1.39.19
       - run: npm ci
       - run: npm test
+      - name: Deploy preview
+        if: matrix.node-version == '14.x' && github.event_name == 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@4.1.0
+        with:
+          branch: gh-pages
+          folder: dist
+          target-folder: preview/${{ github.event.number }}
