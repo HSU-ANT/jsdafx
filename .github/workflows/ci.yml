@@ -40,4 +40,3 @@ jobs:
           clean-exclude: |
             LICENSE.md
             preview
-          target-folder: preview/${{ github.event.number }}
