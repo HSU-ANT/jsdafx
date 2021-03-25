@@ -149,7 +149,7 @@ function uglify(dest, src) {
     for (const f of src) {
       orig[f] = await readFile(f, { encoding: 'utf8' });
     }
-    const result = Terser.minify(orig, { toplevel: true, ie8: false });
+    const result = await Terser.minify(orig, { toplevel: true, ecma: 2016 });
     if (result.error) {
       throw result.error;
     }
