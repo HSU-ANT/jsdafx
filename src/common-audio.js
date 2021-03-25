@@ -40,9 +40,9 @@ export function workletProcessor(procurl, procid) {
 }
 
 export async function setupAudio(...args) {
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-    latencyHint: 'playback',
-  });
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)(
+    { latencyHint: 'playback' },
+  );
 
   let source = null;
   let gain = null;

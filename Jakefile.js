@@ -40,7 +40,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const minify = require('html-minifier').minify;
+const { minify } = require('html-minifier');
 const _rollup = require('rollup');
 const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const Terser = require('terser');
@@ -132,9 +132,7 @@ function rollup(dest, src, extradeps) {
       input: src,
       plugins: [resolve()],
     });
-    const result = await bundle.generate({
-      output: { format: 'es' },
-    });
+    const result = await bundle.generate({ output: { format: 'es' } });
     return writeFile(dest, result.output[0].code, { encoding: 'utf8' });
   });
 }

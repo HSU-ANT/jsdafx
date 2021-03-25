@@ -13,6 +13,4 @@ class BaseProcessor extends AudioWorkletProcessor {
   }
 }
 
-export {
-  BaseProcessor,
-};
+export { BaseProcessor };
