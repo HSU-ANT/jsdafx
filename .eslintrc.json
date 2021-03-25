@@ -164,7 +164,8 @@
         "promise/no-new-statics": [ "error" ],
         "promise/no-return-in-finally": [ "error" ],
         "promise/valid-params": [ "error" ],
-        "promise/prefer-await-to-then": [ "warn" ]
+        "promise/prefer-await-to-then": [ "warn" ],
+        "promise/prefer-await-to-callbacks": [ "error" ]
     },
     "overrides": [
       {
