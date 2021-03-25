@@ -3,7 +3,6 @@ name: CI
 on:
   push:
     branches:
-      - develop
       - master
     tags: '*'
   pull_request:
@@ -31,4 +30,14 @@ jobs:
         with:
           branch: gh-pages
           folder: dist
+          target-folder: preview/${{ github.event.number }}
+      - name: Deploy
+        if: matrix.node-version == '14.x' && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@4.1.0
+        with:
+          branch: gh-pages
+          folder: dist
+          clean-exclude: |
+            LICENSE.md
+            preview
           target-folder: preview/${{ github.event.number }}
