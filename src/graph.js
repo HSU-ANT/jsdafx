@@ -149,9 +149,8 @@ function FunctionGraph_(fgcanvas) {
     axes_image_data = ctx.getImageData(0, 0, width, height);
   };
 
-  this.drawData = function (xdata, ydata) {
+  this.drawData = function (...args) {
     ctx.putImageData(axes_image_data, 0, 0);
-    ctx.strokeStyle = 'rgb(0, 0, 0)';
     ctx.save();
     ctx.beginPath();
     ctx.rect(
@@ -161,12 +160,21 @@ function FunctionGraph_(fgcanvas) {
       height-y_margin_bottom-y_margin_top,
     );
     ctx.clip();
-    ctx.beginPath();
-    ctx.moveTo(x_val_to_pos(xdata[0]), y_val_to_pos(ydata[0]));
-    for (let i = 1; i < ydata.length; i++) {
-      ctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(ydata[i]));
+    while (args.length >= 2) {
+      const xdata = args.shift();
+      const ydata = args.shift();
+      if (args.length >= 1 && typeof args[0] === 'string') {
+        ctx.strokeStyle = args.shift();
+      } else {
+        ctx.strokeStyle = 'rgb(0, 0, 0)';
+      }
+      ctx.beginPath();
+      ctx.moveTo(x_val_to_pos(xdata[0]), y_val_to_pos(ydata[0]));
+      for (let i = 1; i < ydata.length; i++) {
+        ctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(ydata[i]));
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
     ctx.restore();
   };
 
@@ -266,17 +274,26 @@ function FunctionGraph_(fgcanvas) {
     );
   });
 
+  const endmove = () => {
+    if (move_marker !== null) {
+      const evt = new Event('markermoveend');
+      evt.marker = move_marker;
+      this.dispatchEvent(evt);
+      move_marker = null;
+    }
+  };
+
   fgcanvas.addEventListener('mouseup', (event) => {
     if (event.button !== 0) {
       return;
     }
-    move_marker = null;
+    endmove();
   });
 
   fgcanvas.addEventListener('touchend', (event) => {
     event.preventDefault();
     if (event.touches.length === 0) {
-      move_marker = null;
+      endmove();
     }
   });
 
@@ -293,6 +310,7 @@ function FunctionGraph_(fgcanvas) {
 
   fgcanvas.addEventListener('mousemove', (event) => {
     if (event.buttons !== 1) {
+      endmove();
       return;
     }
     onMove(event.offsetX, event.offsetY);
