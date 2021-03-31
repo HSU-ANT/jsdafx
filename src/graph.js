@@ -149,6 +149,8 @@ function FunctionGraph_(fgcanvas) {
     axes_image_data = ctx.getImageData(0, 0, width, height);
   };
 
+  this.envelopeMode = false;
+
   this.drawData = function (...args) {
     ctx.putImageData(axes_image_data, 0, 0);
     ctx.save();
@@ -173,7 +175,14 @@ function FunctionGraph_(fgcanvas) {
       for (let i = 1; i < ydata.length; i++) {
         ctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(ydata[i]));
       }
-      ctx.stroke();
+      if (this.envelopeMode) {
+        for (let i = ydata.length - 1; i >= 0; i--) {
+          ctx.lineTo(x_val_to_pos(xdata[i]), y_val_to_pos(-ydata[i]));
+        }
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
     }
     ctx.restore();
   };

@@ -39,6 +39,12 @@ const apps = [
     contentfile: 'fastconv.html',
     scriptfile: 'fastconv.js',
   },
+  {
+    title: 'Dynamic Range Control',
+    contentfile: 'drc.html',
+    scriptfile: 'drc.js',
+    processorfile: 'drcproc.js',
+  },
 ];
 
 const crypto = require('crypto');
