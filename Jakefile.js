@@ -1,12 +1,14 @@
 const apps = [
   {
     title: 'Quantization, Dithering, and Noise Shaping',
+    image: 'qds/ns5.png',
     contentfile: 'qds.html',
     scriptfile: 'qds.js',
     processorfile: 'qdsproc.js',
   },
   {
     title: 'Oversampling',
+    image: 'ovs/ns5.png',
     contentfile: 'ovs.html',
     scriptfile: 'ovs.js',
     processorfile: 'ovsproc.js',
@@ -14,33 +16,39 @@ const apps = [
   },
   {
     title: 'Audio Filters',
+    image: 'eq.png',
     contentfile: 'eq.html',
     scriptfile: 'eq.js',
     processorfile: 'eqproc.js',
   },
   {
     title: 'Distortion',
+    image: 'distortion.png',
     contentfile: 'distortion.html',
     scriptfile: 'distortion.js',
     processorfile: 'distortionproc.js',
   },
   {
     title: 'Audio Coding Psychoacoustics - Masking effect',
+    image: 'masking.png',
     contentfile: 'masking.html',
     scriptfile: 'masking.js',
   },
   {
     title: 'Delay-Based Audio Effects',
+    image: 'delays/flanger1.png',
     contentfile: 'delays.html',
     scriptfile: 'delays.js',
   },
   {
     title: 'Fast Convolution',
+    image: 'fastconv.png',
     contentfile: 'fastconv.html',
     scriptfile: 'fastconv.js',
   },
   {
     title: 'Dynamic Range Control',
+    image: 'drc/diag2.png',
     contentfile: 'drc.html',
     scriptfile: 'drc.js',
     processorfile: 'drcproc.js',
@@ -49,6 +57,7 @@ const apps = [
 
 const crypto = require('crypto');
 const fs = require('fs');
+const http = require('http');
 const path = require('path');
 const util = require('util');
 const { minify } = require('html-minifier');
@@ -59,6 +68,8 @@ const CleanCSS = require('clean-css');
 const mime = require('mime');
 const Handlebars = require('handlebars');
 const eslint = require('eslint');
+const handler = require('serve-handler');
+const puppeteer = require('puppeteer');
 
 const copyFile = util.promisify(fs.copyFile);
 const readFile = util.promisify(fs.readFile);
@@ -205,6 +216,7 @@ const app_targets = [
   'dist/common.js',
   ...copied_targets,
 ];
+const appimages = [];
 
 function buildapp(app) {
   const htmlcontentfile = path.join('src', app.contentfile);
@@ -251,6 +263,10 @@ function buildapp(app) {
   app_targets.push(...[app.contentfile, app.scriptfile].map(
     (f) => path.join('dist', f),
   ));
+  const imgpath = path.join('dist', 'images', app.image);
+  if (!copied_targets.includes(imgpath)) {
+    appimages.push(imgpath);
+  }
 }
 
 for (const app of apps) {
@@ -259,10 +275,74 @@ for (const app of apps) {
 
 task('apps', app_targets);
 
+const takescreenhots = async () => {
+  const serveconf = require('./serve.json');
+
+  const server = http.createServer((request, response) => {
+    return handler(request, response, serveconf);
+  });
+
+  await new Promise((resolve /* , reject */) => { server.listen(resolve); });
+  try {
+    const browser = await puppeteer.launch();
+    try {
+      const page = await browser.newPage();
+
+      const takescreenshot = async (name, prepare) => {
+        jake.logger.log(`taking ${name} screenshot`);
+        await page.goto(`http://localhost:${server.address().port}/${name}.html`);
+        const elem = await prepare();
+        const filename = path.join('dist', 'images', `${name}.png`);
+        await elem.screenshot({ path: filename });
+      };
+
+      await takescreenshot('fastconv', async () => {
+        const elem = await page.$('#funccanvas');
+        await elem.evaluate((node) => { node.width=400; node.height=250; });
+        return elem;
+      });
+
+      await takescreenshot('eq', async () => {
+        const elem = await page.$('#funccanvas');
+        await elem.evaluate((node) => { node.width=400; node.height=250; });
+        await page.waitForTimeout(150);
+        return elem;
+      });
+
+      await takescreenshot('masking', async () => {
+        const elem = await page.$('#funccanvas');
+        await elem.evaluate((node) => { node.width=400; });
+        await page.waitForSelector('#masker:checked');
+        await (await page.$('#maskeefrequency')).press('PageUp');
+        await (await page.$('#maskeefrequency')).press('PageUp');
+        await (await page.$('#maskeefrequency')).press('PageUp');
+        await page.waitForSelector('#stop[disabled]');
+        await (await page.$('#play')).click();
+        await page.waitForTimeout(1000);
+        await elem.evaluate((node) => { node.width=400; });
+        return elem;
+      });
+
+      await takescreenshot('distortion', async () => {
+        const elem = await page.$('#funccanvas');
+        await elem.evaluate((node) => { node.width=400; node.height=250; });
+        return elem;
+      });
+    } finally {
+      await browser.close();
+    }
+  } finally {
+    server.close();
+  }
+};
+
+appimages.forEach((img) => { file(img, app_targets, takescreenhots); });
+
 const filesToCache = [
   'dist/index.html',
   'dist/install-sw.js',
   ...app_targets,
+  ...appimages,
 ];
 
 file('build/cacheconfig.js', filesToCache, async () => {

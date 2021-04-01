@@ -28,6 +28,7 @@ div#header {
 
 div#header a {
   color: inherit;
+  text-decoration: none;
 }
 
 div#header img#logo {
