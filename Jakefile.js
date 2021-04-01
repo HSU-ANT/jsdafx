@@ -196,34 +196,15 @@ for (const dirname of ['audio', 'images']) {
   }
 }
 
-const filesToCache = [
-  'dist/index.html',
-  'dist/noisesourceproc.js',
-  'dist/common.js',
-  'dist/install-sw.js',
-  ...copied_targets,
-];
-
-file('build/cacheconfig.js', filesToCache, async () => {
-  jake.logger.log('generate build/cacheconfig.js');
-  const hash = crypto.createHash('sha256');
-  for (const f of filesToCache) {
-    hash.update(await readFile(f));
-  }
-  const urlsToCache = filesToCache.map((f) => `'${f.replace(/^dist\//, '')}'`);
-  return writeFile(
-    'build/cacheconfig.js',
-    `export const CACHE_NAME = 'jsdafx-${hash.digest('hex')}';\n` +
-    `export const urlsToCache = [${urlsToCache}];`,
-    { encoding: 'utf8' },
-  );
-});
-
-
 cleancss('build/jsdafx.css', 'build/jsdafx.datauri.css');
 
 let apptemplatePromise = null;
 let csscontentsPromise = null;
+const app_targets = [
+  'dist/noisesourceproc.js',
+  'dist/common.js',
+  ...copied_targets,
+];
 
 function buildapp(app) {
   const htmlcontentfile = path.join('src', app.contentfile);
@@ -265,9 +246,9 @@ function buildapp(app) {
       rollup_deps,
     );
     uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
-    filesToCache.push(path.join('dist', app.processorfile));
+    app_targets.push(path.join('dist', app.processorfile));
   }
-  filesToCache.push(...[app.contentfile, app.scriptfile].map(
+  app_targets.push(...[app.contentfile, app.scriptfile].map(
     (f) => path.join('dist', f),
   ));
 }
@@ -276,7 +257,30 @@ for (const app of apps) {
   buildapp(app);
 }
 
-file('build/index.html', ['src/index.html'], async () => {
+task('apps', app_targets);
+
+const filesToCache = [
+  'dist/index.html',
+  'dist/install-sw.js',
+  ...app_targets,
+];
+
+file('build/cacheconfig.js', filesToCache, async () => {
+  jake.logger.log('generate build/cacheconfig.js');
+  const hash = crypto.createHash('sha256');
+  for (const f of filesToCache) {
+    hash.update(await readFile(f));
+  }
+  const urlsToCache = filesToCache.map((f) => `'${f.replace(/^dist\//, '')}'`);
+  return writeFile(
+    'build/cacheconfig.js',
+    `export const CACHE_NAME = 'jsdafx-${hash.digest('hex')}';\n` +
+    `export const urlsToCache = [${urlsToCache}];`,
+    { encoding: 'utf8' },
+  );
+});
+
+file('build/index.html', ['src/index.html', 'Jakefile.js'], async () => {
   const template = Handlebars.compile(
     await readFile('src/index.html', { encoding: 'utf8' }),
     { strict: true },
