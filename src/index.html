@@ -2,13 +2,72 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Digital Audio Effects in JavaScript</title>
+  <title>jsdafx &ndash; Digital Audio Effects in JavaScript</title>
   <script type="module" src="install-sw.js"></script>
+  <style>
+    body {
+      background-color: rgb(221, 218, 215);
+      font-family: sans-serif;
+      font-size: 16px;
+      padding: 0;
+      margin: 0;
+    }
+    div#header {
+      background-color: rgb(165, 0, 52);
+      color: white;
+      margin: 0px;
+      padding: 15px;
+      height: 19px;
+    }
+    div#header a {
+      color: inherit;
+      text-decoration: none;
+    }
+    div#header img#logo {
+      margin: -13px 0;
+      position: absolute;
+      right: 0%;
+    }
+    h1 {
+      background-color: black;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 40px;
+      font-weight: normal;
+    }
+    h2 {
+      font-size: 120%;
+      font-weight: normal;
+    }
+    a {
+      color: black;
+    }
+    ul {
+      text-align: center;
+      padding: 0;
+    }
+    li {
+      background-color: white;
+      display: inline-block;
+      padding: 15px;
+      margin: 15px;
+      width: 400px;
+      height: 300px;
+      vertical-align: top;
+    }
+  </style>
 </head>
 <body>
+  <div id="header">
+    <a href="https://www.hsu-hh.de/ant">Helmut Schmidt University &ndash; Department of Signal Processing and Communications</a>
+    <a href="https://www.hsu-hh.de/ant"><img src="images/ant_logo.png" id="logo"></a>
+  </div>
+  <h1>jsdafx &ndash; Digital Audio Effects in JavaScript</h1>
   <ul>
     {{#each apps}}
-    <li><a href="{{this.contentfile}}">{{this.title}}</a></li>
+    <li><a href="{{this.contentfile}}"><h2>{{this.title}}</h2>
+      <img src="images/{{this.image}}"></a></li>
     {{/each}}
   </ul>
 </body>
