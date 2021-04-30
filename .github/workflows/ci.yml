@@ -24,15 +24,32 @@ jobs:
           version: 1.39.19
       - run: npm ci
       - run: npm test
+      - name: 'Upload artifact'
+        if: matrix.node-version == '14.x'
+        uses: actions/upload-artifact@v2
+        with:
+          name: site
+          path: dist
+
+  deploy:
+    name: Deploy to gh-pages
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: site
+          path: dist
       - name: Deploy preview
-        if: matrix.node-version == '14.x' && github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
           branch: gh-pages
           folder: dist
           target-folder: preview/${{ github.event.number }}
       - name: Deploy
-        if: matrix.node-version == '14.x' && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
           branch: gh-pages
