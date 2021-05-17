@@ -20,7 +20,7 @@
     "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#e677f53a1e8d6a678195ade5a4a05f0630500bd3",
     "concurrently": "^6.1.0",
     "eslint": "^7.26.0",
-    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-import": "^2.23.2",
     "eslint-plugin-promise": "^5.1.0",
     "event-target": "^1.2.3",
     "handlebars": "^4.7.7",
