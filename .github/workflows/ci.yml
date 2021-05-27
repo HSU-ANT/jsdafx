@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v2.1.5
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: mymindstorm/setup-emsdk@v9
+      - uses: mymindstorm/setup-emsdk@v10
         with:
           version: 1.39.19
       - run: npm ci
