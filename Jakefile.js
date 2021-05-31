@@ -287,6 +287,19 @@ const takescreenhots = async () => {
     const browser = await puppeteer.launch();
     try {
       const page = await browser.newPage();
+      // install a constant-seeded RNG for reproducibility
+      // (see https://stackoverflow.com/questions/521295 for the RNG code)
+      await page.evaluateOnNewDocument('\
+        Math.random = (() => { \
+          let m_w = 123456789; \
+          let m_z = 987654321; \
+          return () => { \
+            m_z = (36969 * (m_z & 65535) + (m_z >> 16)) & 0xffffffff; \
+            m_w = (18000 * (m_w & 65535) + (m_w >> 16)) & 0xffffffff; \
+            return (((m_z << 16) + (m_w & 65535)) >>> 0) / 4294967296; \
+          } \
+        })(); \
+      ');
 
       const takescreenshot = async (name, prepare) => {
         jake.logger.log(`taking ${name} screenshot`);
