@@ -133,8 +133,10 @@ function htmlminify(dest, src) {
 function emcc(dest, src) {
   const deps = [src, path.dirname(dest)];
   file(dest, deps, async () => {
-    const cmd = `emcc --bind -O2 ${src} -s SINGLE_FILE=1 -s WASM=1 ` +
-      `-s BINARYEN_ASYNC_COMPILATION=0 -o ${dest}`;
+    const cmd = `emcc --bind -O3 ${src} -s SINGLE_FILE=1 -s WASM=1 ` +
+      '-s ENVIRONMENT=web,worker -s WASM_ASYNC_COMPILATION=0 ' +
+      '-s INCOMING_MODULE_JS_API=[] ' +
+      `-o ${dest}`;
     jake.logger.log(cmd);
     await new Promise((resolve) => { jake.exec(cmd, resolve); });
     let compiled = await readFile(dest, { encoding: 'utf8' });
