@@ -16,7 +16,7 @@
     "test": "jake test"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^13.0.4",
+    "@rollup/plugin-node-resolve": "^13.0.5",
     "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#e677f53a1e8d6a678195ade5a4a05f0630500bd3",
     "concurrently": "^6.2.1",
     "eslint": "^7.32.0",
