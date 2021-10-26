@@ -312,6 +312,7 @@ const takescreenhots = async () => {
       await takescreenshot('fastconv', async () => {
         const elem = await page.$('#funccanvas');
         await elem.evaluate((node) => { node.width=400; node.height=250; });
+        await page.waitForTimeout(150);
         return elem;
       });
 
@@ -339,6 +340,7 @@ const takescreenhots = async () => {
       await takescreenshot('distortion', async () => {
         const elem = await page.$('#funccanvas');
         await elem.evaluate((node) => { node.width=400; node.height=250; });
+        await page.waitForTimeout(150);
         return elem;
       });
     } finally {
