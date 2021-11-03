@@ -177,6 +177,44 @@ export function setupPlayerControls(audioProc, sourceconfig) {
   const play_button = document.getElementById('play');
   const stop_button = document.getElementById('stop');
 
+  const timeline_canvas = document.getElementById('timelinecanvas');
+
+  function drawTimeline() {
+    const { width, height } = timeline_canvas;
+    const ctx = timeline_canvas.getContext('2d');
+    ctx.fillStyle = 'rgb(221, 218, 215)';
+    ctx.strokeStyle = 'rgb(186, 180, 175)';
+    ctx.fillRect(0, 0, width, height);
+    ctx.strokeRect(0, 0, width, height);
+    const src = sources[selected_source_idx];
+    if (src instanceof AudioBuffer) {
+      const maxima = Array(width).fill(-1.0);
+      const minima = Array(width).fill(1.0);
+      for (let c = 0; c < src.numberOfChannels; c++) {
+        const data = src.getChannelData(c);
+        for (let n = 0; n < data.length; n++) {
+          const x = Math.round(n * width / data.length);
+          if (data[n] > maxima[x]) {
+            maxima[x] = data[n];
+          }
+          if (data[n] < minima[x]) {
+            minima[x] = data[n];
+          }
+        }
+      }
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.moveTo(0, height / 2);
+      for (let x = 0; x < width; x++) {
+        ctx.lineTo(x, (maxima[x] + 1) * height/2);
+      }
+      for (let x = width-1; x >= 0; x--) {
+        ctx.lineTo(x, (minima[x] + 1) * height/2);
+      }
+      ctx.fill();
+    }
+  }
+
   function updateState() {
     if (audioProc.isPlaying()) {
       play_button.disabled = true;
@@ -192,17 +230,18 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       node.classList.remove('selected');
       Array.from(node.children).forEach(removeSelectedMarker);
     }
-    selected_source_idx = option.getAttribute('data-source-idx');
+    selected_source_idx = Number(option.getAttribute('data-source-idx'));
     source_selector_outer.children[0].innerText = option.textContent;
     removeSelectedMarker(itembox);
     option.classList.add('selected');
     audioProc.stop();
     updateState();
+    drawTimeline();
   }
 
   function updateSourceText(option, newText) {
     option.innerText = newText;
-    if (option.getAttribute('data-source-idx') === selected_source_idx) {
+    if (Number(option.getAttribute('data-source-idx')) === selected_source_idx) {
       source_selector_outer.children[0].innerText = newText;
     }
   }
@@ -220,6 +259,9 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       // eslint-disable-next-line require-atomic-updates --- no other access at that index
       sources[new_source_idx] = await audioProc.createBuffer(await req.arrayBuffer());
       updateSourceText(new_option, src.label);
+      if (new_source_idx === selected_source_idx) {
+        drawTimeline();
+      }
     } else if (src.type === 'sine') {
       const f = src.frequency || 440;
       new_option.innerText = src.label || `${f} Hz sine`;
