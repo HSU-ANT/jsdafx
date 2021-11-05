@@ -56,6 +56,8 @@ export async function setupAudio(...args) {
   const timeDomainData = new Float32Array(analyzer.fftSize);
   const frequencyDomainData = new Float32Array(analyzer.frequencyBinCount);
   analyzer.connect(audioCtx.destination);
+  let startTime = null;
+  let startPos = 0;
 
   await audioCtx.audioWorklet.addModule('noisesourceproc.js');
 
@@ -73,6 +75,7 @@ export async function setupAudio(...args) {
   }
 
   const stop = function () {
+    startTime = null;
     if (source !== null) {
       source.disconnect();
       source = null;
@@ -85,15 +88,14 @@ export async function setupAudio(...args) {
     audioCtx.suspend();
   };
 
-  const start = function (src, startPos, endPos) {
+  const start = function (src, _startPos, endPos) {
     stop();
     audioCtx.resume();
+    startTime = audioCtx.currentTime;
     if (src instanceof AudioBuffer) {
       source = audioCtx.createBufferSource();
       source.buffer = src;
-      if (typeof startPos === 'undefined') {
-        startPos = 0;
-      }
+      startPos = typeof _startPos === 'undefined' ? 0 : _startPos;
       if (typeof endPos !== 'undefined') {
         source.loopStart = startPos;
         source.loopEnd = endPos;
@@ -160,6 +162,20 @@ export async function setupAudio(...args) {
     proc: proc,
     get currentTime() { return audioCtx.currentTime; },
     get sampleRate() { return audioCtx.sampleRate; },
+    get position() {
+      if (startTime === null) {
+        return null;
+      }
+      let pos = this.currentTime - startTime;
+      if (source instanceof AudioBufferSourceNode) {
+        if (source.loopEnd !== 0) {
+          pos = pos % (source.loopEnd - source.loopStart) + source.loopStart;
+        } else {
+          pos = (pos + startPos) % source.buffer.duration;
+        }
+      }
+      return pos;
+    },
   };
 }
 
@@ -176,6 +192,7 @@ class TimeLine extends EventTarget {
     let up_x = null;
     let range_start = null;
     let range_end = null;
+    let playbackPosition = null;
 
     const draw = () => {
       ctx.fillStyle = 'rgb(221, 218, 215)';
@@ -207,6 +224,20 @@ class TimeLine extends EventTarget {
           ctx.lineTo(x, (minima[x] + 1) * height/2);
         }
         ctx.fill();
+        if (playbackPosition !== null) {
+          const x = Math.round(playbackPosition / signal.duration * width);
+          ctx.lineWidth = 1.0;
+          ctx.strokeStyle = 'rgb(165, 0, 52)';
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+          ctx.strokeStyle = 'white';
+          ctx.beginPath();
+          ctx.moveTo(x, (minima[x] + 1) * height/2);
+          ctx.lineTo(x, (maxima[x] + 1) * height/2);
+          ctx.stroke();
+        }
       }
     };
 
@@ -321,6 +352,13 @@ class TimeLine extends EventTarget {
           };
         }
         return null;
+      },
+    });
+
+    Object.defineProperty(this, 'playbackPosition', {
+      set(pos) {
+        playbackPosition = pos;
+        draw();
       },
     });
   }
@@ -474,4 +512,10 @@ export function setupPlayerControls(audioProc, sourceconfig) {
     audioProc.start(sources[selected_source_idx], event.startPos, event.endPos);
     updateState();
   });
+
+  const updatePlaybackPosition = () => {
+    timeline.playbackPosition = audioProc.position;
+    setTimeout(() => requestAnimationFrame(updatePlaybackPosition), 40);
+  };
+  updatePlaybackPosition();
 }
