@@ -21,7 +21,7 @@ with
 npm start
 ```
 After everything is (re-)built (this can take a moment the first time), point your browser
-at http://localhost:5000.
+at http://localhost:3000.
 
 To only build, but not start a web server, invoke `npm run build`. The built site is stored
 in the `dist` subdirectory. Alternatively, run `npm run watch` to start a task that will
