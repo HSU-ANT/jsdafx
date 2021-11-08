@@ -1,3 +1,5 @@
+import EventTarget from 'event-target'; // polyfill for Safari
+
 export function workletProcessor(procurl, procid) {
   return {
     init: async (audioCtx) => {
@@ -54,7 +56,8 @@ export async function setupAudio(...args) {
   const timeDomainData = new Float32Array(analyzer.fftSize);
   const frequencyDomainData = new Float32Array(analyzer.frequencyBinCount);
   analyzer.connect(audioCtx.destination);
-  let onended = function () { /* no action by default */ };
+  let startTime = null;
+  let startPos = 0;
 
   await audioCtx.audioWorklet.addModule('noisesourceproc.js');
 
@@ -72,6 +75,7 @@ export async function setupAudio(...args) {
   }
 
   const stop = function () {
+    startTime = null;
     if (source !== null) {
       source.disconnect();
       source = null;
@@ -84,17 +88,20 @@ export async function setupAudio(...args) {
     audioCtx.suspend();
   };
 
-  const start = function (src) {
+  const start = function (src, _startPos, endPos) {
     stop();
     audioCtx.resume();
+    startTime = audioCtx.currentTime;
     if (src instanceof AudioBuffer) {
       source = audioCtx.createBufferSource();
       source.buffer = src;
-      source.onended = () => {
-        stop();
-        onended();
-      };
-      source.start();
+      startPos = typeof _startPos === 'undefined' ? 0 : _startPos;
+      if (typeof endPos !== 'undefined') {
+        source.loopStart = startPos;
+        source.loopEnd = endPos;
+      }
+      source.loop = true;
+      source.start(0, startPos);
       procdef.setup(proc, source, analyzer);
     } else if (src.type === 'sine') {
       source = audioCtx.createOscillator();
@@ -148,7 +155,6 @@ export async function setupAudio(...args) {
     createBuffer(contents) {
       return new Promise((resolve) => { audioCtx.decodeAudioData(contents, resolve); });
     },
-    set onended(handler) { onended = handler; },
     getTimeDomainData: getTimeDomainData,
     timeIndices: timeIndices,
     getFrequencyDomainData: getFrequencyDomainData,
@@ -156,7 +162,206 @@ export async function setupAudio(...args) {
     proc: proc,
     get currentTime() { return audioCtx.currentTime; },
     get sampleRate() { return audioCtx.sampleRate; },
+    get position() {
+      if (startTime === null) {
+        return null;
+      }
+      let pos = this.currentTime - startTime;
+      if (source instanceof AudioBufferSourceNode) {
+        if (source.loopEnd !== 0) {
+          pos = pos % (source.loopEnd - source.loopStart) + source.loopStart;
+        } else {
+          pos = (pos + startPos) % source.buffer.duration;
+        }
+      }
+      return pos;
+    },
   };
+}
+
+class TimeLine extends EventTarget {
+  constructor(canvas) {
+    super();
+    const ctx = canvas.getContext('2d');
+    const { width, height } = canvas;
+    const maxima = Array(width);
+    const minima = Array(width);
+
+    let signal = null;
+    let down_x = null;
+    let up_x = null;
+    let range_start = null;
+    let range_end = null;
+    let playbackPosition = null;
+
+    const draw = () => {
+      ctx.fillStyle = 'rgb(221, 218, 215)';
+      ctx.strokeStyle = 'rgb(186, 180, 175)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeRect(0, 0, width, height);
+      if (signal instanceof AudioBuffer) {
+        ctx.fillStyle = 'rgb(186, 180, 175)';
+        if (up_x !== null) {
+          if (down_x !== null) {
+            ctx.fillRect(up_x, 0, down_x - up_x, height);
+          } else {
+            ctx.beginPath();
+            ctx.moveTo(up_x, 0);
+            ctx.lineTo(up_x, height);
+            ctx.stroke();
+          }
+        }
+        if (range_start !== null && range_end !== null) {
+          ctx.fillRect(range_start, 0, range_end - range_start, height);
+        }
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.moveTo(0, height / 2);
+        for (let x = 0; x < width; x++) {
+          ctx.lineTo(x, (maxima[x] + 1) * height/2);
+        }
+        for (let x = width-1; x >= 0; x--) {
+          ctx.lineTo(x, (minima[x] + 1) * height/2);
+        }
+        ctx.fill();
+        if (playbackPosition !== null) {
+          const x = Math.round(playbackPosition / signal.duration * width);
+          ctx.lineWidth = 1.0;
+          ctx.strokeStyle = 'rgb(165, 0, 52)';
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+          ctx.strokeStyle = 'white';
+          ctx.beginPath();
+          ctx.moveTo(x, (minima[x] + 1) * height/2);
+          ctx.lineTo(x, (maxima[x] + 1) * height/2);
+          ctx.stroke();
+        }
+      }
+    };
+
+    const onDown = (x) => {
+      down_x = x;
+      up_x = null;
+      range_start = null;
+      range_end = null;
+    };
+
+    const onMove = (x) => {
+      up_x = x;
+      draw();
+    };
+
+    const onUp = () => {
+      if (down_x === null) {
+        return;
+      }
+      if (signal instanceof AudioBuffer) {
+        if (up_x !== null && up_x !== down_x) {
+          if (down_x > up_x) {
+            [down_x, up_x] = [up_x, down_x];
+          }
+          const evt = new Event('selected');
+          evt.startPos = down_x * signal.length / width / signal.sampleRate;
+          evt.endPos = up_x * signal.length / width / signal.sampleRate;
+          this.dispatchEvent(evt);
+          range_start = down_x;
+          range_end = up_x;
+        } else {
+          const evt = new Event('clicked');
+          evt.position = down_x * signal.length / width / signal.sampleRate;
+          this.dispatchEvent(evt);
+        }
+      }
+      down_x = null;
+      up_x = null;
+      draw();
+    };
+
+    canvas.addEventListener('mousedown', (event) => {
+      if (event.button === 0) {
+        onDown(event.offsetX);
+      }
+    });
+    canvas.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      onDown(event.touches.item(0).pageX-event.target.offsetLeft);
+    });
+
+    canvas.addEventListener('mousemove', (event) => {
+      onMove(event.offsetX);
+    });
+    canvas.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+      onMove(event.touches.item(0).pageX - event.target.offsetLeft);
+    });
+
+    canvas.addEventListener('mouseup', (event) => {
+      if (event.button === 0) {
+        onUp();
+      }
+    });
+    canvas.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      if (event.touches.length === 0) {
+        onUp();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', (/* event */) => {
+      if (down_x === null) {
+        up_x = null;
+        draw();
+      }
+    });
+
+    Object.defineProperty(this, 'signal', {
+      set(_signal) {
+        if (_signal instanceof AudioBuffer) {
+          signal = _signal;
+          maxima.fill(-1.0);
+          minima.fill(1.0);
+          for (let c = 0; c < signal.numberOfChannels; c++) {
+            const data = signal.getChannelData(c);
+            for (let n = 0; n < data.length; n++) {
+              const x = Math.round(n * width / data.length);
+              if (data[n] > maxima[x]) {
+                maxima[x] = data[n];
+              }
+              if (data[n] < minima[x]) {
+                minima[x] = data[n];
+              }
+            }
+          }
+        } else {
+          signal = null;
+        }
+        range_start = null;
+        range_end = null;
+        draw();
+      },
+    });
+
+    Object.defineProperty(this, 'selection', {
+      get() {
+        if (range_start !== null && range_end !== null) {
+          return {
+            start: range_start * signal.length / width / signal.sampleRate,
+            end: range_end * signal.length / width / signal.sampleRate,
+          };
+        }
+        return null;
+      },
+    });
+
+    Object.defineProperty(this, 'playbackPosition', {
+      set(pos) {
+        playbackPosition = pos;
+        draw();
+      },
+    });
+  }
 }
 
 export function setupPlayerControls(audioProc, sourceconfig) {
@@ -177,6 +382,8 @@ export function setupPlayerControls(audioProc, sourceconfig) {
   const play_button = document.getElementById('play');
   const stop_button = document.getElementById('stop');
 
+  const timeline = new TimeLine(document.getElementById('timelinecanvas'));
+
   function updateState() {
     if (audioProc.isPlaying()) {
       play_button.disabled = true;
@@ -192,17 +399,18 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       node.classList.remove('selected');
       Array.from(node.children).forEach(removeSelectedMarker);
     }
-    selected_source_idx = option.getAttribute('data-source-idx');
+    selected_source_idx = Number(option.getAttribute('data-source-idx'));
     source_selector_outer.children[0].innerText = option.textContent;
     removeSelectedMarker(itembox);
     option.classList.add('selected');
     audioProc.stop();
     updateState();
+    timeline.signal = sources[selected_source_idx];
   }
 
   function updateSourceText(option, newText) {
     option.innerText = newText;
-    if (option.getAttribute('data-source-idx') === selected_source_idx) {
+    if (Number(option.getAttribute('data-source-idx')) === selected_source_idx) {
       source_selector_outer.children[0].innerText = newText;
     }
   }
@@ -220,6 +428,9 @@ export function setupPlayerControls(audioProc, sourceconfig) {
       // eslint-disable-next-line require-atomic-updates --- no other access at that index
       sources[new_source_idx] = await audioProc.createBuffer(await req.arrayBuffer());
       updateSourceText(new_option, src.label);
+      if (new_source_idx === selected_source_idx) {
+        timeline.signal = sources[new_source_idx];
+      }
     } else if (src.type === 'sine') {
       const f = src.frequency || 440;
       new_option.innerText = src.label || `${f} Hz sine`;
@@ -237,14 +448,17 @@ export function setupPlayerControls(audioProc, sourceconfig) {
 
   sourceconfig.forEach(setupSource);
 
-  audioProc.onended = updateState;
-
   stop_button.onclick = function (/* event */) {
     audioProc.stop();
     updateState();
   };
   play_button.onclick = function (/* event */) {
-    audioProc.start(sources[selected_source_idx]);
+    const range = timeline.selection;
+    if (range !== null) {
+      audioProc.start(sources[selected_source_idx], range.start, range.end);
+    } else {
+      audioProc.start(sources[selected_source_idx]);
+    }
     updateState();
   };
 
@@ -287,4 +501,21 @@ export function setupPlayerControls(audioProc, sourceconfig) {
   local_file_option.addEventListener('click', () => {
     file_input.click();
   });
+
+  timeline.addEventListener('clicked', (event) => {
+    audioProc.stop();
+    audioProc.start(sources[selected_source_idx], event.position);
+    updateState();
+  });
+  timeline.addEventListener('selected', (event) => {
+    audioProc.stop();
+    audioProc.start(sources[selected_source_idx], event.startPos, event.endPos);
+    updateState();
+  });
+
+  const updatePlaybackPosition = () => {
+    timeline.playbackPosition = audioProc.position;
+    setTimeout(() => requestAnimationFrame(updatePlaybackPosition), 40);
+  };
+  updatePlaybackPosition();
 }
