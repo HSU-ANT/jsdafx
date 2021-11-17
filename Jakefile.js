@@ -403,17 +403,12 @@ task('all', [
   'dist/sw.js',
 ], () => { jake.logger.log('build complete'); });
 
-task('test', ['all'], () => {
-  const engine = new eslint.CLIEngine({
-    outputFile: false,
-    quiet: false,
-    maxWarnings: -1,
-    failOnError: true,
-  });
-  const report = engine.executeOnFiles(['*.js', 'src/*.js']);
-  const formatter = eslint.CLIEngine.getFormatter();
-  jake.logger.log(formatter(report.results));
-  if (report.errorCount > 0) {
+task('test', ['all'], async () => {
+  const engine = new eslint.ESLint();
+  const report = await engine.lintFiles(['*.js', 'src/*.js']);
+  const formatter = await engine.loadFormatter();
+  jake.logger.log(formatter.format(report));
+  if (report.some((r) => r.errorCount > 0)) {
     throw Error('ESLint found errors');
   }
 });
