@@ -19,7 +19,7 @@
     "@rollup/plugin-node-resolve": "^13.0.6",
     "audioworklet-polyfill": "git+https://github.com/martinholters/audioworklet-polyfill.git#e677f53a1e8d6a678195ade5a4a05f0630500bd3",
     "concurrently": "^6.4.0",
-    "eslint": "^8.2.0",
+    "eslint": "^8.3.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-promise": "^5.1.1",
     "event-target": "^1.2.3",
