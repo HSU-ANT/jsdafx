@@ -32,6 +32,7 @@
         "grouped-accessor-pairs": [ "error", "setBeforeGet" ],
         "no-alert": [ "error" ],
         "no-caller": [ "error" ],
+        "no-constant-binary-expression": [ "error" ],
         "no-constructor-return": [ "error" ],
         "no-div-regex": [ "error" ],
         "no-dupe-else-if": [ "error" ],
