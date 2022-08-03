@@ -11,6 +11,8 @@ jobs:
   test:
     name: Test on Node.js ${{ matrix.node-version }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         node-version: [14.x, 16.x, 18.x]
@@ -34,6 +36,8 @@ jobs:
   deploy:
     name: Deploy to gh-pages
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: test
     steps:
       - uses: actions/checkout@v3

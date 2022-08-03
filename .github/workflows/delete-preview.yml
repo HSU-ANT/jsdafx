@@ -3,6 +3,8 @@ name: Delete preview deployment
 on:
   pull_request:
     types: [ closed ]
+permissions:
+  contents: write
 jobs:
   delete-preview:
     name: Delete preview deployment
