@@ -74,6 +74,7 @@ const puppeteer = require('puppeteer');
 const copyFile = util.promisify(fs.copyFile);
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
+const stat = util.promisify(fs.stat);
 
 function fileDataTask(dest, src, extradeps, func) {
   let deps = [src, path.dirname(dest)];
@@ -289,6 +290,10 @@ const takescreenhots = async () => {
     const browser = await puppeteer.launch();
     try {
       const page = await browser.newPage();
+      page.on('console', (msg) => {
+        jake.logger.log(`PAGE LOG: ${msg.text()}`);
+      });
+      page.on('pageerror', (error) => jake.logger.log('PAGE ERROR:', error.message));
       // install a constant-seeded RNG for reproducibility
       // (see https://stackoverflow.com/questions/521295 for the RNG code)
       await page.evaluateOnNewDocument('\
@@ -308,7 +313,19 @@ const takescreenhots = async () => {
         await page.goto(`http://localhost:${server.address().port}/${name}.html`);
         const elem = await prepare();
         const filename = path.join('dist', 'images', `${name}.png`);
-        await elem.screenshot({ path: filename });
+        /* For some reason, the screenshots sometimes come out blank. In that
+           case, they will be smaller than 1000 bytes. Just retry until we have
+           a larger one (up to ten times) */
+        for (let n=0; n < 10; n++) {
+          await elem.screenshot({ path: filename });
+          const sz = (await stat(filename)).size;
+          if (sz > 1000) {
+            break;
+          }
+          jake.logger.error(`Warning: ${filename} too small (${sz} bytes), retrying`);
+          await new Promise((resolve) => { setTimeout(resolve, 100); });
+          await elem.screenshot({ path: filename });
+        }
       };
 
       await takescreenshot('fastconv', async () => {
@@ -335,6 +352,7 @@ const takescreenhots = async () => {
         await page.waitForSelector('#stop[disabled]');
         await (await page.$('#play')).click();
         await page.waitForTimeout(1000);
+        await (await page.$('#stop')).click();
         await elem.evaluate((node) => { node.width=400; });
         return elem;
       });
