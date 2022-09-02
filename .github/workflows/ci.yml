@@ -26,6 +26,11 @@ jobs:
           version: '3.1.13'
       - run: npm ci
       - run: npm test
+      # verify the screenshots are at least 1000 bytes; otherwise they're probably blank
+      - run: test $(stat --printf=%s dist/images/distortion.png) -gt 1000
+      - run: test $(stat --printf=%s dist/images/eq.png) -gt 1000
+      - run: test $(stat --printf=%s dist/images/fastconv.png) -gt 1000
+      - run: test $(stat --printf=%s dist/images/masking.png) -gt 1000
       - name: 'Upload artifact'
         if: matrix.node-version == '16.x'
         uses: actions/upload-artifact@v3
