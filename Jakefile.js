@@ -316,15 +316,20 @@ const takescreenhots = async () => {
         /* For some reason, the screenshots sometimes come out blank. In that
            case, they will be smaller than 1000 bytes. Just retry until we have
            a larger one (up to ten times) */
+        let success = false;
         for (let n=0; n < 10; n++) {
           await elem.screenshot({ path: filename });
           const sz = (await stat(filename)).size;
           if (sz > 1000) {
+            success = true;
             break;
           }
           jake.logger.error(`Warning: ${filename} too small (${sz} bytes), retrying`);
           await new Promise((resolve) => { setTimeout(resolve, 100); });
           await elem.screenshot({ path: filename });
+        }
+        if (!success) {
+          throw new Error('Failed to generate screenshot of plausible size');
         }
       };
 
