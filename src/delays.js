@@ -211,9 +211,14 @@ window.addEventListener('load', async () => {
   };
   document.getElementById('effecttype').value = 'tremolo';
   document.getElementById('effecttype').onchange = function (event) {
-    audioProc.proc.type = event.target.value;
-    document.getElementById('diagram').src = `images/delays/${event.target.value}1.png`;
-    const maxFreq = maxFrequency[event.target.value];
+    const effectType = event.target.value;
+    if (!(effectType in maxFrequency)) {
+      // apparently effectType is invalid
+      return;
+    }
+    audioProc.proc.type = effectType;
+    document.getElementById('diagram').src = `images/delays/${effectType}1.png`;
+    const maxFreq = maxFrequency[effectType];
     const modFreqElem = document.getElementById('modulationfrequency');
     const newFreq = modFreqElem.value * maxFreq/modFreqElem.max;
     modFreqElem.max = maxFreq;
