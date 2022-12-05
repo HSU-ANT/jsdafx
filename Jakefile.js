@@ -157,7 +157,7 @@ function rollup(dest, src, extradeps) {
       input: src,
       plugins: [resolve()],
     });
-    const result = await bundle.generate({ output: { format: 'es' } });
+    const result = await bundle.generate({ format: 'es' });
     return writeFile(dest, result.output[0].code, { encoding: 'utf8' });
   });
 }
