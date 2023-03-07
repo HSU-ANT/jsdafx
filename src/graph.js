@@ -1,7 +1,7 @@
 import EventTarget from 'event-target'; // polyfill for Safari
 
 function FunctionGraph_(fgcanvas) {
-  const { width, height } = fgcanvas;
+  let { width, height } = fgcanvas;
   const ctx = fgcanvas.getContext('2d');
 
   let logx = true;
@@ -151,7 +151,9 @@ function FunctionGraph_(fgcanvas) {
 
   this.envelopeMode = false;
 
-  this.drawData = function (...args) {
+  let plotData = [];
+
+  const redraw = () => {
     ctx.putImageData(axes_image_data, 0, 0);
     ctx.save();
     ctx.beginPath();
@@ -162,11 +164,12 @@ function FunctionGraph_(fgcanvas) {
       height-y_margin_bottom-y_margin_top,
     );
     ctx.clip();
-    while (args.length >= 2) {
-      const xdata = args.shift();
-      const ydata = args.shift();
-      if (args.length >= 1 && typeof args[0] === 'string') {
-        ctx.strokeStyle = args.shift();
+    for (let n = 0; n + 1 < plotData.length; n += 2) {
+      const xdata = plotData[n];
+      const ydata = plotData[n+1];
+      if (n + 2 < plotData.length && typeof plotData[n+2] === 'string') {
+        ctx.strokeStyle = plotData[n+2];
+        n++;
       } else {
         ctx.strokeStyle = 'rgb(0, 0, 0)';
       }
@@ -187,6 +190,11 @@ function FunctionGraph_(fgcanvas) {
     ctx.restore();
   };
 
+  this.drawData = function (...args) {
+    plotData = args;
+    redraw();
+  };
+
   this.drawMarkers = function (_markers) {
     ctx.save();
     ctx.fillStyle = 'rgb(165, 0, 52)';
@@ -205,6 +213,7 @@ function FunctionGraph_(fgcanvas) {
     set(xlim) {
       [xmin, xmax] = xlim;
       drawAxis();
+      redraw();
     },
   });
   Object.defineProperty(this, 'ylim', {
@@ -212,6 +221,7 @@ function FunctionGraph_(fgcanvas) {
     set(ylim) {
       [ymin, ymax] = ylim;
       drawAxis();
+      redraw();
     },
   });
   Object.defineProperty(this, 'logx', {
@@ -226,6 +236,7 @@ function FunctionGraph_(fgcanvas) {
         x_val_to_pos = x_val_to_pos_lin;
       }
       drawAxis();
+      redraw();
     },
   });
   Object.defineProperty(this, 'xlabel', {
@@ -235,6 +246,7 @@ function FunctionGraph_(fgcanvas) {
       y_margin_bottom = xlabel ? 30 : 16;
       inner_height = height - y_margin_top - y_margin_bottom;
       drawAxis();
+      redraw();
     },
   });
   Object.defineProperty(this, 'ylabel', {
@@ -244,6 +256,7 @@ function FunctionGraph_(fgcanvas) {
       x_margin_left = ylabel ? 44 : 30;
       inner_width = width - x_margin_left - x_margin_right;
       drawAxis();
+      redraw();
     },
   });
 
@@ -332,6 +345,31 @@ function FunctionGraph_(fgcanvas) {
       event.touches.item(0).pageY - event.target.offsetTop,
     );
   });
+
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.contentBoxSize) {
+        if (entry.contentBoxSize[0]) {
+          width = entry.contentBoxSize[0].inlineSize;
+          height = entry.contentBoxSize[0].blockSize;
+        } else {
+          // legacy path
+          width = entry.contentBoxSize.inlineSize;
+          height = entry.contentBoxSize.blockSize;
+        }
+      } else {
+        width = entry.contentRect.width;
+        height = entry.contentRect.height;
+      }
+    }
+    const m = markers.map(([x, y]) => [x_pos_to_val(x), y_pos_to_val(y)]);
+    inner_width = width - x_margin_left - x_margin_right;
+    inner_height = height - y_margin_top - y_margin_bottom;
+    drawAxis();
+    redraw();
+    this.drawMarkers(m);
+  });
+  resizeObserver.observe(fgcanvas);
 }
 
 export class FunctionGraph extends EventTarget {
