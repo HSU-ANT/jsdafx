@@ -24,7 +24,7 @@
     "event-target": "^1.2.3",
     "handlebars": "^4.7.7",
     "html-minifier": "^4.0.0",
-    "jake": "^8.1.1",
+    "jake": "^10.8.6",
     "mime": "^3.0.0",
     "puppeteer": "^19.8.5",
     "rollup": "^3.21.6",

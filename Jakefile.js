@@ -193,20 +193,20 @@ const imgs_to_embed = [
 ];
 css_data_uri('build/jsdafx.datauri.css', 'src/jsdafx.css', imgs_to_embed);
 
+const files_to_copy = new jake.FileList();
+files_to_copy.include(['audio/**', 'images/**']);
+files_to_copy.exclude(imgs_to_embed);
 const copied_targets = [];
-for (const dirname of ['audio', 'images']) {
-  const excludes = dirname === 'images' ? imgs_to_embed : null;
-  for (const filename of jake.readdirR(dirname)) {
-    if (fs.statSync(filename).isFile() && (!excludes || !excludes.includes(filename))) {
-      const destname = path.join('dist', filename);
-      const pathname = path.dirname(destname);
-      directory(pathname);
-      copied_targets.push(destname);
-      file(destname, [filename, pathname], () => {
-        jake.logger.log(`cp ${filename} ${destname}`);
-        return copyFile(filename, destname);
-      });
-    }
+for (const filename of files_to_copy.toArray()) {
+  if (fs.statSync(filename).isFile()) {
+    const destname = path.join('dist', filename);
+    const pathname = path.dirname(destname);
+    directory(pathname);
+    copied_targets.push(destname);
+    file(destname, [filename, pathname], () => {
+      jake.logger.log(`cp ${filename} ${destname}`);
+      return copyFile(filename, destname);
+    });
   }
 }
 
