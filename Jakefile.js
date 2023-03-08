@@ -444,8 +444,3 @@ task('clean', () => {
 });
 
 task('default', ['all']);
-
-watchTask('watch', ['all'], function () {
-  this.throttle = 500;
-  this.watchFiles.include(['src/*']);
-});
