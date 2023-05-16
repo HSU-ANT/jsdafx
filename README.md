@@ -1,8 +1,6 @@
 # Digital Audio Effects in JavaScript
 
 [![CI](https://github.com/HSU-ANT/jsdafx/workflows/CI/badge.svg)](https://github.com/HSU-ANT/jsdafx/actions?query=workflow%3ACI+branch%3Amaster)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/HSU-ANT/jsdafx.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HSU-ANT/jsdafx/alerts/)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/HSU-ANT/jsdafx.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HSU-ANT/jsdafx/context:javascript)
 
 A collection of JavaScript/HTML5-based apps to demonstrate various audio effects. Try them
 at https://hsu-ant.github.io/jsdafx/.
