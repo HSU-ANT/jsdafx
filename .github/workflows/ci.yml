@@ -51,6 +51,7 @@ jobs:
         with:
           branch: gh-pages
           folder: dist
+          force: false
           target-folder: preview/${{ github.event.number }}
       - name: Deploy
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -58,6 +59,7 @@ jobs:
         with:
           branch: gh-pages
           folder: dist
+          force: false
           clean-exclude: |
             LICENSE.md
             preview
