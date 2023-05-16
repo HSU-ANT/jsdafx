@@ -249,8 +249,8 @@ function buildapp(app) {
     if (app.procimplfile) {
       const impljsfile = path.format({
         dir: 'build',
-        name: path.basename(app.procimplfile, 'cc'),
-        ext: 'js',
+        name: path.basename(app.procimplfile, '.cc'),
+        ext: '.js',
       });
       emcc(impljsfile, path.join('src', app.procimplfile));
       rollup_deps.push(impljsfile);
