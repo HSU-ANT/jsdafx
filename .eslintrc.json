@@ -62,7 +62,6 @@
         "no-promise-executor-return": [ "error" ],
         "no-proto": [ "error" ],
         "no-return-assign": [ "error" ],
-        "no-return-await": [ "error" ],
         "no-self-compare": [ "error" ],
         "no-sequences": [ "error" ],
         "no-setter-return": [ "error" ],
