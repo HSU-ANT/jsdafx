@@ -109,7 +109,7 @@
         "no-array-constructor": [ "error" ],
         "no-multi-assign": [ "error", { "ignoreNonDeclaration": true }],
         "no-multiple-empty-lines": [ "error", { "max": 2, "maxBOF": 0, "maxEOF": 0}],
-        "no-new-object": [ "error" ],
+        "no-object-constructor": [ "error" ],
         "no-tabs": [ "error" ],
         "no-trailing-spaces": [ "error" ],
         "no-unneeded-ternary": [ "error" ],
