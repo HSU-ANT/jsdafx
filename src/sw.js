@@ -22,7 +22,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(doFetch(event.request));
 });
 
-
 const cleanOldCaches = async () => {
   const cacheNames = await caches.keys();
   const cachesToDelete = cacheNames.filter((cacheName) => cacheName !== CACHE_NAME);

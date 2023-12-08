@@ -42,9 +42,9 @@ export function workletProcessor(procurl, procid) {
 }
 
 export async function setupAudio(...args) {
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)(
-    { latencyHint: 'playback' },
-  );
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+    latencyHint: 'playback',
+  });
 
   let source = null;
   let gain = null;
@@ -67,7 +67,7 @@ export async function setupAudio(...args) {
 
   const frequencies = new Float32Array(analyzer.frequencyBinCount);
   for (let i = 0; i < frequencies.length; i++) {
-    frequencies[i] = i * audioCtx.sampleRate / 2 / (frequencies.length-1);
+    frequencies[i] = (i * audioCtx.sampleRate) / 2 / (frequencies.length - 1);
   }
   const timeIndices = new Float32Array(analyzer.fftSize);
   for (let i = 0; i < timeIndices.length; i++) {
@@ -115,11 +115,10 @@ export async function setupAudio(...args) {
     } else if (src.type === 'noise') {
       gain = audioCtx.createGain();
       gain.gain.value = src.gain;
-      source = new AudioWorkletNode(
-        audioCtx,
-        'noisesource-processor',
-        { numberOfInputs: 0, outputChannelCount: [1] },
-      );
+      source = new AudioWorkletNode(audioCtx, 'noisesource-processor', {
+        numberOfInputs: 0,
+        outputChannelCount: [1],
+      });
       if (src.filter && src.filter.length !== 0) {
         filter = audioCtx.createConvolver();
         const hbuf = audioCtx.createBuffer(1, src.filter.length, audioCtx.sampleRate);
@@ -153,15 +152,21 @@ export async function setupAudio(...args) {
       return source !== null;
     },
     createBuffer(contents) {
-      return new Promise((resolve) => { audioCtx.decodeAudioData(contents, resolve); });
+      return new Promise((resolve) => {
+        audioCtx.decodeAudioData(contents, resolve);
+      });
     },
     getTimeDomainData: getTimeDomainData,
     timeIndices: timeIndices,
     getFrequencyDomainData: getFrequencyDomainData,
     frequencies: frequencies,
     proc: proc,
-    get currentTime() { return audioCtx.currentTime; },
-    get sampleRate() { return audioCtx.sampleRate; },
+    get currentTime() {
+      return audioCtx.currentTime;
+    },
+    get sampleRate() {
+      return audioCtx.sampleRate;
+    },
     get position() {
       if (startTime === null) {
         return null;
@@ -169,7 +174,7 @@ export async function setupAudio(...args) {
       let pos = this.currentTime - startTime;
       if (source instanceof AudioBufferSourceNode) {
         if (source.loopEnd !== 0) {
-          pos = pos % (source.loopEnd - source.loopStart) + source.loopStart;
+          pos = (pos % (source.loopEnd - source.loopStart)) + source.loopStart;
         } else {
           pos = (pos + startPos) % source.buffer.duration;
         }
@@ -218,14 +223,14 @@ class TimeLine extends EventTarget {
         ctx.beginPath();
         ctx.moveTo(0, height / 2);
         for (let x = 0; x < width; x++) {
-          ctx.lineTo(x, (maxima[x] + 1) * height/2);
+          ctx.lineTo(x, ((maxima[x] + 1) * height) / 2);
         }
-        for (let x = width-1; x >= 0; x--) {
-          ctx.lineTo(x, (minima[x] + 1) * height/2);
+        for (let x = width - 1; x >= 0; x--) {
+          ctx.lineTo(x, ((minima[x] + 1) * height) / 2);
         }
         ctx.fill();
         if (playbackPosition !== null) {
-          const x = Math.round(playbackPosition / signal.duration * width);
+          const x = Math.round((playbackPosition / signal.duration) * width);
           ctx.lineWidth = 1.0;
           ctx.strokeStyle = 'rgb(165, 0, 52)';
           ctx.beginPath();
@@ -234,8 +239,8 @@ class TimeLine extends EventTarget {
           ctx.stroke();
           ctx.strokeStyle = 'white';
           ctx.beginPath();
-          ctx.moveTo(x, (minima[x] + 1) * height/2);
-          ctx.lineTo(x, (maxima[x] + 1) * height/2);
+          ctx.moveTo(x, ((minima[x] + 1) * height) / 2);
+          ctx.lineTo(x, ((maxima[x] + 1) * height) / 2);
           ctx.stroke();
         }
       }
@@ -263,14 +268,14 @@ class TimeLine extends EventTarget {
             [down_x, up_x] = [up_x, down_x];
           }
           const evt = new Event('selected');
-          evt.startPos = down_x * signal.length / width / signal.sampleRate;
-          evt.endPos = up_x * signal.length / width / signal.sampleRate;
+          evt.startPos = (down_x * signal.length) / width / signal.sampleRate;
+          evt.endPos = (up_x * signal.length) / width / signal.sampleRate;
           this.dispatchEvent(evt);
           range_start = down_x;
           range_end = up_x;
         } else {
           const evt = new Event('clicked');
-          evt.position = down_x * signal.length / width / signal.sampleRate;
+          evt.position = (down_x * signal.length) / width / signal.sampleRate;
           this.dispatchEvent(evt);
         }
       }
@@ -286,7 +291,7 @@ class TimeLine extends EventTarget {
     });
     canvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
-      onDown(event.touches.item(0).pageX-event.target.offsetLeft);
+      onDown(event.touches.item(0).pageX - event.target.offsetLeft);
     });
 
     canvas.addEventListener('mousemove', (event) => {
@@ -325,7 +330,7 @@ class TimeLine extends EventTarget {
           for (let c = 0; c < signal.numberOfChannels; c++) {
             const data = signal.getChannelData(c);
             for (let n = 0; n < data.length; n++) {
-              const x = Math.round(n * width / data.length);
+              const x = Math.round((n * width) / data.length);
               if (data[n] > maxima[x]) {
                 maxima[x] = data[n];
               }
@@ -347,8 +352,8 @@ class TimeLine extends EventTarget {
       get() {
         if (range_start !== null && range_end !== null) {
           return {
-            start: range_start * signal.length / width / signal.sampleRate,
-            end: range_end * signal.length / width / signal.sampleRate,
+            start: (range_start * signal.length) / width / signal.sampleRate,
+            end: (range_end * signal.length) / width / signal.sampleRate,
           };
         }
         return null;
@@ -370,14 +375,22 @@ export function setupPlayerControls(audioProc, sourceconfig) {
 
   const source_selector_outer = document.getElementById('source-select');
   const itembox = source_selector_outer.children[1];
-  source_selector_outer.children[0].addEventListener('click', (e) => {
-    e.stopPropagation();
-    itembox.style.visibility =
-      itembox.style.visibility === 'visible' ? 'hidden' : 'visible';
-  }, false);
-  document.addEventListener('click', () => {
-    itembox.style.visibility = 'hidden';
-  }, false);
+  source_selector_outer.children[0].addEventListener(
+    'click',
+    (e) => {
+      e.stopPropagation();
+      itembox.style.visibility =
+        itembox.style.visibility === 'visible' ? 'hidden' : 'visible';
+    },
+    false,
+  );
+  document.addEventListener(
+    'click',
+    () => {
+      itembox.style.visibility = 'hidden';
+    },
+    false,
+  );
 
   const play_button = document.getElementById('play');
   const stop_button = document.getElementById('stop');
@@ -419,7 +432,9 @@ export function setupPlayerControls(audioProc, sourceconfig) {
     const new_option = document.createElement('div');
     new_option.setAttribute('data-source-idx', sources.length);
     itembox.children[0].append(new_option);
-    new_option.addEventListener('click', (e) => { setSelectedSource(e.target); });
+    new_option.addEventListener('click', (e) => {
+      setSelectedSource(e.target);
+    });
     if (src.type === 'remote') {
       new_option.innerText = `${src.label} (loading...)`;
       const new_source_idx = sources.length;
@@ -467,30 +482,38 @@ export function setupPlayerControls(audioProc, sourceconfig) {
   const file_input = document.createElement('input');
   file_input.type = 'file';
   file_input.accept = 'audio/*';
-  file_input.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) {
-      return;
-    }
-    const new_option = document.createElement('div');
-    new_option.setAttribute('data-source-idx', sources.length);
-    new_option.innerText = `${file.name} (loading...)`;
-    setSelectedSource(new_option);
-    optgroup_local.insertBefore(new_option, local_file_option);
-    const new_source_idx = sources.length;
-    new_option.addEventListener('click', (e) => { setSelectedSource(e.target); });
-    sources.push(null);
+  file_input.addEventListener(
+    'change',
+    async (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        return;
+      }
+      const new_option = document.createElement('div');
+      new_option.setAttribute('data-source-idx', sources.length);
+      new_option.innerText = `${file.name} (loading...)`;
+      setSelectedSource(new_option);
+      optgroup_local.insertBefore(new_option, local_file_option);
+      const new_source_idx = sources.length;
+      new_option.addEventListener('click', (e) => {
+        setSelectedSource(e.target);
+      });
+      sources.push(null);
 
-    const contents = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => { resolve(e.target.result); };
-      reader.readAsArrayBuffer(file);
-    });
-    // eslint-disable-next-line require-atomic-updates --- no other access at that index
-    sources[new_source_idx] = await audioProc.createBuffer(contents);
-    updateSourceText(new_option, file.name);
-    updateState();
-  }, false);
+      const contents = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          resolve(e.target.result);
+        };
+        reader.readAsArrayBuffer(file);
+      });
+      // eslint-disable-next-line require-atomic-updates --- no other access at that index
+      sources[new_source_idx] = await audioProc.createBuffer(contents);
+      updateSourceText(new_option, file.name);
+      updateState();
+    },
+    false,
+  );
 
   if (sourceconfig.length === 0) {
     source_selector_outer.children[0].innerText = 'input signal';

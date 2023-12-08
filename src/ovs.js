@@ -19,8 +19,9 @@ window.addEventListener('load', async () => {
   };
   const setDrawWave = (b) => {
     graph.drawWave = b;
-    cblinear.style.visibility = cblinear.labels[0].style.visibility =
-      b ? 'hidden' : 'visible';
+    cblinear.style.visibility = cblinear.labels[0].style.visibility = b
+      ? 'hidden'
+      : 'visible';
   };
   document.getElementById('spectrum').onchange = (event) => {
     setDrawWave(!event.target.checked);
