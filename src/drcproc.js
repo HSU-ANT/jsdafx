@@ -47,14 +47,16 @@ class DRCProcessor extends BaseProcessor {
         this.instantaneousPower = 0.995 * this.instantaneousPower + 0.005 * sq;
       }
       const inLevel_dB = 10 * Math.log10(this.instantaneousPower);
-      const limiterThreshold =
-        DRCProcessor.parameterAt(parameters.limiterThreshold, sample);
-      const limiterLevel =
-        DRCProcessor.parameterAt(parameters.limiterLevel, sample);
-      const noiseThreshold =
-        DRCProcessor.parameterAt(parameters.noiseThreshold, sample);
-      const compressionRatio =
-        DRCProcessor.parameterAt(parameters.compressionRatio, sample);
+      const limiterThreshold = DRCProcessor.parameterAt(
+        parameters.limiterThreshold,
+        sample,
+      );
+      const limiterLevel = DRCProcessor.parameterAt(parameters.limiterLevel, sample);
+      const noiseThreshold = DRCProcessor.parameterAt(parameters.noiseThreshold, sample);
+      const compressionRatio = DRCProcessor.parameterAt(
+        parameters.compressionRatio,
+        sample,
+      );
       let gain_dB = -1000;
       if (inLevel_dB > limiterThreshold) {
         gain_dB = limiterLevel - inLevel_dB;

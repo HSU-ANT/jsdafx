@@ -134,12 +134,15 @@ function htmlminify(dest, src) {
 function emcc(dest, src) {
   const deps = [src, path.dirname(dest)];
   file(dest, deps, async () => {
-    const cmd = `emcc --bind -O3 ${src} -s SINGLE_FILE=1 -s WASM=1 ` +
+    const cmd =
+      `emcc --bind -O3 ${src} -s SINGLE_FILE=1 -s WASM=1 ` +
       '-s ENVIRONMENT=web,worker -s WASM_ASYNC_COMPILATION=0 ' +
       '-s INCOMING_MODULE_JS_API=[] ' +
       `-o ${dest}`;
     jake.logger.log(cmd);
-    await new Promise((resolve) => { jake.exec(cmd, resolve); });
+    await new Promise((resolve) => {
+      jake.exec(cmd, resolve);
+    });
     let compiled = await readFile(dest, { encoding: 'utf8' });
     compiled += 'export { Module };';
     return writeFile(dest, compiled, { encoding: 'utf8' });
@@ -214,11 +217,7 @@ cleancss('build/jsdafx.css', 'build/jsdafx.datauri.css');
 
 let apptemplatePromise = null;
 let csscontentsPromise = null;
-const app_targets = [
-  'dist/noisesourceproc.js',
-  'dist/common.js',
-  ...copied_targets,
-];
+const app_targets = ['dist/noisesourceproc.js', 'dist/common.js', ...copied_targets];
 const appimages = [];
 
 function buildapp(app) {
@@ -227,20 +226,23 @@ function buildapp(app) {
   file(outfile, [htmlcontentfile, 'src/apptemplate.html', 'build/jsdafx.css'], async () => {
     jake.logger.log(`expand ${htmlcontentfile} into ${outfile}`);
     if (!apptemplatePromise) {
-      apptemplatePromise = (async () => Handlebars.compile(
-        await readFile('src/apptemplate.html', { encoding: 'utf8' }),
-        { strict: true },
-      ))();
+      apptemplatePromise = (async () =>
+        Handlebars.compile(await readFile('src/apptemplate.html', { encoding: 'utf8' }), {
+          strict: true,
+        }))();
     }
     if (!csscontentsPromise) {
       csscontentsPromise = readFile('build/jsdafx.css');
     }
-    await writeFile(outfile, (await apptemplatePromise)({
-      styletag: `<style>${await csscontentsPromise}</style>`,
-      appscripttag: `<script type="module" src="${app.scriptfile}"></script>`,
-      title: app.title,
-      content: await readFile(htmlcontentfile),
-    }));
+    await writeFile(
+      outfile,
+      (await apptemplatePromise)({
+        styletag: `<style>${await csscontentsPromise}</style>`,
+        appscripttag: `<script type="module" src="${app.scriptfile}"></script>`,
+        title: app.title,
+        content: await readFile(htmlcontentfile),
+      }),
+    );
   });
   htmlminify(path.join('dist', app.contentfile), outfile);
   uglify(path.join('dist', app.scriptfile), path.join('src', app.scriptfile));
@@ -263,9 +265,7 @@ function buildapp(app) {
     uglify(path.join('dist', app.processorfile), path.join('build', app.processorfile));
     app_targets.push(path.join('dist', app.processorfile));
   }
-  app_targets.push(...[app.contentfile, app.scriptfile].map(
-    (f) => path.join('dist', f),
-  ));
+  app_targets.push(...[app.contentfile, app.scriptfile].map((f) => path.join('dist', f)));
   const imgpath = path.join('dist', 'images', app.image);
   if (!copied_targets.includes(imgpath)) {
     appimages.push(imgpath);
@@ -285,7 +285,9 @@ const takescreenhots = async () => {
     return handler(request, response, serveconf);
   });
 
-  await new Promise((resolve /* , reject */) => { server.listen(resolve); });
+  await new Promise((resolve /* , reject */) => {
+    server.listen(resolve);
+  });
   try {
     const browser = await puppeteer.launch();
     try {
@@ -296,7 +298,8 @@ const takescreenhots = async () => {
       page.on('pageerror', (error) => jake.logger.log('PAGE ERROR:', error.message));
       // install a constant-seeded RNG for reproducibility
       // (see https://stackoverflow.com/questions/521295 for the RNG code)
-      await page.evaluateOnNewDocument('\
+      await page.evaluateOnNewDocument(
+        '\
         Math.random = (() => { \
           let m_w = 123456789; \
           let m_z = 987654321; \
@@ -306,7 +309,8 @@ const takescreenhots = async () => {
             return (((m_z << 16) + (m_w & 65535)) >>> 0) / 4294967296; \
           } \
         })(); \
-      ');
+      ',
+      );
 
       const takescreenshot = async (name, prepare) => {
         jake.logger.log(`taking ${name} screenshot`);
@@ -317,7 +321,7 @@ const takescreenhots = async () => {
            case, they will be smaller than 1000 bytes. Just retry until we have
            a larger one (up to ten times) */
         let success = false;
-        for (let n=0; n < 10; n++) {
+        for (let n = 0; n < 10; n++) {
           await elem.screenshot({ path: filename });
           const sz = (await stat(filename)).size;
           if (sz > 1000) {
@@ -325,7 +329,9 @@ const takescreenhots = async () => {
             break;
           }
           jake.logger.error(`Warning: ${filename} too small (${sz} bytes), retrying`);
-          await new Promise((resolve) => { setTimeout(resolve, 100); });
+          await new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          });
           await elem.screenshot({ path: filename });
         }
         if (!success) {
@@ -335,37 +341,58 @@ const takescreenhots = async () => {
 
       await takescreenshot('fastconv', async () => {
         const elem = await page.$('#funccanvas');
-        await elem.evaluate((node) => { node.width=400; node.height=250; });
-        await new Promise((resolve) => { setTimeout(resolve, 250); });
+        await elem.evaluate((node) => {
+          node.width = 400;
+          node.height = 250;
+        });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 250);
+        });
         return elem;
       });
 
       await takescreenshot('eq', async () => {
         const elem = await page.$('#funccanvas');
-        await elem.evaluate((node) => { node.width=400; node.height=250; });
-        await new Promise((resolve) => { setTimeout(resolve, 250); });
+        await elem.evaluate((node) => {
+          node.width = 400;
+          node.height = 250;
+        });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 250);
+        });
         return elem;
       });
 
       await takescreenshot('masking', async () => {
         const elem = await page.$('#funccanvas');
-        await elem.evaluate((node) => { node.width=400; });
+        await elem.evaluate((node) => {
+          node.width = 400;
+        });
         await page.waitForSelector('#masker:checked');
         await (await page.$('#maskeefrequency')).press('PageUp');
         await (await page.$('#maskeefrequency')).press('PageUp');
         await (await page.$('#maskeefrequency')).press('PageUp');
         await page.waitForSelector('#stop[disabled]');
         await (await page.$('#play')).click();
-        await new Promise((resolve) => { setTimeout(resolve, 1000); });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1000);
+        });
         await (await page.$('#stop')).click();
-        await elem.evaluate((node) => { node.width=400; });
+        await elem.evaluate((node) => {
+          node.width = 400;
+        });
         return elem;
       });
 
       await takescreenshot('distortion', async () => {
         const elem = await page.$('#funccanvas');
-        await elem.evaluate((node) => { node.width=400; node.height=250; });
-        await new Promise((resolve) => { setTimeout(resolve, 250); });
+        await elem.evaluate((node) => {
+          node.width = 400;
+          node.height = 250;
+        });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 250);
+        });
         return elem;
       });
     } finally {
@@ -376,7 +403,9 @@ const takescreenhots = async () => {
   }
 };
 
-appimages.forEach((img) => { file(img, app_targets, takescreenhots); });
+appimages.forEach((img) => {
+  file(img, app_targets, takescreenhots);
+});
 
 const filesToCache = [
   'dist/index.html',
@@ -395,7 +424,7 @@ file('build/cacheconfig.js', filesToCache, async () => {
   return writeFile(
     'build/cacheconfig.js',
     `export const CACHE_NAME = 'jsdafx-${hash.digest('hex')}';\n` +
-    `export const urlsToCache = [${urlsToCache}];`,
+      `export const urlsToCache = [${urlsToCache}];`,
     { encoding: 'utf8' },
   );
 });
@@ -413,20 +442,20 @@ htmlminify('dist/index.html', 'build/index.html');
 rollup('build/deps.js', 'src/deps.js');
 rollup('build/sw.js', 'src/sw.js', ['build/cacheconfig.js']);
 rollup('build/noisesourceproc.js', 'src/noisesourceproc.js');
-rollup(
-  'build/common.js',
-  'src/common.js',
-  ['src/graph.js', 'src/common-audio.js', 'src/common-polyfill.js'],
-);
+rollup('build/common.js', 'src/common.js', [
+  'src/graph.js',
+  'src/common-audio.js',
+  'src/common-polyfill.js',
+]);
 
 uglify('dist/noisesourceproc.js', 'build/noisesourceproc.js');
 uglify('dist/common.js', ['build/common.js', 'build/deps.js']);
 uglify('dist/sw.js', 'build/sw.js');
 uglify('dist/install-sw.js', 'src/install-sw.js');
 
-task('all', [
-  'dist/sw.js',
-], () => { jake.logger.log('build complete'); });
+task('all', ['dist/sw.js'], () => {
+  jake.logger.log('build complete');
+});
 
 task('test', ['all'], async () => {
   const engine = new eslint.ESLint();

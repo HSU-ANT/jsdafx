@@ -23,7 +23,7 @@ window.addEventListener('load', async () => {
 
   const drawTransferFunction = () => {
     for (let i = 0; i < invals.length; i++) {
-      const inval = -1 + 2 * i/(invals.length-1);
+      const inval = -1 + (2 * i) / (invals.length - 1);
       invals[i] = inval;
       let outval = outgain * (2.0 / (1.0 + Math.exp(-inval * ingain)) - 1.0);
       if (outval > 1) {
@@ -34,16 +34,16 @@ window.addEventListener('load', async () => {
       outvals[i] = outval;
     }
     graph.drawData(invals, outvals);
-    graph.drawMarkers([[Math.log(3)/ingain, 0.5*outgain]]);
+    graph.drawMarkers([[Math.log(3) / ingain, 0.5 * outgain]]);
   };
 
   const smoothSetParameter = (param, value) => {
     param.cancelScheduledValues(audioProc.currentTime);
-    param.exponentialRampToValueAtTime(value, audioProc.currentTime + 0.050);
+    param.exponentialRampToValueAtTime(value, audioProc.currentTime + 0.05);
   };
 
   graph.addEventListener('markermove', (event) => {
-    ingain = Math.log(3)/event.valX;
+    ingain = Math.log(3) / event.valX;
     if (ingain > 1000 || ingain < 0) {
       ingain = 1000;
     } else if (ingain < Math.log(3)) {

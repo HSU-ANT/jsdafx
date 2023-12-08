@@ -8,7 +8,9 @@ class OVSProcessor extends BaseProcessor {
     this.procimpl = new Module.OvsImpl();
   }
 
-  set w(w) { this.procimpl.q = Math.pow(2, 1-w); }
+  set w(w) {
+    this.procimpl.q = Math.pow(2, 1 - w);
+  }
 
   set dithertype(type) {
     if (type === 'rect') {
@@ -22,9 +24,13 @@ class OVSProcessor extends BaseProcessor {
     }
   }
 
-  set noiseshapingfilter(order) { this.procimpl.nsN = order|0; }
+  set noiseshapingfilter(order) {
+    this.procimpl.nsN = order | 0;
+  }
 
-  set oversamplingfactor(L) { this.procimpl.L = L|0; }
+  set oversamplingfactor(L) {
+    this.procimpl.L = L | 0;
+  }
 
   process(inputs, outputs /*, parameters */) {
     for (let channel = 0; channel < inputs[0].length; channel++) {
