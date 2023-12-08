@@ -6,14 +6,14 @@ window.addEventListener('load', async () => {
     init(audioCtx) {
       const impulseResponseBuffer = audioCtx.createBuffer(
         2,
-        audioCtx.sampleRate * IRLENGTH / 1000,
+        (audioCtx.sampleRate * IRLENGTH) / 1000,
         audioCtx.sampleRate,
       );
       /* the normalization of the ConvolverNode is useful, but contains a weird scaling
       depending on the length of the impulse response which we compensate by the following
       factor */
       const scale =
-        800 / Math.sqrt(impulseResponseBuffer.length) * audioCtx.sampleRate / 44100;
+        ((800 / Math.sqrt(impulseResponseBuffer.length)) * audioCtx.sampleRate) / 44100;
       return {
         audioCtx: audioCtx,
         convolverNode: null,
@@ -70,11 +70,11 @@ window.addEventListener('load', async () => {
 
   const envelopeAt = (t) => {
     if (t < controlPoint1.x) {
-      return (t-controlPoint1.x)* controlPoint1.y/controlPoint1.x + controlPoint1.y;
+      return ((t - controlPoint1.x) * controlPoint1.y) / controlPoint1.x + controlPoint1.y;
     }
     if (t < controlPoint2.x) {
-      const c = (controlPoint2.y-controlPoint1.y) / (controlPoint2.x-controlPoint1.x);
-      return (t-controlPoint2.x)*c + controlPoint2.y;
+      const c = (controlPoint2.y - controlPoint1.y) / (controlPoint2.x - controlPoint1.x);
+      return (t - controlPoint2.x) * c + controlPoint2.y;
     }
     const T = controlPoint3 - controlPoint2.x;
     if (T <= 0) {
@@ -87,7 +87,7 @@ window.addEventListener('load', async () => {
     for (let c = 0; c < 2; c++) {
       const h = audioProc.proc.impulseResponseBuffer.getChannelData(c);
       for (let i = 0; i < h.length; i++) {
-        h[i] = (Math.random() * 2 - 1) * envelopeAt(i / audioProc.sampleRate * 1000);
+        h[i] = (Math.random() * 2 - 1) * envelopeAt((i / audioProc.sampleRate) * 1000);
       }
     }
     if (audioProc.proc.convolverNode) {
@@ -108,7 +108,7 @@ window.addEventListener('load', async () => {
 
   const drawImpulseResponse = () => {
     for (let i = 0; i < tvals.length; i++) {
-      const tval = IRLENGTH * i/(tvals.length-1);
+      const tval = (IRLENGTH * i) / (tvals.length - 1);
       tvals[i] = tval;
       envvals[i] = envelopeAt(tval);
     }

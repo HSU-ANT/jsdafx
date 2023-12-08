@@ -58,20 +58,20 @@ window.addEventListener('load', async () => {
 
   const inputEnvGraph = new FunctionGraph(document.getElementById('inputenvcanvas'));
   inputEnvGraph.logx = false;
-  inputEnvGraph.xlim = [-256 * 2000 / audioProc.sampleRate, 0];
+  inputEnvGraph.xlim = [(-256 * 2000) / audioProc.sampleRate, 0];
   inputEnvGraph.xlabel = 'time in s';
   inputEnvGraph.ylim = [-1, 1];
   inputEnvGraph.envelopeMode = true;
   const outputEnvGraph = new FunctionGraph(document.getElementById('outputenvcanvas'));
   outputEnvGraph.logx = false;
-  outputEnvGraph.xlim = [-256 * 2000 / audioProc.sampleRate, 0];
+  outputEnvGraph.xlim = [(-256 * 2000) / audioProc.sampleRate, 0];
   outputEnvGraph.xlabel = 'time in s';
   outputEnvGraph.ylim = [-1, 1];
   outputEnvGraph.envelopeMode = true;
   audioProc.proc.envelopeSubsampling = 2000;
   const envTime = new Float32Array(256);
   for (let n = 0; n < envTime.length; n++) {
-    envTime[n] = (n - 256 + 1) * 2000 / audioProc.sampleRate;
+    envTime[n] = ((n - 256 + 1) * 2000) / audioProc.sampleRate;
   }
 
   const drawEnvelopes = (inputEnvelope, outputEnvelope) => {
@@ -84,8 +84,9 @@ window.addEventListener('load', async () => {
 
   document.getElementById('newyork').onchange = function (event) {
     audioProc.proc.newYorkStyle = event.target.checked;
-    document.getElementById('diagram').src =
-      event.target.checked ? 'images/drc/diag1.png' : 'images/drc/diag2.png';
+    document.getElementById('diagram').src = event.target.checked
+      ? 'images/drc/diag1.png'
+      : 'images/drc/diag2.png';
   };
   document.getElementById('bypass').onchange = function (event) {
     audioProc.proc.bypass = event.target.checked;
