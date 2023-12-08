@@ -65,7 +65,6 @@ const _rollup = require('rollup');
 const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const Terser = require('terser');
 const CleanCSS = require('clean-css');
-const mime = require('mime');
 const Handlebars = require('handlebars');
 const eslint = require('eslint');
 const handler = require('serve-handler');
@@ -88,8 +87,9 @@ function fileDataTask(dest, src, extradeps, func) {
 }
 
 function css_data_uri(dest, src, imgs) {
-  fileDataTask(dest, src, imgs, (orig) => {
+  fileDataTask(dest, src, imgs, async (orig) => {
     jake.logger.log(`css_data_uri ${src} into ${dest}`);
+    const mime = (await import('mime')).default;
     return orig.replace(/url\((['"])(.*)\1\)/g, (match, p1, p2) => {
       if (!imgs.includes(p2)) {
         return match;
