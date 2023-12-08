@@ -181,6 +181,7 @@
           "complete": false
         },
         "parserOptions": {
+          "ecmaVersion": 2020,
           "sourceType": "script"
         }
       }
