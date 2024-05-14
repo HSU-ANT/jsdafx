@@ -43,8 +43,11 @@ class EQProcessor extends BaseProcessor {
   process(inputs, outputs, parameters) {
     this.setChannelCount(inputs[0].length);
     let needParamUpdate = true;
-    if (parameters.omegaC.length === 1 && parameters.gain.length === 1 &&
-      parameters.Q.length === 1) {
+    if (
+      parameters.omegaC.length === 1 &&
+      parameters.gain.length === 1 &&
+      parameters.Q.length === 1
+    ) {
       const k = Math.tan(parameters.omegaC[0] / 2);
       this.coeffcalc(k, parameters.gain[0], parameters.Q[0]);
       needParamUpdate = false;
@@ -82,7 +85,7 @@ class EQProcessor extends BaseProcessor {
 
 EQProcessor.coeffcalc = {
   lowpass(k) {
-    const k2 = k*k;
+    const k2 = k * k;
     this.b0 = k2;
     this.b1 = 2 * k2;
     this.b2 = k2;
@@ -91,7 +94,7 @@ EQProcessor.coeffcalc = {
     this.a2 = 1 - Math.SQRT2 * k + k2;
   },
   highpass(k) {
-    const k2 = k*k;
+    const k2 = k * k;
     this.b0 = 1;
     this.b1 = -2;
     this.b2 = 1;
@@ -100,7 +103,7 @@ EQProcessor.coeffcalc = {
     this.a2 = 1 - Math.SQRT2 * k + k2;
   },
   lowshelving(k, gain) {
-    const k2 = k*k; // Auxiliary variable for different filter types
+    const k2 = k * k; // Auxiliary variable for different filter types
     if (gain >= 1) {
       const v = gain;
       this.b0 = 1 + Math.sqrt(2 * v) * k + v * k2;
@@ -110,7 +113,7 @@ EQProcessor.coeffcalc = {
       this.a1 = 2 * (-1 + k2);
       this.a2 = 1 - Math.SQRT2 * k + k2;
     } else {
-      const v = 1/gain;
+      const v = 1 / gain;
       this.b0 = 1 + Math.SQRT2 * k + k2;
       this.b1 = 2 * (-1 + k2);
       this.b2 = 1 - Math.SQRT2 * k + k2;
@@ -120,7 +123,7 @@ EQProcessor.coeffcalc = {
     }
   },
   highshelving(k, gain) {
-    const k2 = k*k;
+    const k2 = k * k;
     if (gain >= 1) {
       const v = gain;
       this.b0 = v + Math.sqrt(2 * v) * k + k2;
@@ -130,7 +133,7 @@ EQProcessor.coeffcalc = {
       this.a1 = 2 * (-1 + k2);
       this.a2 = 1 - Math.SQRT2 * k + k2;
     } else {
-      const v = 1/gain;
+      const v = 1 / gain;
       this.b0 = 1 + Math.SQRT2 * k + k2;
       this.b1 = 2 * (-1 + k2);
       this.b2 = 1 - Math.SQRT2 * k + k2;
@@ -140,23 +143,23 @@ EQProcessor.coeffcalc = {
     }
   },
   peak(k, gain, Q) {
-    const k2 = k*k;
+    const k2 = k * k;
     if (gain >= 1) {
       const v = gain;
-      this.b0 = 1 + v/Q*k + k2;
+      this.b0 = 1 + (v / Q) * k + k2;
       this.b1 = 2 * (-1 + k2);
-      this.b2 = 1 - v/Q*k + k2;
-      this.a0 = 1 + 1/Q*k + k2;
+      this.b2 = 1 - (v / Q) * k + k2;
+      this.a0 = 1 + (1 / Q) * k + k2;
       this.a1 = 2 * (-1 + k2);
-      this.a2 = 1 - 1/Q*k + k2;
+      this.a2 = 1 - (1 / Q) * k + k2;
     } else {
-      const v = 1/gain;
-      this.b0 = 1 + 1/Q*k + k2;
+      const v = 1 / gain;
+      this.b0 = 1 + (1 / Q) * k + k2;
       this.b1 = 2 * (-1 + k2);
-      this.b2 = 1 - 1/Q*k + k2;
-      this.a0 = 1 + v/Q*k + k2;
+      this.b2 = 1 - (1 / Q) * k + k2;
+      this.a0 = 1 + (v / Q) * k + k2;
       this.a1 = 2 * (-1 + k2);
-      this.a2 = 1 - v/Q*k + k2;
+      this.a2 = 1 - (v / Q) * k + k2;
     }
   },
 };

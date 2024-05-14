@@ -29,31 +29,33 @@ function FunctionGraph_(fgcanvas) {
   let axes_image_data = null;
 
   const x_pos_to_val_lin = function (x) {
-    return (xmax-xmin) * (x-x_margin_left) / inner_width + xmin;
+    return ((xmax - xmin) * (x - x_margin_left)) / inner_width + xmin;
   };
 
   const x_pos_to_val_log = function (x) {
-    return xmin * Math.pow(10, Math.log10(xmax/xmin) * (x-x_margin_left) / inner_width);
+    return (
+      xmin * Math.pow(10, (Math.log10(xmax / xmin) * (x - x_margin_left)) / inner_width)
+    );
   };
 
   let x_pos_to_val = x_pos_to_val_log;
 
   const x_val_to_pos_lin = function (x) {
-    return (x - xmin) * inner_width / (xmax - xmin) + x_margin_left;
+    return ((x - xmin) * inner_width) / (xmax - xmin) + x_margin_left;
   };
 
   const x_val_to_pos_log = function (x) {
-    return Math.log10(x / xmin) / Math.log10(xmax/xmin) * inner_width + x_margin_left;
+    return (Math.log10(x / xmin) / Math.log10(xmax / xmin)) * inner_width + x_margin_left;
   };
 
   let x_val_to_pos = x_val_to_pos_log;
 
   const y_val_to_pos = function (y) {
-    return y_margin_top + inner_height / (ymin-ymax) * (y-ymax);
+    return y_margin_top + (inner_height / (ymin - ymax)) * (y - ymax);
   };
 
   const y_pos_to_val = function (y) {
-    return ymax + (y - y_margin_top) * (ymin-ymax) / inner_height;
+    return ymax + ((y - y_margin_top) * (ymin - ymax)) / inner_height;
   };
 
   const niceCeil = function (x) {
@@ -74,41 +76,41 @@ function FunctionGraph_(fgcanvas) {
     ctx.font = '12px sans-serif';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'end';
-    const xstep = niceCeil((xmax-xmin) / inner_width * 30);
-    const ystep = niceCeil((ymax-ymin) / inner_height * 20);
+    const xstep = niceCeil(((xmax - xmin) / inner_width) * 30);
+    const ystep = niceCeil(((ymax - ymin) / inner_height) * 20);
     const ydigits = ystep >= 1 ? 0 : -Math.floor(Math.log10(ystep));
-    for (let y=Math.floor(ymax/ystep)*ystep; y >= ymin; y -= ystep) {
+    for (let y = Math.floor(ymax / ystep) * ystep; y >= ymin; y -= ystep) {
       ctx.strokeStyle = 'rgb(0, 0, 0)';
-      ctx.fillText(y.toFixed(ydigits), x_margin_left-2, y_val_to_pos(y));
+      ctx.fillText(y.toFixed(ydigits), x_margin_left - 2, y_val_to_pos(y));
     }
     ctx.textBaseline = 'top';
     ctx.textAlign = 'center';
     ctx.setTransform(0, -1, 1, 0, 0, 0);
     if (ylabel) {
-      ctx.fillText(ylabel, -(inner_height/2 + y_margin_top), 0);
+      ctx.fillText(ylabel, -(inner_height / 2 + y_margin_top), 0);
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (logx) {
       ctx.strokeStyle = 'rgb(0, 0, 0)';
-      for (let x=Math.pow(10, Math.ceil(Math.log10(xmin))); x <= xmax; x *= 10) {
-        ctx.fillText(x, x_val_to_pos(x), height-y_margin_bottom+2);
+      for (let x = Math.pow(10, Math.ceil(Math.log10(xmin))); x <= xmax; x *= 10) {
+        ctx.fillText(x, x_val_to_pos(x), height - y_margin_bottom + 2);
       }
     } else {
       ctx.strokeStyle = 'rgb(0, 0, 0)';
       const xdigits = xstep >= 1 ? 0 : -Math.floor(Math.log10(xstep));
-      for (let x=Math.ceil(xmin/xstep)*xstep; x <= xmax; x += xstep) {
-        ctx.fillText(x.toFixed(xdigits), x_val_to_pos(x), height-y_margin_bottom+2);
+      for (let x = Math.ceil(xmin / xstep) * xstep; x <= xmax; x += xstep) {
+        ctx.fillText(x.toFixed(xdigits), x_val_to_pos(x), height - y_margin_bottom + 2);
       }
     }
     if (xlabel) {
       ctx.fillText(
         xlabel,
-        x_margin_left+(width-x_margin_left)/2,
-        height-y_margin_bottom+16,
+        x_margin_left + (width - x_margin_left) / 2,
+        height - y_margin_bottom + 16,
       );
     }
 
-    for (let y=Math.floor(ymax/ystep)*ystep; y >= ymin; y -= ystep) {
+    for (let y = Math.floor(ymax / ystep) * ystep; y >= ymin; y -= ystep) {
       ctx.strokeStyle = 'rgb(100, 100, 100)';
       ctx.beginPath();
       ctx.moveTo(x_val_to_pos(xmin), y_val_to_pos(y));
@@ -131,7 +133,7 @@ function FunctionGraph_(fgcanvas) {
         }
       }
     } else {
-      for (let x=Math.ceil(xmin/xstep)*xstep; x <= xmax; x += xstep) {
+      for (let x = Math.ceil(xmin / xstep) * xstep; x <= xmax; x += xstep) {
         ctx.beginPath();
         const xc = x_val_to_pos(x);
         ctx.moveTo(xc, y_val_to_pos(ymax));
@@ -142,8 +144,8 @@ function FunctionGraph_(fgcanvas) {
     ctx.rect(
       x_val_to_pos(xmin),
       y_val_to_pos(ymin),
-      x_val_to_pos(xmax)-x_val_to_pos(xmin),
-      y_val_to_pos(ymax)-y_val_to_pos(ymin),
+      x_val_to_pos(xmax) - x_val_to_pos(xmin),
+      y_val_to_pos(ymax) - y_val_to_pos(ymin),
     );
     ctx.stroke();
     axes_image_data = ctx.getImageData(0, 0, width, height);
@@ -160,15 +162,15 @@ function FunctionGraph_(fgcanvas) {
     ctx.rect(
       x_margin_left,
       y_margin_top,
-      width-x_margin_left-x_margin_right,
-      height-y_margin_bottom-y_margin_top,
+      width - x_margin_left - x_margin_right,
+      height - y_margin_bottom - y_margin_top,
     );
     ctx.clip();
     for (let n = 0; n + 1 < plotData.length; n += 2) {
       const xdata = plotData[n];
-      const ydata = plotData[n+1];
-      if (n + 2 < plotData.length && typeof plotData[n+2] === 'string') {
-        ctx.strokeStyle = plotData[n+2];
+      const ydata = plotData[n + 1];
+      if (n + 2 < plotData.length && typeof plotData[n + 2] === 'string') {
+        ctx.strokeStyle = plotData[n + 2];
         n++;
       } else {
         ctx.strokeStyle = 'rgb(0, 0, 0)';
@@ -209,7 +211,9 @@ function FunctionGraph_(fgcanvas) {
   };
 
   Object.defineProperty(this, 'xlim', {
-    get() { return [xmin, xmin]; },
+    get() {
+      return [xmin, xmin];
+    },
     set(xlim) {
       [xmin, xmax] = xlim;
       drawAxis();
@@ -217,7 +221,9 @@ function FunctionGraph_(fgcanvas) {
     },
   });
   Object.defineProperty(this, 'ylim', {
-    get() { return [ymin, ymin]; },
+    get() {
+      return [ymin, ymin];
+    },
     set(ylim) {
       [ymin, ymax] = ylim;
       drawAxis();
@@ -225,7 +231,9 @@ function FunctionGraph_(fgcanvas) {
     },
   });
   Object.defineProperty(this, 'logx', {
-    get() { return logx; },
+    get() {
+      return logx;
+    },
     set(_logx) {
       logx = _logx;
       if (logx) {
@@ -240,7 +248,9 @@ function FunctionGraph_(fgcanvas) {
     },
   });
   Object.defineProperty(this, 'xlabel', {
-    get() { return xlabel; },
+    get() {
+      return xlabel;
+    },
     set(_xlabel) {
       xlabel = _xlabel;
       y_margin_bottom = xlabel ? 30 : 16;
@@ -250,7 +260,9 @@ function FunctionGraph_(fgcanvas) {
     },
   });
   Object.defineProperty(this, 'ylabel', {
-    get() { return ylabel; },
+    get() {
+      return ylabel;
+    },
     set(_ylabel) {
       ylabel = _ylabel;
       x_margin_left = ylabel ? 44 : 30;
@@ -263,9 +275,9 @@ function FunctionGraph_(fgcanvas) {
   const onDown = (x, y, rmax) => {
     move_marker = null;
     let best_d = rmax;
-    for (let i=0; i < markers.length; i++) {
+    for (let i = 0; i < markers.length; i++) {
       const m = markers[i];
-      const d = Math.hypot(x-m[0], y-m[1]);
+      const d = Math.hypot(x - m[0], y - m[1]);
       if (d <= best_d) {
         move_marker = i;
         best_d = d;
@@ -290,8 +302,8 @@ function FunctionGraph_(fgcanvas) {
       return;
     }
     onDown(
-      event.touches.item(0).pageX-event.target.offsetLeft,
-      event.touches.item(0).pageY-event.target.offsetTop,
+      event.touches.item(0).pageX - event.target.offsetLeft,
+      event.touches.item(0).pageY - event.target.offsetTop,
       40,
     );
   });
@@ -394,13 +406,15 @@ export function SignalGraph(audioProc, fgcanvas) {
     }
   }
   Object.defineProperty(this, 'drawWave', {
-    get() { return drawWave; },
+    get() {
+      return drawWave;
+    },
     set(b) {
       drawWave = b;
       if (b) {
         graph.logx = false;
         graph.ylim = [-1, 1];
-        graph.xlim= [0, audioProc.timeIndices.length-1];
+        graph.xlim = [0, audioProc.timeIndices.length - 1];
         graph.xlabel = 'time in samples';
         graph.ylabel = 'amplitude';
       } else {
@@ -413,7 +427,9 @@ export function SignalGraph(audioProc, fgcanvas) {
     },
   });
   Object.defineProperty(this, 'freqLinear', {
-    get() { return freqLinear; },
+    get() {
+      return freqLinear;
+    },
     set(b) {
       freqLinear = b;
       if (!drawWave) {

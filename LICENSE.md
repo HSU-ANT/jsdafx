@@ -21,18 +21,18 @@ This software is licensed under the MIT "Expat" License:
 
 The audio samples are licensed are Creative Commons licences:
 
-* `unfinite_function.mp3` (function by [unfinite](https://soundcloud.com/unfinite)):
+- `unfinite_function.mp3` (function by [unfinite](https://soundcloud.com/unfinite)):
   [CC-BY-3.0]
-* `captain-pretzel_ghost-gulping.wav` (Ghost Gulping (Paper Mario 64) - Orchestra Arrangement by [Captain Pretzel](https://soundcloud.com/captain-pretzel)):
+- `captain-pretzel_ghost-gulping.wav` (Ghost Gulping (Paper Mario 64) - Orchestra Arrangement by [Captain Pretzel](https://soundcloud.com/captain-pretzel)):
   [CC-BY-3.0]
-* `BluesHawk1.wav`: [CC0-1.0]
-* `Burns1.wav`: [CC0-1.0]
-* `434013__mrpearch__drum-patern.mp3` (Drum patern by [MrPearch](https://freesound.org/people/MrPearch/)): [CC0-1.0]
-* `Ada_Lovelace_(As_Told_By_U.S._Chief_Technology_Officer_Megan_Smith).mp3`
+- `BluesHawk1.wav`: [CC0-1.0]
+- `Burns1.wav`: [CC0-1.0]
+- `434013__mrpearch__drum-patern.mp3` (Drum patern by [MrPearch](https://freesound.org/people/MrPearch/)): [CC0-1.0]
+- `Ada_Lovelace_(As_Told_By_U.S._Chief_Technology_Officer_Megan_Smith).mp3`
   (Text about Ada Lovelace read by the head of the Office of Science and
   Technology Policy, U.S. Chief Technology Officer Megan Smith) is in the
   public domain
-* `DittersdorfOvid2.ogx` (Carl Ditters von Dittersdorf: Ovid Symphony N. 2 "The
+- `DittersdorfOvid2.ogx` (Carl Ditters von Dittersdorf: Ovid Symphony N. 2 "The
   Fall Of Phaeton". Introduction "Adagio non molto" and 1 Movement "Allegro"
   [First 60 seconds]: The arrival of Phaeton at the Golden Palace of his father
   the god Sun: "Regia Solis erat sublimibus alta columnis" from Ovid,

@@ -21,72 +21,89 @@ window.addEventListener('load', async () => {
   graph.xlim = [20, 20000];
   graph.ylim = [-20, 20];
 
-  const cutoffMarkers = () => [[omegaC/2/Math.PI*audioProc.sampleRate, -3]];
-  const shelvingMarkers = () => [[
-    omegaC/2/Math.PI*audioProc.sampleRate,
-    10*Math.log10(gain >= 1 ? (1 + gain*gain) / 2 : 2 / (1 + 1/(gain*gain))),
-  ]];
+  const cutoffMarkers = () => [[(omegaC / 2 / Math.PI) * audioProc.sampleRate, -3]];
+  const shelvingMarkers = () => [
+    [
+      (omegaC / 2 / Math.PI) * audioProc.sampleRate,
+      10 * Math.log10(gain >= 1 ? (1 + gain * gain) / 2 : 2 / (1 + 1 / (gain * gain))),
+    ],
+  ];
 
   const passGain = () => 1;
   const shelvingGain = (m) => {
     if (m >= 0) {
-      return Math.sqrt(2*Math.pow(10, m/10)-1);
+      return Math.sqrt(2 * Math.pow(10, m / 10) - 1);
     }
-    return 1/Math.sqrt(2/Math.pow(10, m/10)-1);
+    return 1 / Math.sqrt(2 / Math.pow(10, m / 10) - 1);
   };
 
   const filterCharacteristics = {
     lowpass: {
       magnitudeSquared(cw, k2) {
-        const num = k2*(1 + cw);
-        return num*num/(num*num+(1-cw)*(1-cw));
+        const num = k2 * (1 + cw);
+        return (num * num) / (num * num + (1 - cw) * (1 - cw));
       },
-      get markers() { return cutoffMarkers(); },
+      get markers() {
+        return cutoffMarkers();
+      },
       gainFromMarker: passGain,
     },
     highpass: {
       magnitudeSquared(cw, k2) {
         const num = 1 - cw;
-        return num*num/(num*num+k2*(1 + cw)*k2*(1 + cw));
+        return (num * num) / (num * num + k2 * (1 + cw) * k2 * (1 + cw));
       },
-      get markers() { return cutoffMarkers(); },
+      get markers() {
+        return cutoffMarkers();
+      },
       gainFromMarker: passGain,
     },
     lowshelving: {
       magnitudeSquared(cw, k2) {
-        const a = (1-cw)*(1-cw);
-        const b = k2*k2*(1+cw)*(1+cw);
-        return gain >= 1 ? (a + gain*gain*b) / (a + b) : (a + b) / (a + b/(gain*gain));
+        const a = (1 - cw) * (1 - cw);
+        const b = k2 * k2 * (1 + cw) * (1 + cw);
+        return gain >= 1
+          ? (a + gain * gain * b) / (a + b)
+          : (a + b) / (a + b / (gain * gain));
       },
-      get markers() { return shelvingMarkers(); },
+      get markers() {
+        return shelvingMarkers();
+      },
       gainFromMarker: shelvingGain,
     },
     highshelving: {
       magnitudeSquared(cw, k2) {
-        const a = (1-cw)*(1-cw);
-        const b = k2*k2*(1+cw)*(1+cw);
-        return gain >= 1 ? (gain*gain*a + b) / (a + b) : (a + b) / (a/(gain*gain) + b);
+        const a = (1 - cw) * (1 - cw);
+        const b = k2 * k2 * (1 + cw) * (1 + cw);
+        return gain >= 1
+          ? (gain * gain * a + b) / (a + b)
+          : (a + b) / (a / (gain * gain) + b);
       },
-      get markers() { return shelvingMarkers(); },
+      get markers() {
+        return shelvingMarkers();
+      },
       gainFromMarker: shelvingGain,
     },
     peak: {
       magnitudeSquared(cw, k2) {
-        const sw2 = 1 - cw*cw;
-        const a = (1-cw)*(1-cw) + k2*k2*(1+cw)*(1+cw);
-        const b = k2*sw2;
-        const Q2 = Q*Q;
-        return gain >= 1 ?
-          (a + (gain*gain/Q2-2) * b) / (a + (1/Q2-2) * b) :
-          (a + (1/Q2-2) * b) / (a + (1/(gain*gain*Q2)-2) * b);
+        const sw2 = 1 - cw * cw;
+        const a = (1 - cw) * (1 - cw) + k2 * k2 * (1 + cw) * (1 + cw);
+        const b = k2 * sw2;
+        const Q2 = Q * Q;
+        return gain >= 1
+          ? (a + ((gain * gain) / Q2 - 2) * b) / (a + (1 / Q2 - 2) * b)
+          : (a + (1 / Q2 - 2) * b) / (a + (1 / (gain * gain * Q2) - 2) * b);
       },
       get markers() {
-        const mg = 10*Math.log10(gain >= 1 ? (1 + gain*gain) / 2 : 2 / (1 + 1/(gain*gain)));
-        const k = Math.tan(omegaC/2);
-        const a = 1/(2*Q) + Math.sqrt(1+1/(4*Q*Q));
-        const fu = Math.atan(k*a) * audioProc.sampleRate/Math.PI;
-        const fl = Math.atan(k/a) * audioProc.sampleRate/Math.PI;
-        const markers = [[omegaC/2/Math.PI*audioProc.sampleRate, 20*Math.log10(gain)]];
+        const mg =
+          10 * Math.log10(gain >= 1 ? (1 + gain * gain) / 2 : 2 / (1 + 1 / (gain * gain)));
+        const k = Math.tan(omegaC / 2);
+        const a = 1 / (2 * Q) + Math.sqrt(1 + 1 / (4 * Q * Q));
+        const fu = (Math.atan(k * a) * audioProc.sampleRate) / Math.PI;
+        const fl = (Math.atan(k / a) * audioProc.sampleRate) / Math.PI;
+        const markers = [
+          [(omegaC / 2 / Math.PI) * audioProc.sampleRate, 20 * Math.log10(gain)],
+        ];
         if (fl >= 20) {
           markers.push([fl, mg]);
         }
@@ -95,22 +112,22 @@ window.addEventListener('load', async () => {
         }
         return markers;
       },
-      gainFromMarker: (m) => Math.pow(10, m/20),
+      gainFromMarker: (m) => Math.pow(10, m / 20),
     },
   };
 
   let currentCharateristic = filterCharacteristics.lowpass;
 
   const drawTransferFunction = () => {
-    const k = Math.tan(omegaC/2);
-    const k2 = k*k;
+    const k = Math.tan(omegaC / 2);
+    const k2 = k * k;
     const frequencies = new Float32Array(500);
     const mag = new Float32Array(500);
     for (let i = 0; i < frequencies.length; i++) {
-      const f = 20*Math.pow(10, i/(frequencies.length-1)*3);
+      const f = 20 * Math.pow(10, (i / (frequencies.length - 1)) * 3);
       frequencies[i] = f;
-      const omega = 2*Math.PI*f/audioProc.sampleRate;
-      mag[i] = 10*Math.log10(currentCharateristic.magnitudeSquared(Math.cos(omega), k2));
+      const omega = (2 * Math.PI * f) / audioProc.sampleRate;
+      mag[i] = 10 * Math.log10(currentCharateristic.magnitudeSquared(Math.cos(omega), k2));
     }
     graph.drawData(frequencies, mag);
     graph.drawMarkers(currentCharateristic.markers);
@@ -118,13 +135,13 @@ window.addEventListener('load', async () => {
 
   const smoothSetParameter = (param, value) => {
     param.cancelScheduledValues(audioProc.currentTime);
-    param.exponentialRampToValueAtTime(value, audioProc.currentTime + 0.050);
+    param.exponentialRampToValueAtTime(value, audioProc.currentTime + 0.05);
   };
 
   graph.addEventListener('markermove', (event) => {
     const f = event.valX < 20 ? 20 : event.valX;
     if (event.marker === 0) {
-      omegaC = 2*Math.PI*f/audioProc.sampleRate;
+      omegaC = (2 * Math.PI * f) / audioProc.sampleRate;
       smoothSetParameter(audioProc.proc.parameters.get('omegaC'), omegaC);
       gain = currentCharateristic.gainFromMarker(event.valY);
       if (gain > 10) {
@@ -133,10 +150,10 @@ window.addEventListener('load', async () => {
         gain = 0.1;
       }
       smoothSetParameter(audioProc.proc.parameters.get('gain'), gain);
-    } else if (event.marker === 1 | event.marker === 2) {
-      const k = Math.tan(omegaC/2);
-      const alpha = Math.tan(Math.PI*f/audioProc.sampleRate)/k;
-      Q = Math.abs(1/(alpha - 1/alpha));
+    } else if ((event.marker === 1) | (event.marker === 2)) {
+      const k = Math.tan(omegaC / 2);
+      const alpha = Math.tan((Math.PI * f) / audioProc.sampleRate) / k;
+      Q = Math.abs(1 / (alpha - 1 / alpha));
       smoothSetParameter(audioProc.proc.parameters.get('Q'), Q);
     }
     drawTransferFunction();

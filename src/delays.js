@@ -38,7 +38,8 @@ window.addEventListener('load', async () => {
         delayWetGainNode: null,
         chorusDelayWetGainNode: null,
         updateCoefficients() {
-          if (!this.modulationGainNode) { // not set up
+          if (!this.modulationGainNode) {
+            // not set up
             return;
           }
 
@@ -58,7 +59,7 @@ window.addEventListener('load', async () => {
           this.modulationSourceNode.frequency.value = this._modulationFrequency;
           for (let i = 0; i < 3; i++) {
             this.modulationNoiseSourceNodes[i].parameters.get('fadePeriod').value =
-              0.5/this._modulationFrequency;
+              0.5 / this._modulationFrequency;
           }
 
           this.modulationNode.gain.value = 1 - 0.5 * this._modulationDepth;
@@ -187,8 +188,9 @@ window.addEventListener('load', async () => {
   };
   const setDrawWave = (b) => {
     graph.drawWave = b;
-    cblinear.style.visibility = cblinear.labels[0].style.visibility =
-      b ? 'hidden' : 'visible';
+    cblinear.style.visibility = cblinear.labels[0].style.visibility = b
+      ? 'hidden'
+      : 'visible';
   };
   setDrawWave(true);
   document.getElementById('spectrum').onchange = (event) => {
@@ -220,7 +222,7 @@ window.addEventListener('load', async () => {
     document.getElementById('diagram').src = `images/delays/${effectType}1.png`;
     const maxFreq = maxFrequency[effectType];
     const modFreqElem = document.getElementById('modulationfrequency');
-    const newFreq = modFreqElem.value * maxFreq/modFreqElem.max;
+    const newFreq = (modFreqElem.value * maxFreq) / modFreqElem.max;
     modFreqElem.max = maxFreq;
     modFreqElem.value = newFreq;
     modFreqElem.labels[0].innerText = `${newFreq} Hz`;
