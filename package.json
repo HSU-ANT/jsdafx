@@ -26,7 +26,7 @@
     "handlebars": "^4.7.8",
     "html-minifier": "^4.0.0",
     "jake": "^10.8.6",
-    "mime": "^4.0.1",
+    "mime": "^4.0.3",
     "prettier": "^3.2.5",
     "puppeteer": "^22.8.1",
     "rollup": "^4.17.2",
