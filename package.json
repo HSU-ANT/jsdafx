@@ -21,7 +21,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-promise": "^7.0.0",
+    "eslint-plugin-promise": "^7.1.0",
     "event-target": "^1.2.3",
     "handlebars": "^4.7.8",
     "html-minifier": "^4.0.0",
