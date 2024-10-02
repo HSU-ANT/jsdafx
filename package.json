@@ -28,7 +28,7 @@
     "jake": "^10.8.6",
     "mime": "^4.0.4",
     "prettier": "^3.3.3",
-    "puppeteer": "^23.4.1",
+    "puppeteer": "^23.5.0",
     "rollup": "^4.23.0",
     "serve": "^14.2.3",
     "terser": "^5.34.1"
