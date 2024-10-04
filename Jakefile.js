@@ -458,8 +458,8 @@ task('all', ['dist/sw.js'], () => {
 });
 
 task('test', ['all'], async () => {
-  const engine = new eslint.ESLint();
-  const report = await engine.lintFiles(['*.js', 'src/*.js']);
+  const engine = new (await eslint.loadESLint())();
+  const report = await engine.lintFiles(['*.js', '*.mjs', 'src/*.js']);
   const formatter = await engine.loadFormatter();
   jake.logger.log(formatter.format(report));
   if (report.some((r) => r.errorCount > 0)) {
