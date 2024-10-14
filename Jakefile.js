@@ -289,7 +289,7 @@ const takescreenhots = async () => {
     server.listen(resolve);
   });
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
     try {
       const page = await browser.newPage();
       page.on('console', (msg) => {
