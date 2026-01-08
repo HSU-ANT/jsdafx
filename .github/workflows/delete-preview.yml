@@ -14,7 +14,7 @@ jobs:
         with:
           ref: gh-pages
       - run: rm -rf preview/${{ github.event.number }}
-      - uses: stefanzweifel/git-auto-commit-action@v6
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: 'Delete preview of #${{ github.event.number }}'
           branch: gh-pages
