@@ -27,7 +27,7 @@
     "html-minifier": "^4.0.0",
     "jake": "^10.8.6",
     "mime": "^4.1.0",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.0",
     "puppeteer": "^24.34.0",
     "rollup": "^4.55.1",
     "serve": "^14.2.5",
