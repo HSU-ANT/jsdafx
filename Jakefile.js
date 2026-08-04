@@ -68,7 +68,7 @@ const CleanCSS = require('clean-css');
 const Handlebars = require('handlebars');
 const eslint = require('eslint');
 const handler = require('serve-handler');
-const puppeteer = require('puppeteer');
+const puppeteer_promise = import('puppeteer');
 
 const copyFile = util.promisify(fs.copyFile);
 const readFile = util.promisify(fs.readFile);
@@ -289,7 +289,7 @@ const takescreenhots = async () => {
     server.listen(resolve);
   });
   try {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const browser = await (await puppeteer_promise).launch({ args: ['--no-sandbox'] });
     try {
       const page = await browser.newPage();
       page.on('console', (msg) => {
